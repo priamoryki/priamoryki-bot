@@ -1,0 +1,12 @@
+{
+  "token": "???",
+  "bot": "priamoryki-bot",
+  "id": ???,
+  "prefix": "",
+  "servers": {
+    "server_id_here": {
+      "channel_id": ???,
+      "message_id": ???
+    }
+  }
+}
