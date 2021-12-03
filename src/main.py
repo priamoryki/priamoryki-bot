@@ -7,13 +7,11 @@ __maintainer__ = "Pavel Lymar"
 __email__ = "None"
 __status__ = "Production"
 
-import json
-
 from discord import Intents, PermissionOverwrite, DiscordException
 from discord.ext import commands
 
 from src.Cogs import Audio, Image, Sounds
-from src.Utils import Data, ServerInfo, parse_readme, get_yadisk
+from src.Utils import Data, ServerInfo, parse_readme, get_yadisk, get_all_servers_ids
 
 intents = Intents.all()
 bot = commands.Bot(command_prefix=Data.settings['prefix'], intents=intents)
@@ -30,23 +28,24 @@ async def set_message_reactions(msg):
 
 
 async def edit_all_main_messages(text: str):
-    for i in Data.settings['servers']:
+    for i in get_all_servers_ids():
         channel_id = Data.get_main_channel_id(i)
         message_id = Data.get_main_message_id(i)
-        msg = await bot.get_guild(int(i)).get_channel(channel_id).fetch_message(message_id)
+        msg = await bot.get_guild(i).get_channel(channel_id).fetch_message(message_id)
         await msg.edit(content=text)
         await set_message_reactions(msg)
 
 
 @bot.event
 async def on_guild_join(guild):
+    Data.servers_db.execute(f"INSERT OR IGNORE INTO servers(server_id) VALUES ({guild.id})")
     channel = guild.get_channel(Data.get_main_channel_id(guild.id))
     if (channel is None):
         overwrites = {
             guild.default_role: PermissionOverwrite(read_messages=False)
         }
         channel = await guild.create_text_channel(Data.settings['bot'], overwrites=overwrites)
-        Data.settings['servers'][str(guild.id)]['channel_id'] = channel.id
+        Data.servers_db.execute(f"UPDATE servers SET channel_id = {channel.id} WHERE server_id = {guild.id}")
 
     msg = None
     try:
@@ -55,13 +54,12 @@ async def on_guild_join(guild):
         pass
     if (msg is None):
         msg = await channel.send(f'```{parse_readme()}```')
-        Data.settings['servers'][str(guild.id)]['message_id'] = msg.id
+        Data.servers_db.execute(f"UPDATE servers SET message_id = {msg.id} WHERE server_id = {guild.id}")
         await msg.pin()
         await set_message_reactions(msg)
         await clear_all(await bot.get_context(msg))
         Data.servers[guild.id] = ServerInfo()
-        json.dump(Data.settings, open('src/config.json', 'w'), ensure_ascii=False, indent=2)
-        get_yadisk().upload("src/config.json", "config.json", overwrite=True)
+        get_yadisk().upload("data/servers.db", "servers.db", overwrite=True)
 
 
 @bot.event

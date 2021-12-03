@@ -55,17 +55,20 @@ class Player(commands.Cog):
             server.on_repeat = old_on_repeat
 
     async def audio_player(self, ctx):
+        ffmpeg_file = 'ffmpeg/bin/ffmpeg.exe' if platform.startswith('win') else 'ffmpeg'
         guild_id = ctx.guild.id
         server = Data.servers[guild_id]
         while (server.q):
             server.play_next_audio.clear()
             server.current_song = server.q.popleft()
             if (ctx.voice_client is not None):
-                ffmpeg_file = 'ffmpeg/bin/ffmpeg.exe' if platform.startswith('win') else 'ffmpeg'
-                ctx.voice_client.play(player.FFmpegPCMAudio(executable=ffmpeg_file,
-                                                            source=str(server.current_song)),
-                                      after=lambda _: server.play_next_audio.set())
-                await server.play_next_audio.wait()
+                try:
+                    source = await player.FFmpegOpusAudio.from_probe(str(server.current_song),
+                                                                     executable=ffmpeg_file, options='-vn')
+                    ctx.voice_client.play(source, after=lambda _: server.play_next_audio.set())
+                    await server.play_next_audio.wait()
+                except (Exception):
+                    pass
             if (ctx.voice_client is not None and server.on_repeat):
                 server.q.appendleft(server.current_song)
             else:
