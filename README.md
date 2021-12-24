@@ -27,3 +27,6 @@ BOT SOUNDS:
 
 OTHER UTILS:
 * image IMAGE
+
+INFORM ABOUT ISSUE: 
+github.com/priamoryki/priamoryki-bot/issues

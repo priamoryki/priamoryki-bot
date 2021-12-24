@@ -141,6 +141,3 @@ class Data:
     def add_song(ind: int, song: Song, left: bool = False):
         Data.get_queue(ind).appendleft(song) if left else Data.get_queue(ind).append(song)
 '''
-
-
-del SETTINGS, SERVERS_DB_CONNECTION
