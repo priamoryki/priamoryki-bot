@@ -105,6 +105,7 @@ REACTIONS = {
     '⏸️': Data.audio_cog.pause,
     '⏯️': Data.audio_cog.skip,
     '🔁': lambda ctx: Data.audio_cog.repeat(ctx, 'ON'),
+    '🗒️': lambda ctx: Data.audio_cog.print_queue(ctx),
     '🧹': clear_all
 }
 

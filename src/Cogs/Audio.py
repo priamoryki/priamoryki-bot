@@ -119,6 +119,15 @@ class Player(commands.Cog):
                 pass
             await asyncio.sleep(1)
 
+    async def play_playlist_from_spotify(self, ctx, playlist_url: str):
+        p = get_spotify().playlist(playlist_url)
+        for song in get_spotify().playlist(playlist_url)['tracks']['items']:
+            try:
+                await self.play_song_from_spotify(ctx, song['track']['external_urls']['spotify'])
+            except Exception:
+                pass
+            await asyncio.sleep(1)
+
     @commands.command(description="Sets repeat")
     async def repeat(self, ctx, arg: str):
         guild_id = ctx.guild.id
@@ -159,7 +168,8 @@ class Player(commands.Cog):
             r'^(https?://)?(www\.)?youtube\.com/(watch\?v=|embed/|v/|.+\?v=)?[^&=%\?]{11}': self.play_song_from_youtube,
             r'^(https?://)?(www\.)?youtube\.com/playlist\?list=[^#\&\?]{34}$': self.play_playlist_from_youtube,
             r'^(https?://)?(www\.)?open\.spotify\.com/track/[^&=%\?]{22}$': self.play_song_from_spotify,
-            r'^(https?://)?(www\.)?open\.spotify\.com/album/[^&=%\?]{22}$': self.play_album_from_spotify
+            r'^(https?://)?(www\.)?open\.spotify\.com/album/[^&=%\?]{22}$': self.play_album_from_spotify,
+            r'^(https?://)?(www\.)?open\.spotify\.com/playlist/[^&=%\?]{22}$': self.play_playlist_from_spotify
         }
         if (len(args) == 1):
             for regex in possible_links:
