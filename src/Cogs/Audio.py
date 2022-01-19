@@ -3,12 +3,17 @@ from random import shuffle
 from re import match
 from sys import platform
 
-from discord import player
+from discord import player, VoiceClient
 from discord.ext import commands
 from pytube import YouTube, Playlist, Search
 from pytube.exceptions import PytubeError
 
-from src.Utils import Data, Song, ServerInfo, get_spotify, delete_temp_file
+from src.Utils import Data, Song, ServerInfo, get_spotify, delete_temp_file, get_normal_time
+
+
+class CustomVoiceClient(VoiceClient):
+    def __init__(self, client, channel):
+        super().__init__(client, channel)
 
 
 class Player(commands.Cog):
@@ -17,7 +22,7 @@ class Player(commands.Cog):
         if (ctx.author.voice is None or ctx.author.voice.channel is None):
             return
         elif (ctx.voice_client is None):
-            await ctx.author.voice.channel.connect()
+            await ctx.author.voice.channel.connect(cls=CustomVoiceClient)
         elif (not Data.servers[ctx.guild.id].is_playing_audio()):
             await ctx.voice_client.move_to(ctx.author.voice.channel)
         asyncio.create_task(self._disconnector(ctx))
@@ -76,12 +81,12 @@ class Player(commands.Cog):
             await asyncio.sleep(0.200)
         Data.servers[guild_id] = ServerInfo()
 
-    async def play(self, ctx, path: str, song_name: str = "default music"):
+    async def play(self, ctx, path: str, song_name: str = "default music", duration: float = 10):
         guild_id = ctx.guild.id
         server = Data.servers[guild_id]
         await self.join(ctx)
         if (ctx.voice_client is not None):
-            server.q.append(Song(song_name, path, ctx.author.name))
+            server.q.append(Song(song_name, path, ctx.author.name, duration))
             if (not server.is_playing_audio()):
                 server.task = asyncio.create_task(self.audio_player(ctx))
 
@@ -89,13 +94,12 @@ class Player(commands.Cog):
         guild_id = ctx.guild.id
         server = Data.servers[guild_id]
         output_path, filename = f'temp_data/{guild_id}/', f'temp_song{server.songs_counter}.mp3'
-        """This is temporary may be out of work cause of YT API update"""
         video = YouTube(video_url).streams.get_audio_only()
         video.download(output_path=output_path,
                        filename=filename)
         server.songs_counter += 1
         print(f'{server.songs_counter}) {video_url}')
-        await self.play(ctx, output_path + filename, YouTube(video_url).title)
+        await self.play(ctx, output_path + filename, YouTube(video_url).title, YouTube(video_url).length)
 
     async def play_playlist_from_youtube(self, ctx, playlist_url: str):
         for url in Playlist(playlist_url).video_urls:
@@ -120,7 +124,6 @@ class Player(commands.Cog):
             await asyncio.sleep(1)
 
     async def play_playlist_from_spotify(self, ctx, playlist_url: str):
-        p = get_spotify().playlist(playlist_url)
         for song in get_spotify().playlist(playlist_url)['tracks']['items']:
             try:
                 await self.play_song_from_spotify(ctx, song['track']['external_urls']['spotify'])
@@ -147,18 +150,24 @@ class Player(commands.Cog):
     async def shuffle_queue(self, ctx):
         shuffle(Data.servers[ctx.guild.id].q)
 
+    @commands.command(description="Prints the playing audio")
+    async def now_playing(self, ctx):
+        server = Data.servers[ctx.guild.id]
+        if (server.is_playing_audio()):
+            await ctx.send(f'Playing now: {server.current_song.print_data()}')
+
     @commands.command(description="Prints the queue")
     async def print_queue(self, ctx):
         server = Data.servers[ctx.guild.id]
         if (server.is_playing_audio()):
-            counter, q = 1, server.q.copy()
-            result = f'Playing now: `{server.current_song.name}` *by* ***{server.current_song.client_username}***\n'
+            q, max_songs_num = list(server.q), 20
+            result = f'Playing now: {server.current_song.print_data()}\n'
             if (q):
                 result += f'__Queue__:\n'
-            while (q):
-                elem = q.popleft()
-                result += f'{counter}) `{elem.name}` *by* ***{elem.client_username}***\n'
-                counter += 1
+                result += ''.join([f'{i + 1}) {q[i].print_data()}\n' for i in range(min(len(q), max_songs_num))])
+                if (len(q) > max_songs_num):
+                    result += f'Displayed: `{max_songs_num}` out of `{len(q)}`\n'
+                result += f'Total queue duration: `{get_normal_time(sum(i.duration for i in q))}`'
             await ctx.send(result)
 
     @commands.command(description="Parses music video or playlist from YouTube or Spotify and adds it to the queue",

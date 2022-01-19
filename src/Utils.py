@@ -2,6 +2,7 @@ import json
 from asyncio import Event, Task
 from collections import deque
 from dataclasses import dataclass
+from datetime import timedelta
 from typing import Deque, Dict, List
 from os import remove
 
@@ -11,14 +12,22 @@ from spotipy import Spotify, SpotifyClientCredentials
 from yadisk import YaDisk
 
 
+def get_normal_time(seconds: float) -> str:
+    return str(timedelta(seconds=seconds))
+
+
 @dataclass(frozen=True)
 class Song:
     name: str
     path: str
     client_username: str
+    duration: float
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.path
+
+    def print_data(self) -> str:
+        return f'`{self.name}` *by* ***{self.client_username}***  [`{get_normal_time(self.duration)}`]'
 
 
 SONG_TYPE = Song
@@ -37,7 +46,7 @@ class ServerInfo:
         return self.task is not None
 
 
-def parse_config():
+def parse_config() -> Dict:
     return json.load(open('data/config.json'))
 
 

@@ -4,6 +4,7 @@ BOT COMMANDS:
 * music URL | query
 * skip
 * repeat ON | OFF
+* now_playing
 * print_queue
 * shuffle_queue
 * clear_queue

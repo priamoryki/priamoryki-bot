@@ -2,7 +2,7 @@ __author__ = "Pavel Lymar"
 __copyright__ = "None"
 __credits__ = []
 __license__ = "None"
-__version__ = "0.5"
+__version__ = "0.6"
 __maintainer__ = "Pavel Lymar"
 __email__ = "None"
 __status__ = "Production"
@@ -98,6 +98,12 @@ async def on_message(ctx):
     if (ctx.channel.id == Data.get_main_channel_id(ctx.guild.id)):
         await clear(ctx)
         await bot.process_commands(ctx)
+
+
+@bot.event
+async def on_voice_state_update(member, before, after):
+    if (member.id == Data.settings['id']):
+        pass
 
 
 REACTIONS = {
