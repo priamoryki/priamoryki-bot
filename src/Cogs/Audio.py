@@ -146,6 +146,11 @@ class Player(commands.Cog):
             delete_temp_file(str(Data.servers[ctx.guild.id].q.popleft()))
         await self.skip(ctx)
 
+    @commands.command(description="Deletes n's track from the queue")
+    async def delete_from_queue(self, ctx, n: int):
+        server = Data.servers[ctx.guild.id]
+        del server.q[n - 1]
+
     @commands.command(description="Shuffles the queue")
     async def shuffle_queue(self, ctx):
         shuffle(Data.servers[ctx.guild.id].q)

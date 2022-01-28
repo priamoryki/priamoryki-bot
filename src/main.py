@@ -10,15 +10,15 @@ __status__ = "Production"
 from discord import Intents, PermissionOverwrite, DiscordException
 from discord.ext import commands
 
-from src.Cogs import Audio, Image, Sounds
+from src.Cogs import Player, Image, Sounds
 from src.Utils import Data, ServerInfo, parse_readme, get_yadisk, get_all_servers_ids
 
 intents = Intents.all()
 bot = commands.Bot(command_prefix=Data.settings['prefix'], intents=intents)
-Data.audio_cog = Audio.Player()
+Data.audio_cog = Player()
 bot.add_cog(Data.audio_cog)
-bot.add_cog(Sounds.Sounds())
-bot.add_cog(Image.Image())
+bot.add_cog(Sounds())
+bot.add_cog(Image())
 
 
 async def set_message_reactions(msg):
@@ -69,6 +69,7 @@ async def on_guild_remove(guild):
 
 @bot.event
 async def on_ready():
+    # await edit_all_main_messages(f"```{parse_readme()}```")
     print('Bot is working now!')
 
 
@@ -95,7 +96,7 @@ async def on_raw_reaction_add(payload):
 
 @bot.event
 async def on_message(ctx):
-    if (ctx.channel.id == Data.get_main_channel_id(ctx.guild.id)):
+    if (ctx.channel.id == Data.get_main_channel_id(ctx.guild.id) and ctx.author.id != Data.settings['id']):
         await clear(ctx)
         await bot.process_commands(ctx)
 

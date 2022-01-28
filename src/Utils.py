@@ -3,7 +3,7 @@ from asyncio import Event, Task
 from collections import deque
 from dataclasses import dataclass
 from datetime import timedelta
-from typing import Deque, Dict, List
+from typing import *
 from os import remove
 
 import sqlite3
@@ -37,8 +37,8 @@ SONG_TYPE = Song
 class ServerInfo:
     q: Deque[SONG_TYPE] = deque()
     play_next_audio: Event = Event()
-    task: Task = None
-    current_song: SONG_TYPE = None
+    task: Optional[Task] = None
+    current_song: Optional[SONG_TYPE] = None
     on_repeat: bool = False
     songs_counter: int = 0
 
@@ -115,38 +115,3 @@ class Data:
     @staticmethod
     def get_main_message_id(guild_id: int) -> int:
         return int(*Data.servers_db.execute(f"SELECT message_id FROM servers WHERE server_id = {guild_id}").fetchone())
-
-
-'''
-    @staticmethod
-    def get_server(ind: int):
-        return Data.servers[ind]
-
-    @staticmethod
-    def get_play_next_audio(ind: int):
-        return Data.get_server(ind).play_next_audio
-
-    @staticmethod
-    def get_queue(ind: int):
-        return Data.get_server(ind).q
-
-    @staticmethod
-    def get_task(ind: int):
-        return Data.get_server(ind).task
-
-    @staticmethod
-    def get_current_song(ind: int):
-        return Data.get_server(ind).current_song
-
-    @staticmethod
-    def get_on_repeat(ind: int):
-        return Data.get_server(ind).on_repeat
-
-    @staticmethod
-    def get_songs_counter(ind: int):
-        return Data.get_server(ind).songs_counter
-
-    @staticmethod
-    def add_song(ind: int, song: Song, left: bool = False):
-        Data.get_queue(ind).appendleft(song) if left else Data.get_queue(ind).append(song)
-'''
