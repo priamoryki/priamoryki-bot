@@ -45,6 +45,7 @@ public class MusicManager {
 
         AudioSourceManagers.registerLocalSource(audioPlayerManager);
         AudioSourceManagers.registerRemoteSources(audioPlayerManager);
+        audioPlayerManager.getConfiguration().setFilterHotSwapEnabled(true);
     }
 
     public GuildMusicManager getGuildMusicManager(Guild guild) {
@@ -125,7 +126,6 @@ public class MusicManager {
         public Void apply(SongRequest songRequest) {
             try {
                 Track track = data.getSpotifyApi().getTrack(songRequest.getUrlOrName()).build().execute();
-                System.out.println(track.getName());
                 play(
                         new SongRequest(
                                 songRequest.getGuild(),

@@ -29,6 +29,7 @@ public class GuildMusicManager extends AudioEventAdapter {
     private final PlayerMessage playerMessage;
     private final QueueMessage queueMessage;
     private GuildMusicParameters musicParameters;
+    private Timer timer;
 
     public GuildMusicManager(DataSource data, Guild guild, AudioPlayerManager manager) {
         this.data = data;
@@ -88,13 +89,29 @@ public class GuildMusicManager extends AudioEventAdapter {
         return queueMessage;
     }
 
+    private void startNewDisconnectionTask() {
+        long period = 5 * 60_000;
+        if (timer != null) {
+            timer.cancel();
+        }
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if (!isPlaying()) {
+                    leave(guild.getSelfMember());
+                }
+            }
+        }, period, period);
+    }
+
     public void join(Member member) {
         GuildVoiceState voiceState = Objects.requireNonNull(member).getVoiceState();
         GuildVoiceState selfVoiceState = guild.getSelfMember().getVoiceState();
         if (voiceState == null || !voiceState.inAudioChannel()) {
         } else if (!isPlaying()) {
             guild.getAudioManager().openAudioConnection(voiceState.getChannel());
-            // TODO Start disconnection task
+            startNewDisconnectionTask();
         }
     }
 
@@ -162,7 +179,7 @@ public class GuildMusicManager extends AudioEventAdapter {
     }
 
     private void rebuildFilters() {
-        // TODO
+        float multiplier = 2;
         float[] BASS_BOOST = {
                 0.2f, 0.15f, 0.1f, 0.05f, 0.0f, -0.05f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f
         };
@@ -173,7 +190,7 @@ public class GuildMusicManager extends AudioEventAdapter {
                     if (musicParameters.getBassBoost()) {
                         Equalizer equalizer = new Equalizer(audioDataFormat.channelCount, universalPcmAudioFilter);
                         for (int i = 0; i < BASS_BOOST.length; i++) {
-                            equalizer.setGain(i, BASS_BOOST[i] + 0.125f);
+                            equalizer.setGain(i, multiplier * BASS_BOOST[i]);
                         }
                         filters.add(equalizer);
                     }
@@ -226,7 +243,7 @@ public class GuildMusicManager extends AudioEventAdapter {
         if (nextTrack == null) {
             playerMessage.endUpdateTask();
             playerMessage.update();
-            leave(guild.getSelfMember());
+            startNewDisconnectionTask();
         } else {
             startTrack(nextTrack, false);
         }
