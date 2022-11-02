@@ -1,4 +1,4 @@
-package com.priamoryki.discordbot.audio;
+package com.priamoryki.discordbot.api.audio;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.track.playback.MutableAudioFrame;

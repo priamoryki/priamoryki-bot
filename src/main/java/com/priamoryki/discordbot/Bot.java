@@ -1,6 +1,6 @@
 package com.priamoryki.discordbot;
 
-import com.priamoryki.discordbot.audio.MusicManager;
+import com.priamoryki.discordbot.api.audio.MusicManager;
 import com.priamoryki.discordbot.commands.CommandsStorage;
 import com.priamoryki.discordbot.commands.chat.Clear;
 import com.priamoryki.discordbot.commands.chat.ClearAll;
@@ -19,7 +19,6 @@ import com.priamoryki.discordbot.commands.music.modifiers.NightCore;
 import com.priamoryki.discordbot.commands.music.modifiers.Reset;
 import com.priamoryki.discordbot.commands.music.queue.*;
 import com.priamoryki.discordbot.commands.sounds.*;
-import com.priamoryki.discordbot.events.EventsListener;
 import com.priamoryki.discordbot.utils.DataSource;
 
 /**
@@ -76,7 +75,7 @@ public class Bot {
                     new Wtf(musicManager)
             );
 
-            data.getBot().addEventListener(new EventsListener(data, commands));
+            data.setupBot(commands);
         } catch (Exception e) {
             System.err.println("Error on bot start occurred: " + e.getMessage());
         }

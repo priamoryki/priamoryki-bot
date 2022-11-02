@@ -1,0 +1,39 @@
+Discord-Bot
+
+BOT COMMANDS:
+    music URL | query
+    skip
+    repeat ON | OFF
+    print_queue
+    shuffle_queue
+    delete_from_queue n
+    skip_to n
+    clear_queue
+    join
+    leave
+
+MUSIC MODIFIERS:
+    nightcore
+    bassboost
+    reset
+
+BOT SOUNDS:
+    kaguya
+    running
+    boobs
+    tuturu
+    nya
+    ohhh
+    nikoni
+    gj
+    titan
+    wtf
+    senpai
+    ohio
+    silence
+
+OTHER UTILS:
+    image IMAGE
+
+INFORM ABOUT ISSUE:
+github.com/priamoryki/priamoryki-bot/issues

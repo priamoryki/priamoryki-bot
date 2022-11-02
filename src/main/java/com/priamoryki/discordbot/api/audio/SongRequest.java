@@ -1,4 +1,4 @@
-package com.priamoryki.discordbot.audio;
+package com.priamoryki.discordbot.api.audio;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;

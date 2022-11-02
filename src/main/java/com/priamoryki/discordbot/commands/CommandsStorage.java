@@ -1,11 +1,9 @@
 package com.priamoryki.discordbot.commands;
 
-import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Pavel Lymar
@@ -36,11 +34,15 @@ public class CommandsStorage {
         return commands.get(name);
     }
 
-    public void executeCommand(String name, Message message) {
-        executeCommand(name, message, Collections.emptyList());
+    public List<Command> getCommands() {
+        return new ArrayList<>(new TreeSet<>(commands.values()));
     }
 
-    public void executeCommand(String name, Message message, List<String> args) {
-        getCommand(name).execute(message, args);
+    public void executeCommand(String name, Guild guild, Member member) {
+        executeCommand(name, guild, member, Collections.emptyList());
+    }
+
+    public void executeCommand(String name, Guild guild, Member member, List<String> args) {
+        getCommand(name).execute(guild, member, args);
     }
 }

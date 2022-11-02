@@ -1,5 +1,8 @@
 package com.priamoryki.discordbot.utils;
 
+import com.priamoryki.discordbot.commands.Command;
+import com.priamoryki.discordbot.commands.CommandsStorage;
+import com.priamoryki.discordbot.events.EventsListener;
 import com.yandex.disk.rest.Credentials;
 import com.yandex.disk.rest.DownloadListener;
 import com.yandex.disk.rest.RestClient;
@@ -8,8 +11,12 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageHistory;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
+import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import org.apache.hc.core5.http.ParseException;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -43,37 +50,42 @@ public class DataSource {
     private final String PLAYER_MESSAGE_ID_TOKEN = "player_message_id";
     private final Connection connection;
     private final JSONObject settings;
-    private final RestClient restClient;
+    private final RestClient cloudApi;
     private final SpotifyApi spotifyApi;
-    private final JDA bot;
+    private JDA bot;
 
-    public DataSource() throws SQLException, IOException, JSONException, LoginException {
+    public DataSource() throws SQLException, IOException, JSONException {
         this.settings = new JSONObject(
                 new String(Files.readAllBytes(Paths.get(SETTINGS_PATH)))
         );
+        this.cloudApi = new RestClient(new Credentials("me", getYaDiskToken()));
+        loadDB();
         this.connection = DriverManager.getConnection(DB_PATH);
         connection.setAutoCommit(true);
-        this.restClient = new RestClient(new Credentials("me", getYaDiskToken()));
         this.spotifyApi = SpotifyApi.builder()
                 .setClientId(getSpotifyClientId())
                 .setClientSecret(getSpotifyClientSecret())
                 .build();
         updateSpotifyApi();
-        this.bot = JDABuilder.createDefault(getToken()).build();
+    }
+
+    public void setupBot(CommandsStorage commands) throws LoginException {
+        this.bot = JDABuilder.createDefault(getToken()).enableIntents(GatewayIntent.MESSAGE_CONTENT)
+                .addEventListeners(new EventsListener(this, commands))
+                .build();
+        List<SlashCommandData> result = new ArrayList<>();
+        commands.getCommands().stream().filter(Command::isAvailableFromChat).forEach(
+                command -> command.getNames().forEach(
+                        name -> result.add(Utils.commandToSlashCommand(name, command))
+                )
+        );
+        bot.updateCommands().addCommands(result).complete();
     }
 
     private String parseSetting(String setting) {
         try {
             return settings.getString(setting);
         } catch (JSONException jsonException) {
-            return null;
-        }
-    }
-
-    private String parseREADME() {
-        try {
-            return new String(Files.readAllBytes(Paths.get("README.md")));
-        } catch (IOException e) {
             return null;
         }
     }
@@ -169,11 +181,31 @@ public class DataSource {
         }
     }
 
-    public void uploadDB() {
-        // TODO Seems to be slow :(
+    public void loadDB() {
         try {
-            restClient.uploadFile(
-                    restClient.getUploadLink("servers.db", true),
+            if (new File(DB_LOCAL_PATH).delete()) {
+                cloudApi.downloadFile(
+                        "servers.db",
+                        new File(DB_LOCAL_PATH),
+                        new DownloadListener() {
+                            @Override
+                            public OutputStream getOutputStream(boolean b) {
+                                return null;
+                            }
+                        }
+                );
+            } else {
+                System.err.printf("Can't delete file %s%n", DB_LOCAL_PATH);
+            }
+        } catch (IOException | ServerException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void uploadDB() {
+        try {
+            cloudApi.uploadFile(
+                    cloudApi.getUploadLink("servers.db", true),
                     false,
                     new File(DB_LOCAL_PATH),
                     new DownloadListener() {
@@ -208,7 +240,7 @@ public class DataSource {
         Message message = MessageHistory.getHistoryFromBeginning(channel).complete()
                 .getMessageById(getMainMessageId(guild.getIdLong()));
         if (message == null) {
-            message = channel.sendMessage(MainMessage.getDefaultMessage(parseREADME())).complete();
+            message = channel.sendMessage(MainMessage.fillWithDefaultMessage(new MessageCreateBuilder()).build()).complete();
             executeQuery(
                     String.format(
                             "UPDATE servers SET message_id = %d WHERE server_id = %d",
@@ -226,7 +258,9 @@ public class DataSource {
         Message message = MessageHistory.getHistoryFromBeginning(channel).complete()
                 .getMessageById(getPlayerMessageId(guild.getIdLong()));
         if (message == null) {
-            message = channel.sendMessage(PlayerMessage.getDefaultMessage()).complete();
+            message = channel.sendMessage(
+                    PlayerMessage.fillWithDefaultMessage(new MessageCreateBuilder()).build()
+            ).complete();
             executeQuery(
                     String.format(
                             "UPDATE servers SET player_message_id = %d WHERE server_id = %d",
@@ -239,8 +273,8 @@ public class DataSource {
         return message;
     }
 
-    public boolean isBotMessage(Message message) {
-        return message.getAuthor().getIdLong() == getBotId();
+    public boolean isBot(User user) {
+        return user.getIdLong() == getBotId();
     }
 
     public SpotifyApi getSpotifyApi() {

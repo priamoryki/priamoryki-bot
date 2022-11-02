@@ -2,7 +2,10 @@ package com.priamoryki.discordbot.commands.chat;
 
 import com.priamoryki.discordbot.commands.Command;
 import com.priamoryki.discordbot.utils.DataSource;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageHistory;
 
 import java.util.List;
 
@@ -27,10 +30,18 @@ public class Clear implements Command {
     }
 
     @Override
-    public void execute(Message message, List<String> args) {
-        if (message.getChannel().getIdLong() == data.getMainChannelId(message.getGuild().getIdLong())
-                && !data.isBotMessage(message)) {
-            message.delete().complete();
+    public void execute(Guild guild, Member member, List<String> args) {
+        if (args.size() != 1) {
+            return;
+        }
+        long id = Long.parseLong(args.get(0));
+        List<Message> messages = MessageHistory.getHistoryFromBeginning(data.getOrCreateMainChannel(guild))
+                .complete()
+                .getRetrievedHistory();
+        for (Message msg : messages) {
+            if (msg.getIdLong() == id && !data.isBot(member.getUser())) {
+                msg.delete().complete();
+            }
         }
     }
 }

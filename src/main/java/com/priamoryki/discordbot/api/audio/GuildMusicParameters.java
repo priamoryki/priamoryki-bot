@@ -1,4 +1,4 @@
-package com.priamoryki.discordbot.audio;
+package com.priamoryki.discordbot.api.audio;
 
 /**
  * @author Pavel Lymar

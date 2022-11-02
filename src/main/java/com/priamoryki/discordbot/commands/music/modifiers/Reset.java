@@ -1,8 +1,9 @@
 package com.priamoryki.discordbot.commands.music.modifiers;
 
-import com.priamoryki.discordbot.audio.MusicManager;
+import com.priamoryki.discordbot.api.audio.MusicManager;
 import com.priamoryki.discordbot.commands.MusicCommand;
-import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 
 import java.util.List;
 
@@ -20,12 +21,17 @@ public class Reset extends MusicCommand {
     }
 
     @Override
+    public String getDescription() {
+        return "Resets all music modifiers";
+    }
+
+    @Override
     public boolean isAvailableFromChat() {
         return true;
     }
 
     @Override
-    public void execute(Message message, List<String> args) {
-        musicManager.getGuildMusicManager(message.getGuild()).reset();
+    public void execute(Guild guild, Member member, List<String> args) {
+        musicManager.getGuildMusicManager(guild).reset();
     }
 }

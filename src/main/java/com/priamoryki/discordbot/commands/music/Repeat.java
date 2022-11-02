@@ -1,8 +1,11 @@
 package com.priamoryki.discordbot.commands.music;
 
-import com.priamoryki.discordbot.audio.MusicManager;
+import com.priamoryki.discordbot.api.audio.MusicManager;
 import com.priamoryki.discordbot.commands.MusicCommand;
-import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.util.List;
 
@@ -20,19 +23,31 @@ public class Repeat extends MusicCommand {
     }
 
     @Override
+    public String getDescription() {
+        return "Sets on_repeat modifier";
+    }
+
+    @Override
+    public List<OptionData> getOptions() {
+        return List.of(
+                new OptionData(OptionType.STRING, "on_or_off", "ON or OFF option")
+        );
+    }
+
+    @Override
     public boolean isAvailableFromChat() {
         return true;
     }
 
     @Override
-    public void execute(Message message, List<String> args) {
+    public void execute(Guild guild, Member member, List<String> args) {
         if (args.isEmpty()) {
-            musicManager.getGuildMusicManager(message.getGuild()).reverseRepeat();
+            musicManager.getGuildMusicManager(guild).reverseRepeat();
         } else if (args.size() == 1) {
-            if (args.get(0).equalsIgnoreCase("YES")) {
-                musicManager.getGuildMusicManager(message.getGuild()).setRepeat(true);
-            } else if (args.get(0).equalsIgnoreCase("NO")) {
-                musicManager.getGuildMusicManager(message.getGuild()).setRepeat(false);
+            if (args.get(0).equalsIgnoreCase("ON")) {
+                musicManager.getGuildMusicManager(guild).setRepeat(true);
+            } else if (args.get(0).equalsIgnoreCase("OFF")) {
+                musicManager.getGuildMusicManager(guild).setRepeat(false);
             }
         }
     }

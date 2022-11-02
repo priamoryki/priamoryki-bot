@@ -1,13 +1,14 @@
 package com.priamoryki.discordbot.utils;
 
-import com.priamoryki.discordbot.audio.GuildMusicManager;
+import com.priamoryki.discordbot.api.audio.GuildMusicManager;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.utils.messages.AbstractMessageBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
 
 import java.awt.*;
 import java.util.List;
@@ -39,10 +40,10 @@ public class PlayerMessage implements UsefulMessage {
         return result;
     }
 
-    public static Message getDefaultMessage() {
-        return new MessageBuilder().setEmbeds(
+    public static <T, R extends AbstractMessageBuilder<T, R>> AbstractMessageBuilder<T, R> fillWithDefaultMessage(AbstractMessageBuilder<T, R> messageBuilder) {
+        return messageBuilder.setEmbeds(
                 new EmbedBuilder().setColor(Color.BLUE).setTitle("PLAYER MESSAGE").build()
-        ).setActionRows(ActionRow.of(getButtons())).build();
+        ).setComponents(ActionRow.of(getButtons()));
     }
 
     private void createNewMessage() {
@@ -52,7 +53,7 @@ public class PlayerMessage implements UsefulMessage {
     @Override
     public void update() {
         try {
-            playerMessage.editMessage(getMessage()).complete();
+            playerMessage.editMessage(fillBuilder(new MessageEditBuilder()).build()).complete();
         } catch (Exception ignored) {
             createNewMessage();
         }
@@ -75,10 +76,10 @@ public class PlayerMessage implements UsefulMessage {
         timer = new Timer();
     }
 
-    private Message getMessage() {
+    private <T, R extends AbstractMessageBuilder<T, R>> AbstractMessageBuilder<T, R> fillBuilder(AbstractMessageBuilder<T, R> messageBuilder) {
         AudioTrack track = guildMusicManager.getPlayer().getPlayingTrack();
         if (track == null) {
-            return getDefaultMessage();
+            return fillWithDefaultMessage(messageBuilder);
         }
         User user = track.getUserData(User.class);
         String url = track.getInfo().uri;
@@ -99,7 +100,6 @@ public class PlayerMessage implements UsefulMessage {
                         (isLive ? "LIVE" : Utils.normalizeTime(currentTime) + " / " + Utils.normalizeTime(duration)))
                 .setFooter(guildMusicManager.getMusicParameters().getRepeat() ? "On repeat" : "Not on repeat")
                 .setTimestamp(new Date().toInstant());
-        return new MessageBuilder().setEmbeds(builder.build())
-                .setActionRows(ActionRow.of(getButtons())).build();
+        return messageBuilder.setEmbeds(builder.build()).setComponents(ActionRow.of(getButtons()));
     }
 }

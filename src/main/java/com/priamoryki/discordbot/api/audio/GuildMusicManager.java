@@ -1,4 +1,4 @@
-package com.priamoryki.discordbot.audio;
+package com.priamoryki.discordbot.api.audio;
 
 import com.github.natanbc.lavadsp.timescale.TimescalePcmAudioFilter;
 import com.priamoryki.discordbot.utils.DataSource;

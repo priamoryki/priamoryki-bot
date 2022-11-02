@@ -2,7 +2,8 @@ package com.priamoryki.discordbot.commands.chat;
 
 import com.priamoryki.discordbot.commands.Command;
 import com.priamoryki.discordbot.utils.DataSource;
-import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageHistory;
 
 import java.util.List;
@@ -23,13 +24,18 @@ public class ClearAll implements Command {
     }
 
     @Override
+    public String getDescription() {
+        return "Clears all messages in channel except pinned";
+    }
+
+    @Override
     public boolean isAvailableFromChat() {
         return true;
     }
 
     @Override
-    public void execute(Message message, List<String> args) {
-        MessageHistory.getHistoryFromBeginning(message.getChannel()).complete().getRetrievedHistory()
-                .stream().filter(m -> !m.isPinned()).forEach(m -> m.delete().complete());
+    public void execute(Guild guild, Member member, List<String> args) {
+        MessageHistory.getHistoryFromBeginning(data.getOrCreateMainChannel(guild)).complete().getRetrievedHistory()
+                .stream().filter(m -> !m.isPinned()).forEach(m -> m.delete().queue());
     }
 }

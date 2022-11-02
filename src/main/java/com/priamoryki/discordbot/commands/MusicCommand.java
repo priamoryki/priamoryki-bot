@@ -1,6 +1,6 @@
 package com.priamoryki.discordbot.commands;
 
-import com.priamoryki.discordbot.audio.MusicManager;
+import com.priamoryki.discordbot.api.audio.MusicManager;
 
 /**
  * @author Pavel Lymar
