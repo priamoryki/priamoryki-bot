@@ -51,6 +51,7 @@ public class Bot {
                     new DeleteFromQueue(musicManager),
                     new ShuffleQueue(musicManager),
                     new SkipTo(musicManager),
+                    new PlayNext(musicManager),
                     // Print queue commands
                     new PrintQueue(musicManager),
                     new PreviousPage(musicManager),

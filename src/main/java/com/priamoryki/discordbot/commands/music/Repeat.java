@@ -1,6 +1,7 @@
 package com.priamoryki.discordbot.commands.music;
 
 import com.priamoryki.discordbot.api.audio.MusicManager;
+import com.priamoryki.discordbot.commands.CommandException;
 import com.priamoryki.discordbot.commands.MusicCommand;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -40,15 +41,20 @@ public class Repeat extends MusicCommand {
     }
 
     @Override
-    public void execute(Guild guild, Member member, List<String> args) {
+    public void execute(Guild guild, Member member, List<String> args) throws CommandException {
         if (args.isEmpty()) {
             musicManager.getGuildMusicManager(guild).reverseRepeat();
-        } else if (args.size() == 1) {
-            if (args.get(0).equalsIgnoreCase("ON")) {
-                musicManager.getGuildMusicManager(guild).setRepeat(true);
-            } else if (args.get(0).equalsIgnoreCase("OFF")) {
-                musicManager.getGuildMusicManager(guild).setRepeat(false);
-            }
+            return;
+        }
+        if (args.size() != 1) {
+            throw new CommandException("Invalid number of arguments!");
+        }
+        if (args.get(0).equalsIgnoreCase("ON")) {
+            musicManager.getGuildMusicManager(guild).setRepeat(true);
+        } else if (args.get(0).equalsIgnoreCase("OFF")) {
+            musicManager.getGuildMusicManager(guild).setRepeat(false);
+        } else {
+            throw new CommandException("Unknown argument! Only ON | OFF accepted!");
         }
     }
 }

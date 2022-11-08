@@ -1,6 +1,8 @@
 package com.priamoryki.discordbot.utils;
 
 import com.priamoryki.discordbot.commands.Command;
+import net.dv8tion.jda.api.entities.GuildVoiceState;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 
@@ -26,6 +28,13 @@ public class Utils {
         long m = (time / 60) % 60;
         long h = (time / (60 * 60)) % 24;
         return String.format("%02d:%02d:%02d", h, m, s);
+    }
+
+    public static boolean isTheSameVoiceChannelWithMember(Member bot, Member member) {
+        GuildVoiceState memberVoiceState = member.getVoiceState();
+        GuildVoiceState botVoiceState = bot.getVoiceState();
+        return botVoiceState == null || botVoiceState.getChannel() == null ||
+                memberVoiceState != null && memberVoiceState.getChannel() == botVoiceState.getChannel();
     }
 
     public static SlashCommandData commandToSlashCommand(String name, Command command) {

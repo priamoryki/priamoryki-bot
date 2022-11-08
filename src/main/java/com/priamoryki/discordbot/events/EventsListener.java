@@ -1,9 +1,11 @@
 package com.priamoryki.discordbot.events;
 
 import com.priamoryki.discordbot.commands.Command;
+import com.priamoryki.discordbot.commands.CommandException;
 import com.priamoryki.discordbot.commands.CommandsStorage;
 import com.priamoryki.discordbot.utils.DataSource;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -15,10 +17,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Pavel Lymar
@@ -46,29 +45,49 @@ public class EventsListener extends ListenerAdapter {
         data.executeQuery(String.format("INSERT OR IGNORE INTO servers(server_id) VALUES (%d)", guild.getIdLong()));
         Message message = data.getOrCreateMainMessage(guild);
         data.getOrCreatePlayerMessage(guild);
-        commands.executeCommand("clear_all", message.getGuild(), message.getMember());
+        try {
+            commands.executeCommand("clear_all", message.getGuild(), message.getMember());
+        } catch (CommandException e) {
+            System.err.println(e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
         Message message = event.getMessage();
+        Guild guild = message.getGuild();
+        Member member = message.getMember();
         String messageText = message.getContentDisplay();
         // TODO вот бы это делать более обдуманно
 //        if (messageText.equals("create")) {
 //            createGuildAttributes(message.getGuild());
 //        }
 //        data.getOrCreateMainMessage(message.getGuild()).editMessage(MainMessage.getDefaultMessage()).complete();
-        commands.executeCommand(
-                "clear",
-                message.getGuild(),
-                message.getMember(),
-                List.of(Long.toString(message.getIdLong()))
-        );
+        try {
+            commands.executeCommand(
+                    "clear",
+                    guild,
+                    member,
+                    List.of(Long.toString(message.getIdLong()))
+            );
+        } catch (CommandException e) {
+            System.err.println(e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         if (messageText.startsWith(data.getPrefix())) {
             List<String> splittedMessage = List.of(messageText.substring(data.getPrefix().length()).split(" "));
             Command command = commands.getCommand(splittedMessage.get(0));
             if (command != null && command.isAvailableFromChat()) {
-                command.execute(message.getGuild(), message.getMember(), splittedMessage.subList(1, splittedMessage.size()));
+                try {
+                    command.executeWithPermissions(guild, member, splittedMessage.subList(1, splittedMessage.size()));
+                } catch (CommandException e) {
+                    message.reply(e.getMessage()).queue();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -83,7 +102,14 @@ public class EventsListener extends ListenerAdapter {
                         .map(OptionMapping::getAsString)
                         .forEach(op -> args.addAll(Arrays.asList(op.split(" "))));
             }
-            command.execute(event.getGuild(), event.getMember(), args);
+            try {
+                command.executeWithPermissions(event.getGuild(), event.getMember(), args);
+            } catch (CommandException e) {
+                event.reply(e.getMessage()).setEphemeral(true).queue();
+                return;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         event.reply("DONE!").setEphemeral(true).queue();
     }
@@ -92,10 +118,16 @@ public class EventsListener extends ListenerAdapter {
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
         event.deferEdit().queue();
-        commands.executeCommand(
-                Objects.requireNonNull(event.getButton().getId()).toLowerCase(),
-                event.getGuild(),
-                event.getMember()
-        );
+        try {
+            commands.executeCommandWithPermissions(
+                    Objects.requireNonNull(event.getButton().getId()).toLowerCase(),
+                    event.getGuild(),
+                    event.getMember()
+            );
+        } catch (CommandException e) {
+            event.reply(e.getMessage()).queue();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

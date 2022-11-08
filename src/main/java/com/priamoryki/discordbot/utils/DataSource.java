@@ -23,7 +23,6 @@ import org.json.JSONObject;
 import se.michaelthelin.spotify.SpotifyApi;
 import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
 
-import javax.security.auth.login.LoginException;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -42,6 +41,10 @@ import java.util.Objects;
  */
 public class DataSource {
     private final int INVALID_ID = -1;
+    private final String TOKEN_ENV_NAME = "TOKEN";
+    private final String YADISK_TOKEN_ENV_NAME = "YADISK_TOKEN";
+    private final String SPOTIFY_CLIENT_ID_ENV_NAME = "SPOTIFY_CLIENT_ID";
+    private final String SPOTIFY_CLIENT_SECRET_ENV_NAME = "SPOTIFY_CLIENT_SECRET";
     private final String SETTINGS_PATH = "data/config.json";
     private final String DB_LOCAL_PATH = "data/servers.db";
     private final String DB_PATH = "jdbc:sqlite:" + DB_LOCAL_PATH;
@@ -69,7 +72,7 @@ public class DataSource {
         updateSpotifyApi();
     }
 
-    public void setupBot(CommandsStorage commands) throws LoginException {
+    public void setupBot(CommandsStorage commands) {
         this.bot = JDABuilder.createDefault(getToken()).enableIntents(GatewayIntent.MESSAGE_CONTENT)
                 .addEventListeners(new EventsListener(this, commands))
                 .build();
@@ -91,7 +94,7 @@ public class DataSource {
     }
 
     public String getToken() {
-        return parseSetting("token");
+        return System.getenv(TOKEN_ENV_NAME);
     }
 
     public String getBotName() {
@@ -111,15 +114,15 @@ public class DataSource {
     }
 
     public String getYaDiskToken() {
-        return parseSetting("YADISK_TOKEN");
+        return System.getenv(YADISK_TOKEN_ENV_NAME);
     }
 
     public String getSpotifyClientId() {
-        return parseSetting("SPOTIFY_CLIENT_ID");
+        return System.getenv(SPOTIFY_CLIENT_ID_ENV_NAME);
     }
 
     public String getSpotifyClientSecret() {
-        return parseSetting("SPOTIFY_CLIENT_SECRET");
+        return System.getenv(SPOTIFY_CLIENT_SECRET_ENV_NAME);
     }
 
     private void updateSpotifyApi() {

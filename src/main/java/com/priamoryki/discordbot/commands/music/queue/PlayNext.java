@@ -1,4 +1,4 @@
-package com.priamoryki.discordbot.commands.music;
+package com.priamoryki.discordbot.commands.music.queue;
 
 import com.priamoryki.discordbot.api.audio.MusicManager;
 import com.priamoryki.discordbot.api.audio.SongRequest;
@@ -15,19 +15,19 @@ import java.util.List;
 /**
  * @author Pavel Lymar
  */
-public class Music extends MusicCommand {
-    public Music(MusicManager musicManager) {
+public class PlayNext extends MusicCommand {
+    public PlayNext(MusicManager musicManager) {
         super(musicManager);
     }
 
     @Override
     public List<String> getNames() {
-        return List.of("music", "музыка");
+        return List.of("play_next");
     }
 
     @Override
     public String getDescription() {
-        return "Adds music by url or aliases to the queue";
+        return "Adds track at the beginning of the queue";
     }
 
     @Override
@@ -48,15 +48,7 @@ public class Music extends MusicCommand {
             throw new CommandException("Invalid number of arguments!");
         }
         if (args.size() == 1 && Utils.isUrl(args.get(0))) {
-            musicManager.getGuildMusicManager(guild).play(new SongRequest(guild, member, args.get(0)));
-            return;
+            musicManager.getGuildMusicManager(guild).playNext(new SongRequest(guild, member, args.get(0)));
         }
-        musicManager.getGuildMusicManager(guild).play(
-                new SongRequest(
-                        guild,
-                        member,
-                        "scsearch:" + String.join(" ", args)
-                )
-        );
     }
 }

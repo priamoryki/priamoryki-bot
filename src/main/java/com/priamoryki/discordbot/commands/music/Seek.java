@@ -1,6 +1,7 @@
 package com.priamoryki.discordbot.commands.music;
 
 import com.priamoryki.discordbot.api.audio.MusicManager;
+import com.priamoryki.discordbot.commands.CommandException;
 import com.priamoryki.discordbot.commands.MusicCommand;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -43,15 +44,16 @@ public class Seek extends MusicCommand {
     }
 
     @Override
-    public void execute(Guild guild, Member member, List<String> args) {
-        if (args.size() == 1) {
-            List<String> list = Arrays.stream(args.get(0).split(":")).collect(Collectors.toList());
-            Collections.reverse(list);
-            long time = 0;
-            for (int i = 0; i < Math.min(3, list.size()); i++) {
-                time += Math.pow(60, i) * Long.parseLong(list.get(i));
-            }
-            musicManager.getGuildMusicManager(guild).seek(1_000 * time);
+    public void execute(Guild guild, Member member, List<String> args) throws CommandException {
+        if (args.size() != 1) {
+            throw new CommandException("Invalid number of arguments!");
         }
+        List<String> list = Arrays.stream(args.get(0).split(":")).collect(Collectors.toList());
+        Collections.reverse(list);
+        long time = 0;
+        for (int i = 0; i < Math.min(3, list.size()); i++) {
+            time += Math.pow(60, i) * Long.parseLong(list.get(i));
+        }
+        musicManager.getGuildMusicManager(guild).seek(1_000 * time);
     }
 }

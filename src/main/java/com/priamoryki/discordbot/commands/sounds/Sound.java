@@ -37,6 +37,6 @@ public abstract class Sound implements Command {
 
     @Override
     public void execute(Guild guild, Member member, List<String> args) {
-        musicManager.play(new SongRequest(guild, member, filename));
+        musicManager.getGuildMusicManager(guild).play(new SongRequest(guild, member, filename));
     }
 }

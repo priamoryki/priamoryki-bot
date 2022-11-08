@@ -38,11 +38,19 @@ public class CommandsStorage {
         return new ArrayList<>(new TreeSet<>(commands.values()));
     }
 
-    public void executeCommand(String name, Guild guild, Member member) {
+    public void executeCommand(String name, Guild guild, Member member) throws CommandException {
         executeCommand(name, guild, member, Collections.emptyList());
     }
 
-    public void executeCommand(String name, Guild guild, Member member, List<String> args) {
+    public void executeCommand(String name, Guild guild, Member member, List<String> args) throws CommandException {
         getCommand(name).execute(guild, member, args);
+    }
+
+    public void executeCommandWithPermissions(String name, Guild guild, Member member) throws CommandException {
+        executeCommandWithPermissions(name, guild, member, Collections.emptyList());
+    }
+
+    public void executeCommandWithPermissions(String name, Guild guild, Member member, List<String> args) throws CommandException {
+        getCommand(name).executeWithPermissions(guild, member, args);
     }
 }
