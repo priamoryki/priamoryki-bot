@@ -50,9 +50,9 @@ public class SetSpeed extends MusicCommand {
         } catch (Exception e) {
             throw new CommandException("Argument isn't double!");
         }
-//        if (0 >= speed || speed > 2) {
-//            throw new CommandException("Argument must be in bounds (0, 2]!");
-//        }
+        if (0 >= speed || speed > 2) {
+            throw new CommandException("Argument must be in bounds (0, 2]!");
+        }
         musicManager.getGuildMusicManager(guild).setSpeed(speed);
     }
 }
