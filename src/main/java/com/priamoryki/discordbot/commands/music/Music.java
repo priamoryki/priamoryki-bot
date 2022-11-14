@@ -55,7 +55,7 @@ public class Music extends MusicCommand {
                 new SongRequest(
                         guild,
                         member,
-                        "scsearch:" + String.join(" ", args)
+                        "ytsearch:" + String.join(" ", args)
                 )
         );
     }
