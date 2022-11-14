@@ -310,15 +310,20 @@ public class GuildMusicManager extends AudioEventAdapter {
 
                     TimescalePcmAudioFilter timescale = new TimescalePcmAudioFilter(
                             universalPcmAudioFilter, audioDataFormat.channelCount, audioDataFormat.sampleRate
-                    );
+                    ).setSpeed(musicParameters.getSpeed());
                     if (musicParameters.getNightcore()) {
                         timescale.setRate(1.0 + 0.1);
-                        filters.add(timescale);
                     }
+                    filters.add(timescale);
 
                     return filters;
                 }
         );
+    }
+
+    public void setSpeed(double speed) {
+        musicParameters.setSpeed(speed);
+        rebuildFilters();
     }
 
     public void bassBoost(boolean value) {

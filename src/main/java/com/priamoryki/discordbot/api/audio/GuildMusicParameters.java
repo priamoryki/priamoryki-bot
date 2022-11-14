@@ -7,6 +7,7 @@ public class GuildMusicParameters {
     private boolean repeat;
     private boolean bassBoost;
     private boolean nightcore;
+    private double speed = 1d;
 
     public boolean getRepeat() {
         return repeat;
@@ -30,5 +31,13 @@ public class GuildMusicParameters {
 
     public void setNightcore(boolean nightcore) {
         this.nightcore = nightcore;
+    }
+
+    public double getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(double speed) {
+        this.speed = speed;
     }
 }

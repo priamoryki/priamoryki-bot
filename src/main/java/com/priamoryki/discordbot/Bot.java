@@ -17,6 +17,7 @@ import com.priamoryki.discordbot.commands.music.channel.Leave;
 import com.priamoryki.discordbot.commands.music.modifiers.BassBoost;
 import com.priamoryki.discordbot.commands.music.modifiers.NightCore;
 import com.priamoryki.discordbot.commands.music.modifiers.Reset;
+import com.priamoryki.discordbot.commands.music.modifiers.SetSpeed;
 import com.priamoryki.discordbot.commands.music.queue.*;
 import com.priamoryki.discordbot.commands.sounds.*;
 import com.priamoryki.discordbot.utils.DataSource;
@@ -60,6 +61,7 @@ public class Bot {
                     new BassBoost(musicManager),
                     new NightCore(musicManager),
                     new Reset(musicManager),
+                    new SetSpeed(musicManager),
                     // Sounds
                     new Boobs(musicManager),
                     new GJ(musicManager),

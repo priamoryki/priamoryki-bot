@@ -1,4 +1,4 @@
-package com.priamoryki.discordbot.commands.music.queue;
+package com.priamoryki.discordbot.commands.music.modifiers;
 
 import com.priamoryki.discordbot.api.audio.MusicManager;
 import com.priamoryki.discordbot.commands.CommandException;
@@ -13,25 +13,24 @@ import java.util.List;
 /**
  * @author Pavel Lymar
  */
-public class DeleteFromQueue extends MusicCommand {
-    public DeleteFromQueue(MusicManager musicManager) {
+public class SetSpeed extends MusicCommand {
+    public SetSpeed(MusicManager musicManager) {
         super(musicManager);
     }
 
-    @Override
     public List<String> getNames() {
-        return List.of("delete_from_queue");
+        return List.of("set_speed");
     }
 
     @Override
     public String getDescription() {
-        return "Deletes n's track from queue";
+        return "Sets music speed multiplier";
     }
 
     @Override
     public List<OptionData> getOptions() {
         return List.of(
-                new OptionData(OptionType.INTEGER, "track_number", "number of the track in the queue", true)
+                new OptionData(OptionType.STRING, "multiplier", "speed multiplier", true)
         );
     }
 
@@ -45,15 +44,15 @@ public class DeleteFromQueue extends MusicCommand {
         if (args.size() != 1) {
             throw new CommandException("Invalid number of arguments!");
         }
-        int n;
+        double speed;
         try {
-            n = Integer.parseInt(args.get(0));
+            speed = Double.parseDouble(args.get(0));
         } catch (Exception e) {
-            throw new CommandException("Argument isn't integer!");
+            throw new CommandException("Argument isn't double!");
         }
-        if (1 > n) {
-            throw new CommandException("Invalid number of arguments!");
-        }
-        musicManager.getGuildMusicManager(guild).deleteFromQueue(n);
+//        if (0 >= speed || speed > 2) {
+//            throw new CommandException("Argument must be in bounds (0, 2]!");
+//        }
+        musicManager.getGuildMusicManager(guild).setSpeed(speed);
     }
 }
