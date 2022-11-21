@@ -82,7 +82,7 @@ public class DataSource {
                         name -> result.add(Utils.commandToSlashCommand(name, command))
                 )
         );
-        bot.updateCommands().addCommands(result).complete();
+        bot.updateCommands().addCommands(result).queue();
     }
 
     private String parseSetting(String setting) {

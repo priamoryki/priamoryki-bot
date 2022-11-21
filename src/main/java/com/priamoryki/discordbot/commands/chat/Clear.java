@@ -40,7 +40,7 @@ public class Clear implements Command {
                 .getRetrievedHistory();
         for (Message msg : messages) {
             if (msg.getIdLong() == id && !data.isBot(member.getUser())) {
-                msg.delete().complete();
+                msg.delete().queue();
             }
         }
     }

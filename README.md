@@ -1,37 +1,32 @@
-# Discord-Bot
+# priamoryki-bot (Discord-Bot template)
 
-BOT COMMANDS:
+[INVITATION LINK](https://discord.com/oauth2/authorize?client_id=848999847229915147&permissions=2167532560&scope=bot%20applications.commands).
 
-* music URL | query
-* skip
-* repeat ON | OFF
-* now_playing
-* print_queue
-* shuffle_queue
-* delete_from_queue n
-* clear_queue
-* join
-* leave
+## Bot work examples
 
-BOT SOUNDS:
+`Idle player message`:
+![](data/img/player_message_idle_example.png)
+`Running player message`:
+![](data/img/running_player_message_example.png)
 
-* kaguya
-* running
-* boobs
-* tuturu
-* nya
-* ohhh
-* nikoni
-* gj
-* titan
-* wtf
-* senpai
-* ohio
-* silence
+## Create bot instance based on template
 
-OTHER UTILS:
+* Clone this repo
+* Setup `data/config.json` with your bot info
+* Set environment variables
+    ```cmd
+    export TOKEN = "BOT TOKEN"
+    export SPOTIFY_CLIENT_ID = "SPOTIFY CLIENT ID FROM SPOTIFY API"
+    export SPOTIFY_CLIENT_SECRET = "SPOTIFY CLIENT SECRET FROM SPOTIFY API"
+    ```
 
-* image IMAGE
+## Code structure
 
-INFORM ABOUT ISSUE:
-github.com/priamoryki/priamoryki-bot/issues
+[Main](src/main/java/com/priamoryki/discordbot/Bot.java)
+
+## Q&A
+
+* Can I make my own bot based on this template?
+  * Yes, you can. Read more [here](#Create bot instance based on template).
+* I found an issue. How can I report it?
+  * Create new issue [here](https://github.com/priamoryki/priamoryki-bot/issues).
