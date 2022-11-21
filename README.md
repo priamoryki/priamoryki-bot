@@ -4,10 +4,10 @@
 
 ## Bot work examples
 
-`Idle player message`:
-![](data/img/player_message_idle_example.png)
-`Running player message`:
-![](data/img/running_player_message_example.png)
+`Idle player message`:  
+![](data/img/player_message_idle_example.png)  
+`Running player message`:  
+![](data/img/running_player_message_example.png)  
 
 ## Create bot instance based on template
 
