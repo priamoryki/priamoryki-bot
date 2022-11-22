@@ -27,6 +27,6 @@
 ## Q&A
 
 * Can I make my own bot based on this template?
-  * Yes, you can. Read more [here](#Create bot instance based on template).
+  * Yes, you can. Read more [here](#create-bot-instance-based-on-template).
 * I found an issue. How can I report it?
   * Create new issue [here](https://github.com/priamoryki/priamoryki-bot/issues).
