@@ -80,7 +80,7 @@ public class EventsListener extends ListenerAdapter {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if (messageText.startsWith(data.getPrefix())) {
+        if (messageText.startsWith(data.getPrefix()) && !data.isBot(member.getUser())) {
             List<String> splittedMessage = List.of(messageText.substring(data.getPrefix().length()).split(" "));
             Command command = commands.getCommand(splittedMessage.get(0));
             if (command != null && command.isAvailableFromChat()) {
@@ -91,6 +91,8 @@ public class EventsListener extends ListenerAdapter {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+            } else {
+                message.reply("Can't find such command!").queue();
             }
         }
     }

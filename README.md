@@ -14,11 +14,17 @@
 * Clone this repo
 * Setup `data/config.json` with your bot info
 * Set environment variables
-    ```cmd
+    ```shell
     export TOKEN = "BOT TOKEN"
     export SPOTIFY_CLIENT_ID = "SPOTIFY CLIENT ID FROM SPOTIFY API"
     export SPOTIFY_CLIENT_SECRET = "SPOTIFY CLIENT SECRET FROM SPOTIFY API"
     ```
+* Run from project folder
+    ```shell
+    mvn install
+    mvn exec:java -Dexec.mainClass="com.priamoryki.discordbot.Bot"
+    ```
+* Enjoy
 
 ## Code structure
 
