@@ -1,6 +1,7 @@
-package com.priamoryki.discordbot.utils;
+package com.priamoryki.discordbot.utils.messages;
 
 import com.priamoryki.discordbot.api.audio.GuildMusicManager;
+import com.priamoryki.discordbot.utils.Utils;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;

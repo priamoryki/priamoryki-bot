@@ -3,10 +3,12 @@ package com.priamoryki.discordbot.utils;
 import com.priamoryki.discordbot.commands.Command;
 import com.priamoryki.discordbot.commands.CommandsStorage;
 import com.priamoryki.discordbot.events.EventsListener;
+import com.priamoryki.discordbot.utils.messages.MainMessage;
+import com.priamoryki.discordbot.utils.messages.PlayerMessage;
+import com.priamoryki.discordbot.utils.sync.SyncService;
+import com.priamoryki.discordbot.utils.sync.YaDiskSyncService;
 import com.yandex.disk.rest.Credentials;
-import com.yandex.disk.rest.DownloadListener;
 import com.yandex.disk.rest.RestClient;
-import com.yandex.disk.rest.exceptions.ServerException;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -23,9 +25,7 @@ import org.json.JSONObject;
 import se.michaelthelin.spotify.SpotifyApi;
 import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Connection;
@@ -53,7 +53,7 @@ public class DataSource {
     private final String PLAYER_MESSAGE_ID_TOKEN = "player_message_id";
     private final Connection connection;
     private final JSONObject settings;
-    private final RestClient cloudApi;
+    private final SyncService syncService;
     private final SpotifyApi spotifyApi;
     private JDA bot;
 
@@ -61,8 +61,12 @@ public class DataSource {
         this.settings = new JSONObject(
                 new String(Files.readAllBytes(Paths.get(SETTINGS_PATH)))
         );
-        this.cloudApi = new RestClient(new Credentials("me", getYaDiskToken()));
-        loadDB();
+        this.syncService = new YaDiskSyncService(
+                DB_LOCAL_PATH,
+                "servers.db",
+                new RestClient(new Credentials("me", getYaDiskToken()))
+        );
+        this.syncService.load();
         this.connection = DriverManager.getConnection(DB_PATH);
         connection.setAutoCommit(true);
         this.spotifyApi = SpotifyApi.builder()
@@ -184,45 +188,6 @@ public class DataSource {
         }
     }
 
-    public void loadDB() {
-        try {
-            if (new File(DB_LOCAL_PATH).delete()) {
-                cloudApi.downloadFile(
-                        "servers.db",
-                        new File(DB_LOCAL_PATH),
-                        new DownloadListener() {
-                            @Override
-                            public OutputStream getOutputStream(boolean b) {
-                                return null;
-                            }
-                        }
-                );
-            } else {
-                System.err.printf("Can't delete file %s%n", DB_LOCAL_PATH);
-            }
-        } catch (IOException | ServerException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void uploadDB() {
-        try {
-            cloudApi.uploadFile(
-                    cloudApi.getUploadLink("servers.db", true),
-                    false,
-                    new File(DB_LOCAL_PATH),
-                    new DownloadListener() {
-                        @Override
-                        public OutputStream getOutputStream(boolean b) {
-                            return null;
-                        }
-                    }
-            );
-        } catch (IOException | ServerException e) {
-            e.printStackTrace();
-        }
-    }
-
     public MessageChannel getOrCreateMainChannel(Guild guild) {
         MessageChannel channel = guild.getTextChannelById(getMainChannelId(guild.getIdLong()));
         if (channel == null) {
@@ -233,7 +198,7 @@ public class DataSource {
                             channel.getIdLong(), guild.getIdLong()
                     )
             );
-            uploadDB();
+            syncService.upload();
         }
         return channel;
     }
@@ -251,7 +216,7 @@ public class DataSource {
                     )
             );
             message.pin().complete();
-            uploadDB();
+            syncService.upload();
         }
         return message;
     }
@@ -271,7 +236,7 @@ public class DataSource {
                     )
             );
             message.pin().complete();
-            uploadDB();
+            syncService.upload();
         }
         return message;
     }

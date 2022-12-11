@@ -2,8 +2,8 @@ package com.priamoryki.discordbot.api.audio;
 
 import com.github.natanbc.lavadsp.timescale.TimescalePcmAudioFilter;
 import com.priamoryki.discordbot.utils.DataSource;
-import com.priamoryki.discordbot.utils.PlayerMessage;
-import com.priamoryki.discordbot.utils.QueueMessage;
+import com.priamoryki.discordbot.utils.messages.PlayerMessage;
+import com.priamoryki.discordbot.utils.messages.QueueMessage;
 import com.priamoryki.discordbot.utils.Utils;
 import com.sedmelluq.discord.lavaplayer.filter.AudioFilter;
 import com.sedmelluq.discord.lavaplayer.filter.equalizer.Equalizer;
