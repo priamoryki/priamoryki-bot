@@ -1,4 +1,4 @@
-package com.priamoryki.discordbot.utils;
+package com.priamoryki.discordbot.utils.messages;
 
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;

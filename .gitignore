@@ -4,6 +4,7 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 dependency-reduced-pom.xml
+.env
 
 ### STS ###
 .apt_generated

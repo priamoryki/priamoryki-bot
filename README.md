@@ -13,17 +13,26 @@
 
 * Clone this repo
 * Setup `data/config.json` with your bot info
-* Set environment variables
-    ```shell
-    export TOKEN = "BOT TOKEN"
-    export SPOTIFY_CLIENT_ID = "SPOTIFY CLIENT ID FROM SPOTIFY API"
-    export SPOTIFY_CLIENT_SECRET = "SPOTIFY CLIENT SECRET FROM SPOTIFY API"
-    ```
-* Run from project folder
-    ```shell
-    mvn install
-    mvn exec:java -Dexec.mainClass="com.priamoryki.discordbot.Bot"
-    ```
+* Use one of following methods to create bot instance
+  * DOCKER
+    * Set environment variables
+        ```shell
+        export TOKEN = "BOT TOKEN"
+        export YADISK_TOKEN = "YANDEX DISK TOKEN"
+        export SPOTIFY_CLIENT_ID = "SPOTIFY CLIENT ID FROM SPOTIFY API"
+        export SPOTIFY_CLIENT_SECRET = "SPOTIFY CLIENT SECRET FROM SPOTIFY API"
+        ```
+    * Run from project folder
+        ```shell
+        mvn install
+        mvn exec:java -Dexec.mainClass="com.priamoryki.discordbot.Bot"
+        ```
+  * MAVEN
+    * Set environment variables in `.env` file
+    * Run from project folder
+        ```shell
+        sudo docker compose up
+        ```
 * Enjoy
 
 ## Code structure
