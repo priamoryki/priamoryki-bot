@@ -1,7 +1,11 @@
 version: "3"
 services:
   priamoryki-bot:
-    container_name: "priamoryki-bot"
     build: ./
+    environment:
+      TOKEN: ${TOKEN}
+      YADISK_TOKEN: ${YADISK_TOKEN}
+      SPOTIFY_CLIENT_ID: ${SPOTIFY_CLIENT_ID}
+      SPOTIFY_CLIENT_SECRET: ${SPOTIFY_CLIENT_SECRET}
     ports:
-      - 1080:1080
+      - "1080:1080"
