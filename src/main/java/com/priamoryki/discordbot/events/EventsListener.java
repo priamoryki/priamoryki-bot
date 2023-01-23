@@ -3,6 +3,7 @@ package com.priamoryki.discordbot.events;
 import com.priamoryki.discordbot.commands.Command;
 import com.priamoryki.discordbot.commands.CommandException;
 import com.priamoryki.discordbot.commands.CommandsStorage;
+import com.priamoryki.discordbot.entities.ServerInfo;
 import com.priamoryki.discordbot.utils.DataSource;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -45,7 +46,9 @@ public class EventsListener extends ListenerAdapter {
     }
 
     private void createGuildAttributes(Guild guild) {
-        data.executeQuery(String.format("INSERT OR IGNORE INTO servers(server_id) VALUES (%d)", guild.getIdLong()));
+        ServerInfo serverInfo = new ServerInfo();
+        serverInfo.setServerId(guild.getIdLong());
+        data.getServersRepository().update(serverInfo);
         Message message = data.getOrCreateMainMessage(guild);
         data.getOrCreatePlayerMessage(guild);
         try {
