@@ -52,7 +52,7 @@ public class DeleteFromQueue extends MusicCommand {
             throw new CommandException("Argument isn't integer!");
         }
         if (1 > n) {
-            throw new CommandException("Invalid number of arguments!");
+            throw new CommandException("Track number should be natural number!");
         }
         musicManager.getGuildMusicManager(guild).deleteFromQueue(n);
     }

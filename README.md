@@ -14,7 +14,7 @@
 * Clone this repo
 * Setup `data/config.json` with your bot info
 * Use one of following methods to create bot instance
-  * DOCKER
+  * MAVEN
     * Set environment variables
         ```shell
         export TOKEN = "BOT TOKEN"
@@ -27,7 +27,7 @@
         mvn install
         mvn exec:java -Dexec.mainClass="com.priamoryki.discordbot.Bot"
         ```
-  * MAVEN
+  * DOCKER
     * Set environment variables in `.env` file
     * Run from project folder
         ```shell

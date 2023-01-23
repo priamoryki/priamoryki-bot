@@ -2,9 +2,9 @@ package com.priamoryki.discordbot.api.audio;
 
 import com.github.natanbc.lavadsp.timescale.TimescalePcmAudioFilter;
 import com.priamoryki.discordbot.utils.DataSource;
+import com.priamoryki.discordbot.utils.Utils;
 import com.priamoryki.discordbot.utils.messages.PlayerMessage;
 import com.priamoryki.discordbot.utils.messages.QueueMessage;
-import com.priamoryki.discordbot.utils.Utils;
 import com.sedmelluq.discord.lavaplayer.filter.AudioFilter;
 import com.sedmelluq.discord.lavaplayer.filter.equalizer.Equalizer;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
@@ -132,9 +132,10 @@ public class GuildMusicManager extends AudioEventAdapter {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                if (!isPlaying()) {
-                    leave(guild.getSelfMember());
+                if (isPlaying()) {
+                    return;
                 }
+                leave(guild.getSelfMember());
             }
         }, period, period);
     }
@@ -258,9 +259,10 @@ public class GuildMusicManager extends AudioEventAdapter {
     }
 
     public void seek(long time) {
-        if (isPlaying()) {
-            player.getPlayingTrack().setPosition(time);
+        if (!isPlaying()) {
+            return;
         }
+        player.getPlayingTrack().setPosition(time);
     }
 
     public void skipTo(int id) {
@@ -276,12 +278,13 @@ public class GuildMusicManager extends AudioEventAdapter {
     }
 
     public void deleteFromQueue(int id) {
-        if (id <= queue.size()) {
-            List<AudioTrack> list = new ArrayList<>(queue);
-            list.remove(id - 1);
-            queue.clear();
-            queue.addAll(list);
+        if (id > queue.size()) {
+            return;
         }
+        List<AudioTrack> list = new ArrayList<>(queue);
+        list.remove(id - 1);
+        queue.clear();
+        queue.addAll(list);
     }
 
     public void shuffleQueue() {

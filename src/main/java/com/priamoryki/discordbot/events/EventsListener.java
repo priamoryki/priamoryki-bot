@@ -3,6 +3,7 @@ package com.priamoryki.discordbot.events;
 import com.priamoryki.discordbot.commands.Command;
 import com.priamoryki.discordbot.commands.CommandException;
 import com.priamoryki.discordbot.commands.CommandsStorage;
+import com.priamoryki.discordbot.entities.ServerInfo;
 import com.priamoryki.discordbot.utils.DataSource;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -45,7 +46,9 @@ public class EventsListener extends ListenerAdapter {
     }
 
     private void createGuildAttributes(Guild guild) {
-        data.executeQuery(String.format("INSERT OR IGNORE INTO servers(server_id) VALUES (%d)", guild.getIdLong()));
+        ServerInfo serverInfo = new ServerInfo();
+        serverInfo.setServerId(guild.getIdLong());
+        data.getServersRepository().update(serverInfo);
         Message message = data.getOrCreateMainMessage(guild);
         data.getOrCreatePlayerMessage(guild);
         try {
@@ -80,20 +83,27 @@ public class EventsListener extends ListenerAdapter {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if (messageText.startsWith(data.getPrefix()) && !data.isBot(member.getUser())) {
-            List<String> splittedMessage = List.of(messageText.substring(data.getPrefix().length()).split(" "));
-            Command command = commands.getCommand(splittedMessage.get(0));
-            if (command != null && command.isAvailableFromChat()) {
-                try {
-                    command.executeWithPermissions(guild, member, splittedMessage.subList(1, splittedMessage.size()));
-                } catch (CommandException e) {
-                    message.reply(e.getMessage()).queue();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            } else {
-                message.reply("Can't find such command!").queue();
+        if (message.getChannel().getIdLong() != data.getMainChannelId(guild.getIdLong())) {
+            return;
+        }
+        if (!messageText.startsWith(data.getPrefix())) {
+            return;
+        }
+        if (data.isBot(member.getUser())) {
+            return;
+        }
+        List<String> splittedMessage = List.of(messageText.substring(data.getPrefix().length()).split(" "));
+        Command command = commands.getCommand(splittedMessage.get(0));
+        if (command != null && command.isAvailableFromChat()) {
+            try {
+                command.executeWithPermissions(guild, member, splittedMessage.subList(1, splittedMessage.size()));
+            } catch (CommandException e) {
+                message.reply(e.getMessage()).queue();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
+        } else {
+            message.reply("Can't find such command!").queue();
         }
     }
 
