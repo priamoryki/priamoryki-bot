@@ -80,20 +80,27 @@ public class EventsListener extends ListenerAdapter {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if (messageText.startsWith(data.getPrefix()) && !data.isBot(member.getUser())) {
-            List<String> splittedMessage = List.of(messageText.substring(data.getPrefix().length()).split(" "));
-            Command command = commands.getCommand(splittedMessage.get(0));
-            if (command != null && command.isAvailableFromChat()) {
-                try {
-                    command.executeWithPermissions(guild, member, splittedMessage.subList(1, splittedMessage.size()));
-                } catch (CommandException e) {
-                    message.reply(e.getMessage()).queue();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            } else {
-                message.reply("Can't find such command!").queue();
+        if (message.getChannel().getIdLong() != data.getMainChannelId(guild.getIdLong())) {
+            return;
+        }
+        if (!messageText.startsWith(data.getPrefix())) {
+            return;
+        }
+        if (data.isBot(member.getUser())) {
+            return;
+        }
+        List<String> splittedMessage = List.of(messageText.substring(data.getPrefix().length()).split(" "));
+        Command command = commands.getCommand(splittedMessage.get(0));
+        if (command != null && command.isAvailableFromChat()) {
+            try {
+                command.executeWithPermissions(guild, member, splittedMessage.subList(1, splittedMessage.size()));
+            } catch (CommandException e) {
+                message.reply(e.getMessage()).queue();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
+        } else {
+            message.reply("Can't find such command!").queue();
         }
     }
 
