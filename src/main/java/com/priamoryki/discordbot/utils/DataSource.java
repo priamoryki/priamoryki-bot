@@ -140,15 +140,27 @@ public class DataSource {
     }
 
     public long getMainChannelId(long guildId) {
-        return serversRepository.getServerById(guildId).getChannelId();
+        ServerInfo serverInfo = serversRepository.getServerById(guildId);
+        if (serverInfo == null || serverInfo.getChannelId() == null) {
+            return INVALID_ID;
+        }
+        return serverInfo.getChannelId();
     }
 
     public long getMainMessageId(long guildId) {
-        return serversRepository.getServerById(guildId).getMessageId();
+        ServerInfo serverInfo = serversRepository.getServerById(guildId);
+        if (serverInfo == null || serverInfo.getMessageId() == null) {
+            return INVALID_ID;
+        }
+        return serverInfo.getMessageId();
     }
 
     public long getPlayerMessageId(long guildId) {
-        return serversRepository.getServerById(guildId).getPlayerMessageId();
+        ServerInfo serverInfo = serversRepository.getServerById(guildId);
+        if (serverInfo == null || serverInfo.getPlayerMessageId() == null) {
+            return INVALID_ID;
+        }
+        return serverInfo.getPlayerMessageId();
     }
 
     public MessageChannel getOrCreateMainChannel(Guild guild) {
