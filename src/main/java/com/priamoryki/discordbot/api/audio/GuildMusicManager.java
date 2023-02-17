@@ -1,6 +1,7 @@
 package com.priamoryki.discordbot.api.audio;
 
 import com.github.natanbc.lavadsp.timescale.TimescalePcmAudioFilter;
+import com.priamoryki.discordbot.commands.CommandException;
 import com.priamoryki.discordbot.utils.DataSource;
 import com.priamoryki.discordbot.utils.Utils;
 import com.priamoryki.discordbot.utils.messages.PlayerMessage;
@@ -140,11 +141,11 @@ public class GuildMusicManager extends AudioEventAdapter {
         }, period, period);
     }
 
-    public void join(Member member) {
+    public void join(Member member) throws CommandException {
         GuildVoiceState voiceState = member.getVoiceState();
         GuildVoiceState selfVoiceState = guild.getSelfMember().getVoiceState();
         if (voiceState == null || !voiceState.inAudioChannel()) {
-            return;
+            throw new CommandException("You are not in the voice channel!");
         }
         guild.getAudioManager().openAudioConnection(voiceState.getChannel());
         startNewDisconnectionTask();
@@ -160,7 +161,6 @@ public class GuildMusicManager extends AudioEventAdapter {
         Guild guild = songRequest.getGuild();
         Member member = songRequest.getMember();
         String urlOrName = songRequest.getUrlOrName();
-        join(member);
 
         audioPlayerManager.loadItemOrdered(this, urlOrName, new AudioLoadResultHandler() {
             @Override
@@ -200,7 +200,7 @@ public class GuildMusicManager extends AudioEventAdapter {
         });
     }
 
-    public void playNext(SongRequest songRequest) {
+    public void playNext(SongRequest songRequest) throws CommandException {
         Guild guild = songRequest.getGuild();
         Member member = songRequest.getMember();
         String urlOrName = songRequest.getUrlOrName();
@@ -258,17 +258,27 @@ public class GuildMusicManager extends AudioEventAdapter {
         musicParameters.setRepeat(oldRepeat);
     }
 
-    public void seek(long time) {
+    public void seek(long time) throws CommandException {
         if (!isPlaying()) {
-            return;
+            throw new CommandException("Music is not playing now!");
         }
         player.getPlayingTrack().setPosition(time);
     }
 
-    public void skipTo(int id) {
+    private void validateId(int id) throws CommandException {
+        if (1 > id) {
+            throw new CommandException("Id parameter should be natural number!");
+        }
+        if (id > queue.size()) {
+            throw new CommandException("Id parameter should not be more than queue size!");
+        }
+    }
+
+    public void skipTo(int id) throws CommandException {
+        validateId(id);
         List<AudioTrack> list = new ArrayList<>(queue);
         queue.clear();
-        queue.addAll(list.subList(Math.max(0, Math.min(id, list.size()) - 1), list.size()));
+        queue.addAll(list.subList(id - 1, list.size()));
         skip();
     }
 
@@ -277,10 +287,8 @@ public class GuildMusicManager extends AudioEventAdapter {
         skip();
     }
 
-    public void deleteFromQueue(int id) {
-        if (id > queue.size()) {
-            return;
-        }
+    public void deleteFromQueue(int id) throws CommandException {
+        validateId(id);
         List<AudioTrack> list = new ArrayList<>(queue);
         list.remove(id - 1);
         queue.clear();

@@ -3,6 +3,7 @@ package com.priamoryki.discordbot.commands.sounds;
 import com.priamoryki.discordbot.api.audio.MusicManager;
 import com.priamoryki.discordbot.api.audio.SongRequest;
 import com.priamoryki.discordbot.commands.Command;
+import com.priamoryki.discordbot.commands.CommandException;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 
@@ -36,7 +37,8 @@ public abstract class Sound implements Command {
     }
 
     @Override
-    public void execute(Guild guild, Member member, List<String> args) {
+    public void execute(Guild guild, Member member, List<String> args) throws CommandException {
+        musicManager.getGuildMusicManager(guild).join(member);
         musicManager.getGuildMusicManager(guild).play(new SongRequest(guild, member, filename));
     }
 }
