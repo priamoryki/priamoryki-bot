@@ -115,12 +115,10 @@ public class GuildMusicManager extends AudioEventAdapter {
     }
 
     public PlayerMessage getPlayerMessage() {
-        playerMessage.update();
         return playerMessage;
     }
 
     public QueueMessage getQueueMessage() {
-        queueMessage.update();
         return queueMessage;
     }
 

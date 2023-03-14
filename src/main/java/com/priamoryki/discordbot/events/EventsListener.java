@@ -8,6 +8,7 @@ import com.priamoryki.discordbot.utils.DataSource;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -60,8 +61,16 @@ public class EventsListener extends ListenerAdapter {
         }
     }
 
+    public void onPrivateMessageReceived(@NotNull MessageReceivedEvent event) {
+        // TODO
+    }
+
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
+        if (event.isFromType(ChannelType.PRIVATE)) {
+            onPrivateMessageReceived(event);
+            return;
+        }
         Message message = event.getMessage();
         Guild guild = message.getGuild();
         Member member = message.getMember();
