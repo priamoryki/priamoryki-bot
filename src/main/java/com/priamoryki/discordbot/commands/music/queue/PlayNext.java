@@ -47,8 +47,17 @@ public class PlayNext extends MusicCommand {
         if (args.isEmpty()) {
             throw new CommandException("Invalid number of arguments!");
         }
+        musicManager.getGuildMusicManager(guild).join(member);
         if (args.size() == 1 && Utils.isUrl(args.get(0))) {
             musicManager.getGuildMusicManager(guild).playNext(new SongRequest(guild, member, args.get(0)));
+            return;
         }
+        musicManager.getGuildMusicManager(guild).playNext(
+                new SongRequest(
+                        guild,
+                        member,
+                        "ytsearch:" + String.join(" ", args)
+                )
+        );
     }
 }

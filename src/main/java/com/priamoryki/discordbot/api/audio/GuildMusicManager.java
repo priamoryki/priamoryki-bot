@@ -200,11 +200,10 @@ public class GuildMusicManager extends AudioEventAdapter {
         });
     }
 
-    public void playNext(SongRequest songRequest) throws CommandException {
+    public void playNext(SongRequest songRequest) {
         Guild guild = songRequest.getGuild();
         Member member = songRequest.getMember();
         String urlOrName = songRequest.getUrlOrName();
-        join(member);
 
         audioPlayerManager.loadItemOrdered(this, urlOrName, new AudioLoadResultHandler() {
             @Override

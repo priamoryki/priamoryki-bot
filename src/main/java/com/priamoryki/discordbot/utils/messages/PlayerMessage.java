@@ -19,7 +19,7 @@ import java.util.*;
  * @author Pavel Lymar
  */
 public class PlayerMessage implements UsefulMessage {
-    // TODO here is some bugs with rate limiter. Could be fixed by adding your own rate limiter
+    // TODO here are some bugs with rate limiter. Could be fixed by adding your own rate limiter
     private static final int BLOCKS_NUMBER = 27;
     private static final long MINIMAL_UPDATE_PERIOD = 15_000;
     private final GuildMusicManager guildMusicManager;
