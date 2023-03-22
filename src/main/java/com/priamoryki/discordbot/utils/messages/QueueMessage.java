@@ -41,12 +41,12 @@ public class QueueMessage implements UsefulMessage {
                 .sendMessage(fillBuilder(new MessageCreateBuilder(), guildMusicManager.getQueue()).build()).complete();
     }
 
-    public void getNextPage() {
+    public void nextPage() {
         page++;
         update();
     }
 
-    public void getPreviousPage() {
+    public void previousPage() {
         page--;
         update();
     }

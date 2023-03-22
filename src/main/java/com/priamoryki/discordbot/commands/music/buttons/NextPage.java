@@ -22,6 +22,6 @@ public class NextPage extends MusicCommand {
 
     @Override
     public void execute(Guild guild, Member member, List<String> args) {
-        musicManager.getGuildMusicManager(guild).getQueueMessage().getNextPage();
+        musicManager.getGuildMusicManager(guild).getQueueMessage().nextPage();
     }
 }

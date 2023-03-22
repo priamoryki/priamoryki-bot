@@ -32,6 +32,6 @@ public class PrintQueue extends MusicCommand {
 
     @Override
     public void execute(Guild guild, Member member, List<String> args) {
-        musicManager.getGuildMusicManager(guild).getQueueMessage();
+        musicManager.getGuildMusicManager(guild).getQueueMessage().update();
     }
 }
