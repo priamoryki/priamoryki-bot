@@ -19,12 +19,13 @@ import java.util.*;
  * @author Pavel Lymar
  */
 public class PlayerMessage implements UsefulMessage {
-    // TODO here are some bugs with rate limiter. Could be fixed by adding your own rate limiter
+    // TODO: here are some bugs with rate limiter. Could be fixed by adding your own rate limiter
     private static final int BLOCKS_NUMBER = 27;
     private static final long MINIMAL_UPDATE_PERIOD = 15_000;
     private final GuildMusicManager guildMusicManager;
     private Message playerMessage;
     private Timer timer;
+    private long lastUpdateTime;
 
     public PlayerMessage(GuildMusicManager guildMusicManager) {
         this.guildMusicManager = guildMusicManager;
@@ -53,6 +54,12 @@ public class PlayerMessage implements UsefulMessage {
 
     @Override
     public void update() {
+        // temp fix for https://github.com/priamoryki/priamoryki-bot/issues/1
+        long time = (new Date()).getTime();
+        if (time - lastUpdateTime < MINIMAL_UPDATE_PERIOD) {
+            return;
+        }
+        lastUpdateTime = time;
         try {
             playerMessage.editMessage(fillBuilder(new MessageEditBuilder()).build()).complete();
         } catch (Exception ignored) {
