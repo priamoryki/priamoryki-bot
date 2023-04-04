@@ -13,6 +13,8 @@ import net.dv8tion.jda.api.entities.Member;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * @author Pavel Lymar
@@ -58,8 +60,8 @@ public class MusicFinder {
                 public void loadFailed(FriendlyException exception) {
                     tryCustomSources(songRequest).forEach(this::trackLoaded);
                 }
-            }).get();
-        } catch (ExecutionException | InterruptedException e) {
+            }).get(10, TimeUnit.SECONDS);
+        } catch (ExecutionException | InterruptedException | TimeoutException e) {
             System.err.println(e.getMessage());
         }
         return result;
