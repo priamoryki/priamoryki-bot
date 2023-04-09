@@ -21,11 +21,8 @@ import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
-import org.apache.hc.core5.http.ParseException;
 import org.json.JSONException;
 import org.json.JSONObject;
-import se.michaelthelin.spotify.SpotifyApi;
-import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -43,15 +40,12 @@ public class DataSource {
     private final long INVALID_ID = -1;
     private final String TOKEN_ENV_NAME = "TOKEN";
     private final String YADISK_TOKEN_ENV_NAME = "YADISK_TOKEN";
-    private final String SPOTIFY_CLIENT_ID_ENV_NAME = "SPOTIFY_CLIENT_ID";
-    private final String SPOTIFY_CLIENT_SECRET_ENV_NAME = "SPOTIFY_CLIENT_SECRET";
     private final String SETTINGS_PATH = "data/config.json";
     private final String DB_LOCAL_PATH = "data/servers.db";
     private final String DB_CLOUD_PATH = "servers.db";
     private final ServersRepository serversRepository;
     private final JSONObject settings;
     private final SyncService syncService;
-    private final SpotifyApi spotifyApi;
     private JDA bot;
 
     public DataSource() throws IOException, JSONException {
@@ -67,11 +61,6 @@ public class DataSource {
         EntityManagerFactory factory = Persistence.createEntityManagerFactory("main");
         EntityManager entityManager = factory.createEntityManager();
         this.serversRepository = new ServersRepository(entityManager);
-        this.spotifyApi = SpotifyApi.builder()
-                .setClientId(getSpotifyClientId())
-                .setClientSecret(getSpotifyClientSecret())
-                .build();
-        updateSpotifyApi();
     }
 
     public void setupBot(CommandsStorage commands) {
@@ -117,22 +106,6 @@ public class DataSource {
 
     public String getYaDiskToken() {
         return System.getenv(YADISK_TOKEN_ENV_NAME);
-    }
-
-    public String getSpotifyClientId() {
-        return System.getenv(SPOTIFY_CLIENT_ID_ENV_NAME);
-    }
-
-    public String getSpotifyClientSecret() {
-        return System.getenv(SPOTIFY_CLIENT_SECRET_ENV_NAME);
-    }
-
-    private void updateSpotifyApi() {
-        try {
-            spotifyApi.setAccessToken(spotifyApi.clientCredentials().build().execute().getAccessToken());
-        } catch (IOException | ParseException | SpotifyWebApiException e) {
-            System.err.println("SpotifyApi login error: " + e.getMessage());
-        }
     }
 
     public ServersRepository getServersRepository() {
@@ -213,12 +186,6 @@ public class DataSource {
 
     public boolean isBot(User user) {
         return user.getIdLong() == getBotId();
-    }
-
-    public SpotifyApi getSpotifyApi() {
-        // TODO pretty long request
-        updateSpotifyApi();
-        return spotifyApi;
     }
 
     public JDA getBot() {
