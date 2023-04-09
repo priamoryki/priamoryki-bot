@@ -1,6 +1,9 @@
 package com.priamoryki.discordbot.api.audio;
 
 import com.github.natanbc.lavadsp.timescale.TimescalePcmAudioFilter;
+import com.priamoryki.discordbot.api.audio.finder.MusicFinder;
+import com.priamoryki.discordbot.api.audio.finder.SpotifySource;
+import com.priamoryki.discordbot.api.audio.finder.YandexMusicSource;
 import com.priamoryki.discordbot.commands.CommandException;
 import com.priamoryki.discordbot.utils.DataSource;
 import com.priamoryki.discordbot.utils.Utils;
@@ -8,46 +11,25 @@ import com.priamoryki.discordbot.utils.messages.PlayerMessage;
 import com.priamoryki.discordbot.utils.messages.QueueMessage;
 import com.sedmelluq.discord.lavaplayer.filter.AudioFilter;
 import com.sedmelluq.discord.lavaplayer.filter.equalizer.Equalizer;
-import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
-import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
-import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
-import org.apache.hc.core5.http.ParseException;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
-import se.michaelthelin.spotify.model_objects.specification.Album;
-import se.michaelthelin.spotify.model_objects.specification.Playlist;
-import se.michaelthelin.spotify.model_objects.specification.Track;
-import se.michaelthelin.spotify.model_objects.specification.TrackSimplified;
 
-import java.io.IOException;
 import java.util.*;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 /**
  * @author Pavel Lymar
  */
 public class GuildMusicManager extends AudioEventAdapter {
-    private static final String ARTIST = "d-artists";
-    private static final String PLAYLIST_ARTISTS = "d-track__artists";
-    private static final String TRACK_TITLE = "sidebar-track__title";
-    private static final String TRACKS_TITLES = "d-track__name";
-    private final Map<String, Consumer<SongRequest>> patterns;
     private final DataSource data;
     private final Guild guild;
     private final AudioPlayerManager audioPlayerManager;
+    private final MusicFinder musicFinder;
     private final AudioPlayer player;
     private final Deque<AudioTrack> queue;
     private final PlayerSendHandler sendHandler;
@@ -57,17 +39,14 @@ public class GuildMusicManager extends AudioEventAdapter {
     private Timer timer;
 
     public GuildMusicManager(DataSource data, Guild guild, AudioPlayerManager audioPlayerManager) {
-        this.patterns = new HashMap<>();
-        patterns.put("^(https?://)?(www\\.)?open\\.spotify\\.com/track/[^&=%\\?]{22}$", new SpotifySong());
-        patterns.put("^(https?://)?(www\\.)?open\\.spotify\\.com/album/[^&=%\\?]{22}$", new SpotifyAlbum());
-        patterns.put("^(https?://)?(www\\.)?open\\.spotify\\.com/playlist/[^&=%\\?]{22}$", new SpotifyPlaylist());
-        patterns.put("^(https?://)?(www\\.)?music\\.yandex\\.[a-z]+/album/[0-9]+/track/[0-9]+$", new YandexMusicSong());
-        patterns.put("^(https?://)?(www\\.)?music\\.yandex\\.[a-z]+/album/[0-9]+$", new YandexMusicAlbum());
-        patterns.put("^(https?://)?(www\\.)?music\\.yandex\\.[a-z]+/users/.+/playlists/[0-9]+$", new YandexMusicPlaylist());
-
         this.data = data;
         this.guild = guild;
         this.audioPlayerManager = audioPlayerManager;
+        this.musicFinder = new MusicFinder(
+                audioPlayerManager,
+                new SpotifySource(),
+                new YandexMusicSource()
+        );
         this.player = audioPlayerManager.createPlayer();
         this.queue = new ArrayDeque<>();
         this.sendHandler = new PlayerSendHandler(player);
@@ -156,84 +135,13 @@ public class GuildMusicManager extends AudioEventAdapter {
     }
 
     public void play(SongRequest songRequest) {
-        Guild guild = songRequest.getGuild();
-        Member member = songRequest.getMember();
-        String urlOrName = songRequest.getUrlOrName();
-
-        audioPlayerManager.loadItemOrdered(this, urlOrName, new AudioLoadResultHandler() {
-            @Override
-            public void trackLoaded(AudioTrack track) {
-                track.setUserData(member.getUser());
-                queue(track, true);
-            }
-
-            @Override
-            public void playlistLoaded(AudioPlaylist playlist) {
-                if (Utils.isUrl(urlOrName)) {
-                    playlist.getTracks().forEach(this::trackLoaded);
-                } else {
-                    trackLoaded(playlist.getTracks().get(0));
-                }
-            }
-
-            @Override
-            public void noMatches() {
-                for (String pattern : patterns.keySet()) {
-                    if (urlOrName.matches(pattern)) {
-                        patterns.get(pattern).accept(songRequest);
-                        break;
-                    }
-                }
-            }
-
-            @Override
-            public void loadFailed(FriendlyException exception) {
-                for (String pattern : patterns.keySet()) {
-                    if (urlOrName.matches(pattern)) {
-                        patterns.get(pattern).accept(songRequest);
-                        break;
-                    }
-                }
-            }
-        });
+        musicFinder.find(songRequest).forEach(track -> queue(track, true));
     }
 
     public void playNext(SongRequest songRequest) {
-        Guild guild = songRequest.getGuild();
-        Member member = songRequest.getMember();
-        String urlOrName = songRequest.getUrlOrName();
-
-        audioPlayerManager.loadItemOrdered(this, urlOrName, new AudioLoadResultHandler() {
-            @Override
-            public void trackLoaded(AudioTrack track) {
-                track.setUserData(member.getUser());
-                queue(track, false);
-            }
-
-            @Override
-            public void playlistLoaded(AudioPlaylist playlist) {
-                if (Utils.isUrl(urlOrName)) {
-                    playlist.getTracks().forEach(this::trackLoaded);
-                } else {
-                    trackLoaded(playlist.getTracks().get(0));
-                }
-            }
-
-            @Override
-            public void noMatches() {
-
-            }
-
-            @Override
-            public void loadFailed(FriendlyException exception) {
-                for (String pattern : patterns.keySet()) {
-                    if (urlOrName.matches(pattern)) {
-                        patterns.get(pattern).accept(songRequest);
-                        break;
-                    }
-                }
-            }
-        });
+        List<AudioTrack> playlist = musicFinder.find(songRequest);
+        Collections.reverse(playlist);
+        playlist.forEach(track -> queue(track, false));
     }
 
     public void resume() {
