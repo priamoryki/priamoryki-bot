@@ -1,8 +1,7 @@
-package com.priamoryki.discordbot.commands.music.queue;
+package com.priamoryki.discordbot.commands.playlist;
 
-import com.priamoryki.discordbot.api.audio.MusicManager;
 import com.priamoryki.discordbot.commands.CommandException;
-import com.priamoryki.discordbot.commands.MusicCommand;
+import com.priamoryki.discordbot.utils.user.playlist.UserPlaylistEditor;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -13,25 +12,25 @@ import java.util.List;
 /**
  * @author Pavel Lymar
  */
-public class DeleteFromQueue extends MusicCommand {
-    public DeleteFromQueue(MusicManager musicManager) {
-        super(musicManager);
+public class CreatePlaylist extends PlaylistCommand {
+    public CreatePlaylist(UserPlaylistEditor userPlaylistEditor) {
+        super(userPlaylistEditor);
     }
 
     @Override
     public List<String> getNames() {
-        return List.of("delete_from_queue");
+        return List.of("create_playlist");
     }
 
     @Override
     public String getDescription() {
-        return "Deletes n's track from queue";
+        return "Creates new playlist with given name";
     }
 
     @Override
     public List<OptionData> getOptions() {
         return List.of(
-                new OptionData(OptionType.INTEGER, "track_number", "number of the track in the queue", true)
+                new OptionData(OptionType.STRING, "name", "playlist name", true)
         );
     }
 
@@ -45,6 +44,6 @@ public class DeleteFromQueue extends MusicCommand {
         if (args.size() != 1) {
             throw new CommandException("Invalid number of arguments!");
         }
-        musicManager.getGuildMusicManager(guild).deleteFromQueue(Integer.parseInt(args.get(0)));
+        userPlaylistEditor.createPlaylist(member.getUser(), args.get(0));
     }
 }

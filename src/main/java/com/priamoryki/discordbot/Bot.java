@@ -26,6 +26,14 @@ import com.priamoryki.discordbot.commands.music.queue.PlayNext;
 import com.priamoryki.discordbot.commands.music.queue.PrintQueue;
 import com.priamoryki.discordbot.commands.music.queue.ShuffleQueue;
 import com.priamoryki.discordbot.commands.music.queue.SkipTo;
+import com.priamoryki.discordbot.commands.playlist.AddSongs;
+import com.priamoryki.discordbot.commands.playlist.CreatePlaylist;
+import com.priamoryki.discordbot.commands.playlist.DeletePlaylist;
+import com.priamoryki.discordbot.commands.playlist.EditPlaylist;
+import com.priamoryki.discordbot.commands.playlist.GetPlaylists;
+import com.priamoryki.discordbot.commands.playlist.GetSongs;
+import com.priamoryki.discordbot.commands.playlist.PlayPlaylist;
+import com.priamoryki.discordbot.commands.playlist.RemoveSongs;
 import com.priamoryki.discordbot.commands.sounds.Boobs;
 import com.priamoryki.discordbot.commands.sounds.GJ;
 import com.priamoryki.discordbot.commands.sounds.Kaguya;
@@ -110,7 +118,16 @@ public class Bot implements CommandLineRunner {
                     new Silence(musicManager),
                     new Titan(musicManager),
                     new Tuturu(musicManager),
-                    new Wtf(musicManager)
+                    new Wtf(musicManager),
+                    // Playlist commands
+                    new AddSongs(userPlaylistEditor, musicFinder),
+                    new CreatePlaylist(userPlaylistEditor),
+                    new DeletePlaylist(userPlaylistEditor),
+                    new EditPlaylist(userPlaylistEditor),
+                    new GetPlaylists(userPlaylistEditor, data),
+                    new GetSongs(userPlaylistEditor, data),
+                    new PlayPlaylist(musicManager, userPlaylistEditor),
+                    new RemoveSongs(userPlaylistEditor)
             );
 
             EventsListener eventsListener = new EventsListener(data, commands, guildAttributesService);

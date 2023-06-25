@@ -38,7 +38,7 @@ public class MusicFinder {
 
     public List<AudioTrack> find(SongRequest songRequest) {
         List<SongRequest> requests = sources.stream()
-                .filter(source -> source.matches(songRequest.getUrlOrName()))
+                .filter(source -> source.matches(songRequest))
                 .findFirst().map(source -> source.find(songRequest)).orElse(List.of(songRequest));
 
         List<List<AudioTrack>> result = new ArrayList<>(requests.size());

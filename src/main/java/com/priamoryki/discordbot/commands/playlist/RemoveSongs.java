@@ -1,8 +1,7 @@
-package com.priamoryki.discordbot.commands.music.queue;
+package com.priamoryki.discordbot.commands.playlist;
 
-import com.priamoryki.discordbot.api.audio.MusicManager;
 import com.priamoryki.discordbot.commands.CommandException;
-import com.priamoryki.discordbot.commands.MusicCommand;
+import com.priamoryki.discordbot.utils.user.playlist.UserPlaylistEditor;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -13,25 +12,26 @@ import java.util.List;
 /**
  * @author Pavel Lymar
  */
-public class DeleteFromQueue extends MusicCommand {
-    public DeleteFromQueue(MusicManager musicManager) {
-        super(musicManager);
+public class RemoveSongs extends PlaylistCommand {
+    public RemoveSongs(UserPlaylistEditor userPlaylistEditor) {
+        super(userPlaylistEditor);
     }
 
     @Override
     public List<String> getNames() {
-        return List.of("delete_from_queue");
+        return List.of("remove_songs");
     }
 
     @Override
     public String getDescription() {
-        return "Deletes n's track from queue";
+        return "Removes songs from playlist by indexes";
     }
 
     @Override
     public List<OptionData> getOptions() {
         return List.of(
-                new OptionData(OptionType.INTEGER, "track_number", "number of the track in the queue", true)
+                new OptionData(OptionType.INTEGER, "from_id", "from index", true),
+                new OptionData(OptionType.INTEGER, "to_id", "to index", true)
         );
     }
 
@@ -42,9 +42,9 @@ public class DeleteFromQueue extends MusicCommand {
 
     @Override
     public void execute(Guild guild, Member member, List<String> args) throws CommandException {
-        if (args.size() != 1) {
+        if (args.size() != 2) {
             throw new CommandException("Invalid number of arguments!");
         }
-        musicManager.getGuildMusicManager(guild).deleteFromQueue(Integer.parseInt(args.get(0)));
+        userPlaylistEditor.removeSongs(member.getUser(), Integer.parseInt(args.get(0)), Integer.parseInt(args.get(1)));
     }
 }
