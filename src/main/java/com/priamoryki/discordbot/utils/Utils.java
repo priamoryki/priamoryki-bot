@@ -8,6 +8,10 @@ import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Pavel Lymar
@@ -28,6 +32,16 @@ public class Utils {
         long m = (time / 60) % 60;
         long h = (time / (60 * 60)) % 24;
         return String.format("%02d:%02d:%02d", h, m, s);
+    }
+
+    public static long parseTime(String s) {
+        List<String> list = Arrays.stream(s.split(":")).collect(Collectors.toList());
+        Collections.reverse(list);
+        long time = 0;
+        for (int i = 0; i < Math.min(3, list.size()); i++) {
+            time += Math.pow(60, i) * Long.parseLong(list.get(i));
+        }
+        return time;
     }
 
     public static boolean isTheSameVoiceChannelWithMember(Member bot, Member member) {

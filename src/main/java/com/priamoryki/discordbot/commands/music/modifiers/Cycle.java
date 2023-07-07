@@ -1,4 +1,4 @@
-package com.priamoryki.discordbot.commands.music;
+package com.priamoryki.discordbot.commands.music.modifiers;
 
 import com.priamoryki.discordbot.api.audio.MusicManager;
 import com.priamoryki.discordbot.commands.CommandException;
@@ -12,28 +12,26 @@ import java.util.List;
 
 import static com.priamoryki.discordbot.utils.Utils.parseTime;
 
-/**
- * @author Pavel Lymar
- */
-public class Seek extends MusicCommand {
-    public Seek(MusicManager musicManager) {
+public class Cycle extends MusicCommand {
+    public Cycle(MusicManager musicManager) {
         super(musicManager);
     }
 
     @Override
     public List<String> getNames() {
-        return List.of("seek");
+        return List.of("cycle");
     }
 
     @Override
     public String getDescription() {
-        return "Seeks current track to the entered time";
+        return "Cycles current track";
     }
 
     @Override
     public List<OptionData> getOptions() {
         return List.of(
-                new OptionData(OptionType.STRING, "time", "time to skip current track to", true)
+                new OptionData(OptionType.STRING, "start_time", "time of cycle start", true),
+                new OptionData(OptionType.STRING, "end_time", "time of cycle end", true)
         );
     }
 
@@ -44,10 +42,11 @@ public class Seek extends MusicCommand {
 
     @Override
     public void execute(Guild guild, Member member, List<String> args) throws CommandException {
-        if (args.size() != 1) {
+        if (args.size() != 2) {
             throw new CommandException("Invalid number of arguments!");
         }
-        long time = parseTime(args.get(0));
-        musicManager.getGuildMusicManager(guild).seek(1_000L * time);
+        long start = parseTime(args.get(0));
+        long finish = parseTime(args.get(1));
+        musicManager.getGuildMusicManager(guild).cycle(1_000L * start, 1_000L * finish);
     }
 }

@@ -104,11 +104,7 @@ public class DataSource {
     }
 
     public long getBotId() {
-        try {
-            return settings.getLong("id");
-        } catch (JSONException e) {
-            return INVALID_ID;
-        }
+        return getBot().getSelfUser().getIdLong();
     }
 
     public String getPrefix() {

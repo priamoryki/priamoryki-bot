@@ -16,6 +16,7 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
+import com.sedmelluq.discord.lavaplayer.track.TrackMarker;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
@@ -35,6 +36,8 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
+import static com.sedmelluq.discord.lavaplayer.track.TrackMarkerHandler.MarkerState.REACHED;
 
 /**
  * @author Pavel Lymar
@@ -362,8 +365,23 @@ public class GuildMusicManager extends AudioEventAdapter {
                 queue.addFirst(track);
             }
         } else {
-            startTrack(track, true);
+            startTrack(track, false);
         }
+    }
+
+    public void cycle(long start, long finish) {
+        AudioTrack track = player.getPlayingTrack();
+        track.setPosition(start);
+        track.setMarker(new TrackMarker(finish, markerState -> {
+            if (markerState == REACHED) {
+                cycle(start, finish);
+            }
+        }));
+    }
+
+    public void uncycle() {
+        AudioTrack track = player.getPlayingTrack();
+        track.setMarker(null);
     }
 
     @Override
