@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.utils.messages.AbstractMessageBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
 
 import java.awt.*;
+import java.time.Instant;
 import java.util.List;
 import java.util.*;
 
@@ -42,7 +43,7 @@ public class PlayerMessage implements UsefulMessage {
         return result;
     }
 
-    public static <T, R extends AbstractMessageBuilder<T, R>> AbstractMessageBuilder<T, R> fillWithDefaultMessage(AbstractMessageBuilder<T, R> messageBuilder) {
+    public static <T, R extends AbstractMessageBuilder<T, R>> AbstractMessageBuilder<T, R>fillWithDefaultMessage(AbstractMessageBuilder<T, R> messageBuilder) {
         return messageBuilder.setEmbeds(
                 new EmbedBuilder().setColor(Color.BLUE).setTitle("PLAYER MESSAGE").build()
         ).setComponents(ActionRow.of(getButtons()));
@@ -69,12 +70,17 @@ public class PlayerMessage implements UsefulMessage {
 
     public void startUpdateTask() {
         endUpdateTask();
+        long delay = 0;
+        long period = Math.max(
+                MINIMAL_UPDATE_PERIOD,
+                guildMusicManager.getPlayer().getPlayingTrack().getDuration() / BLOCKS_NUMBER
+        );
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
                 update();
             }
-        }, 0, Math.max(MINIMAL_UPDATE_PERIOD, guildMusicManager.getPlayer().getPlayingTrack().getDuration() / BLOCKS_NUMBER));
+        }, delay, period);
     }
 
     public void endUpdateTask() {
@@ -104,10 +110,11 @@ public class PlayerMessage implements UsefulMessage {
         } else {
             builder.setTitle(track.getInfo().title);
         }
-        builder.setDescription("🟥".repeat(blocks) + "🟦".repeat(BLOCKS_NUMBER - blocks) + "\n" +
-                        (isLive ? "LIVE" : Utils.normalizeTime(currentTime) + " / " + Utils.normalizeTime(duration)))
+        String timeLine = "🟥".repeat(blocks) + "🟦".repeat(BLOCKS_NUMBER - blocks);
+        String timeString = isLive ? "LIVE" : Utils.normalizeTime(currentTime) + " / " + Utils.normalizeTime(duration);
+        builder.setDescription(timeLine + "\n" + timeString)
                 .setFooter(guildMusicManager.getMusicParameters().getRepeat() ? "On repeat" : "Not on repeat")
-                .setTimestamp(new Date().toInstant());
+                .setTimestamp(Instant.now());
         return messageBuilder.setEmbeds(builder.build()).setComponents(ActionRow.of(getButtons()));
     }
 }
