@@ -45,7 +45,7 @@ public class GetPlaylists extends PlaylistCommand {
     @Override
     public void execute(Guild guild, Member member, List<String> args) throws CommandException {
         List<Playlist> playlists = userPlaylistEditor.getUserPlaylists(member.getUser());
-        String text = String.format("__%s playlists__:\n", member.getUser().getName()) +
+        String text = String.format("__%s playlists__:%n", member.getUser().getName()) +
                 playlists.stream().map(
                         p -> String.format("%s (id=%d)", p.getName(), p.getId())
                 ).collect(Collectors.joining("\n"));

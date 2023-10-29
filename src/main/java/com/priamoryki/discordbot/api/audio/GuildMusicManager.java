@@ -32,6 +32,9 @@ import static com.sedmelluq.discord.lavaplayer.track.TrackMarkerHandler.MarkerSt
  * @author Pavel Lymar, Michael Ruzavin
  */
 public class GuildMusicManager extends AudioEventAdapter {
+    private static final float[] BASS_BOOST = {
+            0.2f, 0.15f, 0.1f, 0.05f, 0.0f, -0.05f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f
+    };
     private final MusicFinder musicFinder;
     private final Guild guild;
     private final AudioPlayer player;
@@ -191,10 +194,11 @@ public class GuildMusicManager extends AudioEventAdapter {
         skip();
     }
 
-    public void deleteFromQueue(int id) throws CommandException {
-        validateId(id);
+    public void deleteFromQueue(int from, int  to) throws CommandException {
+        validateId(from);
+        validateId(to);
         List<AudioTrack> list = new ArrayList<>(queue);
-        list.remove(id - 1);
+        list.subList(from - 1, to).clear();
         queue.clear();
         queue.addAll(list);
     }
@@ -208,9 +212,6 @@ public class GuildMusicManager extends AudioEventAdapter {
 
     private void rebuildFilters() {
         float multiplier = 1;
-        float[] BASS_BOOST = {
-                0.2f, 0.15f, 0.1f, 0.05f, 0.0f, -0.05f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f
-        };
         player.setFilterFactory(
                 (audioTrack, audioDataFormat, universalPcmAudioFilter) -> {
                     List<AudioFilter> filters = new ArrayList<>();

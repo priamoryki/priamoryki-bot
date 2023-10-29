@@ -55,7 +55,7 @@ public class GetSongs extends PlaylistCommand {
         Long id = Long.parseLong(args.get(0));
         Playlist playlist = userPlaylistEditor.getPlaylist(member.getUser(), id);
         List<PlaylistSong> songs = playlist.getSongs();
-        String text = String.format("__%s (id=%d) playlist songs__:\n", playlist.getName(), id) +
+        String text = String.format("__%s (id=%d) playlist songs__:%n", playlist.getName(), id) +
                 IntStream.range(0, songs.size()).mapToObj(
                         i -> String.format(
                                 "%d) `%s`",

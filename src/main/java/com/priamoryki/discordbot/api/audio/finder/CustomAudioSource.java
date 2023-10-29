@@ -19,7 +19,8 @@ public abstract class CustomAudioSource {
         this.patterns = new HashMap<>();
     }
 
-    boolean matches(String urlOrName) {
+    public boolean matches(SongRequest songRequest) {
+        String urlOrName = songRequest.getUrlOrName();
         for (Pattern pattern : patterns.keySet()) {
             if (pattern.matcher(urlOrName).matches()) {
                 return true;

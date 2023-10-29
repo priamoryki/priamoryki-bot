@@ -6,18 +6,15 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 /**
  * @author Pavel Lymar
  */
 @Repository
-public class PlaylistsRepository {
-    private final EntityManager manager;
-
+public class PlaylistsRepository extends AbstractRepository<Playlist> {
     public PlaylistsRepository(EntityManager manager) {
-        this.manager = manager;
+        super(manager);
     }
 
     public Playlist getPlaylistById(Long id) {
@@ -33,19 +30,14 @@ public class PlaylistsRepository {
         manager.getTransaction().begin();
         playlist.getSongs().addAll(songs);
         songs.forEach(manager::persist);
-        manager.persist(playlist);
         manager.getTransaction().commit();
+        update(playlist);
     }
 
     public void remove(Playlist playlist) {
         manager.getTransaction().begin();
         manager.remove(playlist);
         manager.getTransaction().commit();
-    }
-
-    public void update(Playlist playlist) {
-        manager.getTransaction().begin();
-        manager.persist(playlist);
-        manager.getTransaction().commit();
+        update(playlist);
     }
 }

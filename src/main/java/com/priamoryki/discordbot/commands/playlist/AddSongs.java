@@ -3,7 +3,6 @@ package com.priamoryki.discordbot.commands.playlist;
 import com.priamoryki.discordbot.api.audio.SongRequest;
 import com.priamoryki.discordbot.api.audio.finder.MusicFinder;
 import com.priamoryki.discordbot.commands.CommandException;
-import com.priamoryki.discordbot.entities.PlaylistSong;
 import com.priamoryki.discordbot.utils.Utils;
 import com.priamoryki.discordbot.utils.user.playlist.SongInfo;
 import com.priamoryki.discordbot.utils.user.playlist.UserPlaylistEditor;
