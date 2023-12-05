@@ -29,13 +29,16 @@ public class MusicFinder {
     }
 
     public List<AudioTrack> find(SongRequest songRequest) {
-        Guild guild = songRequest.getGuild();
-        Member member = songRequest.getMember();
-        String urlOrName = songRequest.getUrlOrName();
-        List<AudioTrack> result = new ArrayList<>();
+        List<SongRequest> requests = sources.stream()
+                .filter(source -> source.matches(songRequest.getUrlOrName()))
+                .findFirst().map(source -> source.find(songRequest)).orElse(List.of(songRequest));
 
-        try {
-            audioPlayerManager.loadItemOrdered(this, urlOrName, new AudioLoadResultHandler() {
+        List<AudioTrack> result = new ArrayList<>();
+        for (SongRequest request : requests) {
+            Guild guild = request.getGuild();
+            Member member = request.getMember();
+            String urlOrName = request.getUrlOrName();
+            audioPlayerManager.loadItemSync(urlOrName, new AudioLoadResultHandler() {
                 @Override
                 public void trackLoaded(AudioTrack track) {
                     track.setUserData(member.getUser());
@@ -53,26 +56,15 @@ public class MusicFinder {
 
                 @Override
                 public void noMatches() {
-                    tryCustomSources(songRequest).forEach(this::trackLoaded);
+
                 }
 
                 @Override
                 public void loadFailed(FriendlyException exception) {
-                    tryCustomSources(songRequest).forEach(this::trackLoaded);
+
                 }
-            }).get(10, TimeUnit.SECONDS);
-        } catch (ExecutionException | InterruptedException | TimeoutException e) {
-            System.err.println(e.getMessage());
+            });
         }
         return result;
-    }
-
-    private List<AudioTrack> tryCustomSources(SongRequest songRequest) {
-        for (CustomAudioSource source : sources) {
-            if (source.matches(songRequest.getUrlOrName())) {
-                source.find(songRequest).forEach(this::find);
-            }
-        }
-        return new ArrayList<>();
     }
 }

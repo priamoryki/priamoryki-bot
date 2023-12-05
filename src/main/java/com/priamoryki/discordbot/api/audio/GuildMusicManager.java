@@ -210,7 +210,7 @@ public class GuildMusicManager extends AudioEventAdapter {
     }
 
     private void rebuildFilters() {
-        float multiplier = 2;
+        float multiplier = 1;
         float[] BASS_BOOST = {
                 0.2f, 0.15f, 0.1f, 0.05f, 0.0f, -0.05f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f
         };
@@ -261,6 +261,7 @@ public class GuildMusicManager extends AudioEventAdapter {
 
     private void startTrack(AudioTrack track, boolean flag) {
         player.startTrack(track, flag);
+        resume();
         playerMessage.startUpdateTask();
     }
 
