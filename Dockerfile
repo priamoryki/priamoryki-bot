@@ -1,4 +1,4 @@
-FROM maven:3.6.3-openjdk-14-slim AS build
+FROM maven:3.8.3-openjdk-17-slim AS build
 
 WORKDIR /usr/bin/priamoryki-bot
 
@@ -7,7 +7,7 @@ COPY pom.xml .
 
 RUN mvn -f pom.xml clean package
 
-FROM openjdk:14-slim
+FROM openjdk:17-slim
 
 WORKDIR /usr/bin/priamoryki-bot
 

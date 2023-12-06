@@ -1,15 +1,20 @@
 package com.priamoryki.discordbot.api.audio.finder;
 
 import com.priamoryki.discordbot.api.audio.SongRequest;
+import com.priamoryki.discordbot.utils.auth.holder.TokenHolder;
+import com.priamoryki.discordbot.utils.auth.service.AuthService;
+import com.priamoryki.discordbot.utils.auth.service.AuthTokenService;
 import org.apache.hc.core5.http.ParseException;
 import se.michaelthelin.spotify.SpotifyApi;
 import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
+import se.michaelthelin.spotify.model_objects.credentials.ClientCredentials;
 import se.michaelthelin.spotify.model_objects.specification.Album;
 import se.michaelthelin.spotify.model_objects.specification.Playlist;
 import se.michaelthelin.spotify.model_objects.specification.Track;
 import se.michaelthelin.spotify.model_objects.specification.TrackSimplified;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -22,9 +27,10 @@ import java.util.stream.Stream;
  * @author Pavel Lymar
  */
 public class SpotifySource extends CustomAudioSource {
-    private final String SPOTIFY_CLIENT_ID_ENV_NAME = "SPOTIFY_CLIENT_ID";
-    private final String SPOTIFY_CLIENT_SECRET_ENV_NAME = "SPOTIFY_CLIENT_SECRET";
+    private static final String SPOTIFY_CLIENT_ID_ENV_NAME = "SPOTIFY_CLIENT_ID";
+    private static final String SPOTIFY_CLIENT_SECRET_ENV_NAME = "SPOTIFY_CLIENT_SECRET";
     private final SpotifyApi spotifyApi;
+    private final AuthTokenService authTokenService;
 
     public SpotifySource() {
         super();
@@ -43,7 +49,7 @@ public class SpotifySource extends CustomAudioSource {
                 .setClientId(getSpotifyClientId())
                 .setClientSecret(getSpotifyClientSecret())
                 .build();
-        updateSpotifyApi();
+        this.authTokenService = new AuthTokenService(new SpotifyAuthService(spotifyApi), 180);
     }
 
     public String getSpotifyClientId() {
@@ -54,17 +60,8 @@ public class SpotifySource extends CustomAudioSource {
         return System.getenv(SPOTIFY_CLIENT_SECRET_ENV_NAME);
     }
 
-    private void updateSpotifyApi() {
-        try {
-            spotifyApi.setAccessToken(spotifyApi.clientCredentials().build().execute().getAccessToken());
-        } catch (IOException | ParseException | SpotifyWebApiException e) {
-            System.err.println("SpotifyApi login error: " + e.getMessage());
-        }
-    }
-
     public SpotifyApi getSpotifyApi() {
-        // TODO pretty long request
-        updateSpotifyApi();
+        spotifyApi.setAccessToken(authTokenService.getToken());
         return spotifyApi;
     }
 
@@ -137,5 +134,34 @@ public class SpotifySource extends CustomAudioSource {
                     );
                 }
         ).flatMap(List::stream).collect(Collectors.toList());
+    }
+
+    private static class SpotifyAuthService implements AuthService {
+        private final SpotifyApi spotifyApi;
+
+        public SpotifyAuthService(SpotifyApi spotifyApi) {
+            this.spotifyApi = spotifyApi;
+        }
+
+        @Override
+        public TokenHolder auth() {
+            try {
+                ClientCredentials clientCredentials = spotifyApi.clientCredentials().build().execute();
+                return new TokenHolder(
+                        clientCredentials.getAccessToken(),
+                        Instant.now().plusSeconds(clientCredentials.getExpiresIn()),
+                        "",
+                        Instant.EPOCH
+                );
+            } catch (IOException | ParseException | SpotifyWebApiException e) {
+                System.err.println("SpotifyApi login error: " + e.getMessage());
+            }
+            return TokenHolder.EMPTY;
+        }
+
+        @Override
+        public TokenHolder refresh(String refreshToken) {
+            throw new UnsupportedOperationException();
+        }
     }
 }
