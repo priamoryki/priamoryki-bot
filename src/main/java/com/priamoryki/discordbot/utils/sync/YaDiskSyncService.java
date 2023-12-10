@@ -1,6 +1,5 @@
 package com.priamoryki.discordbot.utils.sync;
 
-import com.priamoryki.discordbot.utils.sync.SyncService;
 import com.yandex.disk.rest.DownloadListener;
 import com.yandex.disk.rest.RestClient;
 import com.yandex.disk.rest.exceptions.ServerException;
@@ -47,6 +46,14 @@ public class YaDiskSyncService implements SyncService {
 
     @Override
     public void upload() {
+        try {
+            String path = dbServerPath.substring(0, Math.max(0, dbServerPath.lastIndexOf("/")));
+            if (!path.isBlank()) {
+                cloudApi.makeFolder(path);
+            }
+        } catch (IOException | ServerException e) {
+            System.err.printf("Can't create directory: %s%n", e.getMessage());
+        }
         try {
             cloudApi.uploadFile(
                     cloudApi.getUploadLink(dbServerPath, true),

@@ -61,6 +61,7 @@ public class DataSource {
         EntityManagerFactory factory = Persistence.createEntityManagerFactory("main");
         EntityManager entityManager = factory.createEntityManager();
         this.serversRepository = new ServersRepository(entityManager);
+        this.syncService.upload();
     }
 
     public void setupBot(CommandsStorage commands) {
