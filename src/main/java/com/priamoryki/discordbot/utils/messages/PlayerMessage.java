@@ -6,25 +6,27 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.utils.messages.AbstractMessageBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
 
-import java.awt.*;
+import java.awt.Color;
 import java.time.Instant;
+import java.util.Date;
 import java.util.List;
-import java.util.*;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * @author Pavel Lymar
  */
 public class PlayerMessage implements UsefulMessage {
-    // TODO: here are some bugs with rate limiter. Could be fixed by adding your own rate limiter
     private static final int BLOCKS_NUMBER = 27;
     private static final long MINIMAL_UPDATE_PERIOD = 15_000;
     private final GuildMusicManager guildMusicManager;
-    private Message playerMessage;
+    private Message message;
     private Timer timer;
     private long lastUpdateTime;
 
@@ -34,35 +36,35 @@ public class PlayerMessage implements UsefulMessage {
     }
 
     private static List<Button> getButtons() {
-        List<Button> result = new ArrayList<>();
-        result.add(Button.primary("RESUME", "▶"));
-        result.add(Button.primary("PAUSE", "⏸"));
-        result.add(Button.primary("SKIP", "⏯"));
-        result.add(Button.primary("REPEAT", "🔁"));
-        result.add(Button.primary("PRINT_QUEUE", "🗒️"));
-        return result;
+        return List.of(
+                Button.primary("RESUME", Emoji.fromUnicode("▶")),
+                Button.primary("PAUSE", Emoji.fromUnicode("⏸")),
+                Button.primary("SKIP", Emoji.fromUnicode("⏯")),
+                Button.primary("REPEAT", Emoji.fromUnicode("🔁")),
+                Button.primary("PRINT_QUEUE", Emoji.fromUnicode("🗒️"))
+        );
     }
 
-    public static <T, R extends AbstractMessageBuilder<T, R>> AbstractMessageBuilder<T, R>fillWithDefaultMessage(AbstractMessageBuilder<T, R> messageBuilder) {
+    public static <T, R extends AbstractMessageBuilder<T, R>> AbstractMessageBuilder<T, R> fillWithDefaultMessage(AbstractMessageBuilder<T, R> messageBuilder) {
         return messageBuilder.setEmbeds(
                 new EmbedBuilder().setColor(Color.BLUE).setTitle("PLAYER MESSAGE").build()
         ).setComponents(ActionRow.of(getButtons()));
     }
 
     private void createNewMessage() {
-        playerMessage = guildMusicManager.getData().getOrCreatePlayerMessage(guildMusicManager.getGuild());
+        message = guildMusicManager.getData().getOrCreatePlayerMessage(guildMusicManager.getGuild());
     }
 
     @Override
     public void update() {
-        // temp fix for https://github.com/priamoryki/priamoryki-bot/issues/1
+        // LATER: temp fix for https://github.com/priamoryki/priamoryki-bot/issues/1
         long time = (new Date()).getTime();
         if (time - lastUpdateTime < MINIMAL_UPDATE_PERIOD) {
             return;
         }
         lastUpdateTime = time;
         try {
-            playerMessage.editMessage(fillBuilder(new MessageEditBuilder()).build()).complete();
+            message.editMessage(fillBuilder(new MessageEditBuilder()).build()).complete();
         } catch (Exception ignored) {
             createNewMessage();
         }

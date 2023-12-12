@@ -12,9 +12,6 @@ import net.dv8tion.jda.api.entities.Member;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * @author Pavel Lymar

@@ -37,12 +37,12 @@ import java.util.List;
  * @author Pavel Lymar
  */
 public class DataSource {
-    private final long INVALID_ID = -1;
-    private final String TOKEN_ENV_NAME = "TOKEN";
-    private final String YADISK_TOKEN_ENV_NAME = "YADISK_TOKEN";
-    private final String SETTINGS_PATH = "data/config.json";
-    private final String DB_LOCAL_PATH = "data/servers.db";
-    private final String DB_CLOUD_PATH = "servers.db";
+    private static final long INVALID_ID = -1;
+    private static final String TOKEN_ENV_NAME = "TOKEN";
+    private static final String YADISK_TOKEN_ENV_NAME = "YADISK_TOKEN";
+    private static final String SETTINGS_PATH = "data/config.json";
+    private static final String DB_LOCAL_PATH = "data/servers.db";
+    private static final String DB_CLOUD_PATH = "servers.db";
     private final ServersRepository serversRepository;
     private final JSONObject settings;
     private final SyncService syncService;

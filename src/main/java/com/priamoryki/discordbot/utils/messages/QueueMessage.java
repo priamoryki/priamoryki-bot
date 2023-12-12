@@ -5,13 +5,13 @@ import com.priamoryki.discordbot.utils.Utils;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.utils.messages.AbstractMessageBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -20,9 +20,9 @@ import java.util.stream.IntStream;
  * @author Pavel Lymar
  */
 public class QueueMessage implements UsefulMessage {
+    private static final int MAX_SONGS_NUMBER = 20;
     private final GuildMusicManager guildMusicManager;
-    private final int MAX_SONGS_NUMBER = 20;
-    private Message queueMessage;
+    private Message message;
     private int page = 1;
 
     public QueueMessage(GuildMusicManager guildMusicManager) {
@@ -30,14 +30,14 @@ public class QueueMessage implements UsefulMessage {
     }
 
     private static List<Button> getButtons() {
-        List<Button> result = new ArrayList<>();
-        result.add(Button.primary("PREVIOUS_PAGE", "⏪"));
-        result.add(Button.primary("NEXT_PAGE", "⏩"));
-        return result;
+        return List.of(
+                Button.primary("PREVIOUS_PAGE", Emoji.fromUnicode("⏪")),
+                Button.primary("NEXT_PAGE", Emoji.fromUnicode("⏩"))
+        );
     }
 
     private void createNewMessage() {
-        queueMessage = guildMusicManager.getData().getOrCreateMainChannel(guildMusicManager.getGuild())
+        message = guildMusicManager.getData().getOrCreateMainChannel(guildMusicManager.getGuild())
                 .sendMessage(fillBuilder(new MessageCreateBuilder(), guildMusicManager.getQueue()).build()).complete();
     }
 
@@ -62,7 +62,7 @@ public class QueueMessage implements UsefulMessage {
             page = queue.size() / MAX_SONGS_NUMBER + 1;
         }
         try {
-            queueMessage.editMessage(fillBuilder(new MessageEditBuilder(), queue).build()).complete();
+            message.editMessage(fillBuilder(new MessageEditBuilder(), queue).build()).complete();
         } catch (Exception ignored) {
             createNewMessage();
         }
