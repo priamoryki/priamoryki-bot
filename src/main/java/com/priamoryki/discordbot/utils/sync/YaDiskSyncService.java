@@ -25,20 +25,19 @@ public class YaDiskSyncService implements SyncService {
     @Override
     public void load() {
         try {
-            if (new File(dbLocalPath).delete()) {
-                cloudApi.downloadFile(
-                        dbServerPath,
-                        new File(dbLocalPath),
-                        new DownloadListener() {
-                            @Override
-                            public OutputStream getOutputStream(boolean b) {
-                                return null;
-                            }
-                        }
-                );
-            } else {
+            if (!new File(dbLocalPath).delete()) {
                 System.err.printf("Can't delete file %s%n", dbLocalPath);
             }
+            cloudApi.downloadFile(
+                    dbServerPath,
+                    new File(dbLocalPath),
+                    new DownloadListener() {
+                        @Override
+                        public OutputStream getOutputStream(boolean b) {
+                            return null;
+                        }
+                    }
+            );
         } catch (IOException | ServerException e) {
             e.printStackTrace();
         }
