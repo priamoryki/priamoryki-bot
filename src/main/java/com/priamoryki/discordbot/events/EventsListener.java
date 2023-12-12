@@ -62,7 +62,7 @@ public class EventsListener extends ListenerAdapter {
     }
 
     public void onPrivateMessageReceived(@NotNull MessageReceivedEvent event) {
-        // TODO
+        // LATER
     }
 
     @Override
@@ -75,7 +75,7 @@ public class EventsListener extends ListenerAdapter {
         Guild guild = message.getGuild();
         Member member = message.getMember();
         String messageText = message.getContentDisplay();
-        // TODO вот бы это делать более обдуманно
+        // LATER вот бы это делать более обдуманно
 //        if (messageText.equals("create")) {
 //            createGuildAttributes(message.getGuild());
 //        }

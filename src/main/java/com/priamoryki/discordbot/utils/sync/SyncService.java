@@ -5,5 +5,6 @@ package com.priamoryki.discordbot.utils.sync;
  */
 public interface SyncService {
     void load();
+
     void upload();
 }

@@ -2,7 +2,11 @@ package com.priamoryki.discordbot.entities;
 
 import org.hibernate.annotations.UpdateTimestamp;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.Table;
 import java.sql.Date;
 
 /**

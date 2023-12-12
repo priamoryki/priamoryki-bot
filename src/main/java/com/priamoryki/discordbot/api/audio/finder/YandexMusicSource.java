@@ -60,7 +60,7 @@ public class YandexMusicSource extends CustomAudioSource {
     }
 
     private List<SongRequest> fromYandexMusic(SongRequest songRequest, String className) {
-        // TODO not the best implementation
+        // LATER not the best implementation
         try {
             Document doc = Jsoup.connect(songRequest.getUrlOrName()).get();
             List<String> tracks = doc.getElementsByClass(className).stream()
