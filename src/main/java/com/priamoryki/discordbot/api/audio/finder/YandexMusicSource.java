@@ -64,7 +64,7 @@ public class YandexMusicSource extends CustomAudioSource {
         try {
             Document doc = Jsoup.connect(songRequest.getUrlOrName()).get();
             List<String> tracks = doc.getElementsByClass(className).stream()
-                    .map(Element::text).collect(Collectors.toList());
+                    .map(Element::text).toList();
             List<String> artists = doc.getElementsByClass(PLAYLIST_ARTISTS).stream()
                     .map(Element::text).collect(Collectors.toList());
             while (artists.size() < tracks.size()) {
@@ -77,13 +77,17 @@ public class YandexMusicSource extends CustomAudioSource {
                         return new SongRequest(
                                 songRequest.getGuild(),
                                 songRequest.getMember(),
-                                "scsearch:" + artist + " - " + tracks.get(i)
+                                getSearchString(artist, tracks.get(i))
                         );
                     }
-            ).collect(Collectors.toList());
+            ).toList();
         } catch (IOException e) {
             System.err.println("YandexMusic error: " + e.getMessage());
         }
         return new ArrayList<>();
+    }
+
+    private String getSearchString(String author, String name) {
+        return "scsearch:" + author + " - " + name;
     }
 }
