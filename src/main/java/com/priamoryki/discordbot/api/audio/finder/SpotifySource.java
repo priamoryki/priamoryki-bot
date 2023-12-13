@@ -10,8 +10,8 @@ import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
 import se.michaelthelin.spotify.model_objects.credentials.ClientCredentials;
 import se.michaelthelin.spotify.model_objects.specification.Album;
 import se.michaelthelin.spotify.model_objects.specification.Playlist;
+import se.michaelthelin.spotify.model_objects.specification.PlaylistTrack;
 import se.michaelthelin.spotify.model_objects.specification.Track;
-import se.michaelthelin.spotify.model_objects.specification.TrackSimplified;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -20,8 +20,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author Pavel Lymar
@@ -76,7 +74,7 @@ public class SpotifySource extends CustomAudioSource {
                         new SongRequest(
                                 songRequest.getGuild(),
                                 songRequest.getMember(),
-                                "scsearch:" + track.getName() + " - " + track.getArtists()[0].getName()
+                                getSearchString(track.getArtists()[0].getName(), track.getName())
                         )
                 );
             } catch (IOException | SpotifyWebApiException | ParseException e) {
@@ -92,10 +90,11 @@ public class SpotifySource extends CustomAudioSource {
             try {
                 String[] splitted = songRequest.getUrlOrName().split("/");
                 Album album = getSpotifyApi().getAlbum(splitted[splitted.length - 1]).build().execute();
-                return requestSpotifySongs(
-                        songRequest,
-                        Arrays.stream(album.getTracks().getItems()).map(TrackSimplified::getUri)
-                );
+                return Arrays.stream(album.getTracks().getItems()).map(track -> new SongRequest(
+                        songRequest.getGuild(),
+                        songRequest.getMember(),
+                        getSearchString(track.getArtists()[0].getName(), track.getName())
+                )).toList();
             } catch (IOException | SpotifyWebApiException | ParseException e) {
                 System.err.println("SpotifyAlbum error: " + e.getMessage());
             }
@@ -109,10 +108,11 @@ public class SpotifySource extends CustomAudioSource {
             try {
                 String[] splitted = songRequest.getUrlOrName().split("/");
                 Playlist playlist = getSpotifyApi().getPlaylist(splitted[splitted.length - 1]).build().execute();
-                return requestSpotifySongs(
-                        songRequest,
-                        Arrays.stream(playlist.getTracks().getItems()).map(track -> track.getTrack().getUri())
-                );
+                return Arrays.stream(playlist.getTracks().getItems()).map(PlaylistTrack::getTrack).map(track -> new SongRequest(
+                        songRequest.getGuild(),
+                        songRequest.getMember(),
+                        getSearchString(((Track) track).getArtists()[0].getName(), track.getName())
+                )).toList();
             } catch (IOException | SpotifyWebApiException | ParseException e) {
                 System.err.println("SpotifyPlaylist error: " + e.getMessage());
             }
@@ -120,20 +120,8 @@ public class SpotifySource extends CustomAudioSource {
         }
     }
 
-    private List<SongRequest> requestSpotifySongs(SongRequest songRequest, Stream<String> stream) {
-        SpotifySong song = new SpotifySong();
-        return stream.map(
-                uri -> {
-                    String[] splitted = uri.split(":");
-                    return song.apply(
-                            new SongRequest(
-                                    songRequest.getGuild(),
-                                    songRequest.getMember(),
-                                    splitted[splitted.length - 1]
-                            )
-                    );
-                }
-        ).flatMap(List::stream).collect(Collectors.toList());
+    private String getSearchString(String author, String name) {
+        return "scsearch:" + author + " - " + name;
     }
 
     private static class SpotifyAuthService implements AuthService {
