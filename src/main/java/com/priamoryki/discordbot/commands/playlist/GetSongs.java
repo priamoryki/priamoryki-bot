@@ -2,8 +2,7 @@ package com.priamoryki.discordbot.commands.playlist;
 
 import com.priamoryki.discordbot.commands.CommandException;
 import com.priamoryki.discordbot.entities.Playlist;
-import com.priamoryki.discordbot.entities.PlaylistSong;
-import com.priamoryki.discordbot.utils.DataSource;
+import com.priamoryki.discordbot.utils.user.playlist.PlaylistMessagesService;
 import com.priamoryki.discordbot.utils.user.playlist.UserPlaylistEditor;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -11,18 +10,16 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /**
  * @author Pavel Lymar
  */
 public class GetSongs extends PlaylistCommand {
-    private final DataSource data;
+    private final PlaylistMessagesService playlistMessagesService;
 
-    public GetSongs(UserPlaylistEditor userPlaylistEditor, DataSource data) {
+    public GetSongs(UserPlaylistEditor userPlaylistEditor, PlaylistMessagesService playlistMessagesService) {
         super(userPlaylistEditor);
-        this.data = data;
+        this.playlistMessagesService = playlistMessagesService;
     }
 
     @Override
@@ -54,15 +51,6 @@ public class GetSongs extends PlaylistCommand {
         }
         Long id = Long.parseLong(args.get(0));
         Playlist playlist = userPlaylistEditor.getPlaylist(member.getUser(), id);
-        List<PlaylistSong> songs = playlist.getSongs();
-        String text = String.format("__%s (id=%d) playlist songs__:%n", playlist.getName(), id) +
-                IntStream.range(0, songs.size()).mapToObj(
-                        i -> String.format(
-                                "%d) `%s`",
-                                i + 1,
-                                songs.get(i).getName()
-                        )
-                ).collect(Collectors.joining("\n"));
-        data.getOrCreateMainChannel(guild).sendMessage(text).queue();
+        playlistMessagesService.create(member, playlist);
     }
 }

@@ -27,7 +27,8 @@ public class MainMessage {
         if (text == null) {
             try {
                 text = new String(Files.readAllBytes(Paths.get(MAIN_MESSAGE_PATH)));
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }

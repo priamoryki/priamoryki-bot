@@ -1,6 +1,7 @@
 package com.priamoryki.discordbot;
 
 import com.priamoryki.discordbot.api.audio.MusicManager;
+import com.priamoryki.discordbot.api.audio.finder.MusicFinder;
 import com.priamoryki.discordbot.commands.CommandsStorage;
 import com.priamoryki.discordbot.commands.chat.Clear;
 import com.priamoryki.discordbot.commands.chat.ClearAll;
@@ -34,6 +35,8 @@ import com.priamoryki.discordbot.commands.playlist.GetPlaylists;
 import com.priamoryki.discordbot.commands.playlist.GetSongs;
 import com.priamoryki.discordbot.commands.playlist.PlayPlaylist;
 import com.priamoryki.discordbot.commands.playlist.RemoveSongs;
+import com.priamoryki.discordbot.commands.playlist.buttons.PlaylistNextPage;
+import com.priamoryki.discordbot.commands.playlist.buttons.PlaylistPreviousPage;
 import com.priamoryki.discordbot.commands.sounds.Boobs;
 import com.priamoryki.discordbot.commands.sounds.GJ;
 import com.priamoryki.discordbot.commands.sounds.Kaguya;
@@ -50,6 +53,8 @@ import com.priamoryki.discordbot.commands.sounds.Wtf;
 import com.priamoryki.discordbot.events.EventsListener;
 import com.priamoryki.discordbot.utils.BotData;
 import com.priamoryki.discordbot.utils.GuildAttributesService;
+import com.priamoryki.discordbot.utils.user.playlist.PlaylistMessagesService;
+import com.priamoryki.discordbot.utils.user.playlist.UserPlaylistEditor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -62,13 +67,26 @@ import org.springframework.stereotype.Service;
 public class Bot implements CommandLineRunner {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final BotData data;
+    private final MusicFinder musicFinder;
     private final MusicManager musicManager;
     private final GuildAttributesService guildAttributesService;
+    private final UserPlaylistEditor userPlaylistEditor;
+    private final PlaylistMessagesService playlistMessagesService;
 
-    public Bot(BotData data, MusicManager musicManager, GuildAttributesService guildAttributesService) {
+    public Bot(
+            BotData data,
+            MusicFinder musicFinder,
+            MusicManager musicManager,
+            GuildAttributesService guildAttributesService,
+            UserPlaylistEditor userPlaylistEditor,
+            PlaylistMessagesService playlistMessagesService
+    ) {
         this.data = data;
+        this.musicFinder = musicFinder;
         this.musicManager = musicManager;
         this.guildAttributesService = guildAttributesService;
+        this.userPlaylistEditor = userPlaylistEditor;
+        this.playlistMessagesService = playlistMessagesService;
     }
 
     public void start() {
@@ -124,10 +142,13 @@ public class Bot implements CommandLineRunner {
                     new CreatePlaylist(userPlaylistEditor),
                     new DeletePlaylist(userPlaylistEditor),
                     new EditPlaylist(userPlaylistEditor),
-                    new GetPlaylists(userPlaylistEditor, data),
-                    new GetSongs(userPlaylistEditor, data),
+                    new GetPlaylists(userPlaylistEditor, guildAttributesService),
                     new PlayPlaylist(musicManager, userPlaylistEditor),
-                    new RemoveSongs(userPlaylistEditor)
+                    new RemoveSongs(userPlaylistEditor),
+                    // Get playlist songs commands
+                    new GetSongs(userPlaylistEditor, playlistMessagesService),
+                    new PlaylistPreviousPage(userPlaylistEditor, playlistMessagesService),
+                    new PlaylistNextPage(userPlaylistEditor, playlistMessagesService)
             );
 
             EventsListener eventsListener = new EventsListener(data, commands, guildAttributesService);
