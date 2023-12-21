@@ -37,8 +37,9 @@ public class MusicFinder {
                 .filter(source -> source.matches(songRequest.getUrlOrName()))
                 .findFirst().map(source -> source.find(songRequest)).orElse(List.of(songRequest));
 
-        Phaser phaser = new Phaser();
         AudioTrack[] result = new AudioTrack[requests.size()];
+        Phaser phaser = new Phaser();
+        phaser.register();
         IntStream.range(0, requests.size()).forEach(i -> {
             SongRequest request = requests.get(i);
             phaser.register();
