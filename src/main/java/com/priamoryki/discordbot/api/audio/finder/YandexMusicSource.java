@@ -1,90 +1,111 @@
 package com.priamoryki.discordbot.api.audio.finder;
 
 import com.priamoryki.discordbot.api.audio.SongRequest;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /**
  * @author Pavel Lymar
  */
 public class YandexMusicSource extends CustomAudioSource {
-    private static final String ARTIST = "d-artists";
-    private static final String PLAYLIST_ARTISTS = "d-track__artists";
-    private static final String TRACK_TITLE = "sidebar-track__title";
-    private static final String TRACKS_TITLES = "d-track__name";
+    private static final Pattern TRACK_PATTERN =
+            Pattern.compile("^(https?://)?(www\\.)?music\\.yandex\\.[a-z]+/album/(\\d+)/track/(\\d+)$");
+    private static final Pattern ALBUM_PATTERN =
+            Pattern.compile("^(https?://)?(www\\.)?music\\.yandex\\.[a-z]+/album/(\\d+)$");
+    private static final Pattern PLAYLIST_PATTERN =
+            Pattern.compile("^(https?://)?(www\\.)?music\\.yandex\\.[a-z]+/users/(.+)/playlists/(\\d+)$");
+    private static final String API_HOST = "https://api.music.yandex.net";
 
     public YandexMusicSource() {
         super();
-        patterns.put(
-                Pattern.compile("^(https?://)?(www\\.)?music\\.yandex\\.[a-z]+/album/[0-9]+/track/[0-9]+$"),
-                new YandexMusicSong()
-        );
-        patterns.put(
-                Pattern.compile("^(https?://)?(www\\.)?music\\.yandex\\.[a-z]+/album/[0-9]+$"),
-                new YandexMusicAlbum()
-        );
-        patterns.put(
-                Pattern.compile("^(https?://)?(www\\.)?music\\.yandex\\.[a-z]+/users/.+/playlists/[0-9]+$"),
-                new YandexMusicPlaylist()
-        );
+        patterns.put(TRACK_PATTERN, new YandexMusicSong());
+        patterns.put(ALBUM_PATTERN, new YandexMusicAlbum());
+        patterns.put(PLAYLIST_PATTERN, new YandexMusicPlaylist());
     }
 
     private class YandexMusicSong implements Function<SongRequest, List<SongRequest>> {
         @Override
         public List<SongRequest> apply(SongRequest songRequest) {
-            return fromYandexMusic(songRequest, TRACK_TITLE);
+            Matcher matcher = TRACK_PATTERN.matcher(songRequest.getUrlOrName());
+            matcher.find();
+            String id = matcher.group(4);
+            String url = API_HOST + "/tracks/" + id;
+            try {
+                String body = Jsoup.connect(url).ignoreContentType(true).execute().body();
+                JSONArray json = new JSONObject(body).getJSONArray("result");
+                return getSongsRequests(songRequest.getGuild(), songRequest.getMember(), json);
+            } catch (JSONException | IOException e) {
+                System.err.println("YandexMusic error: " + e.getMessage());
+            }
+            return List.of();
         }
     }
 
     private class YandexMusicAlbum implements Function<SongRequest, List<SongRequest>> {
         @Override
         public List<SongRequest> apply(SongRequest songRequest) {
-            return fromYandexMusic(songRequest, TRACKS_TITLES);
+            Matcher matcher = ALBUM_PATTERN.matcher(songRequest.getUrlOrName());
+            matcher.find();
+            String id = matcher.group(3);
+            String url = API_HOST + "/albums/" + id + "/with-tracks";
+            try {
+                String body = Jsoup.connect(url).ignoreContentType(true).execute().body();
+                JSONArray json = new JSONObject(body).getJSONObject("result").getJSONArray("volumes").getJSONArray(0);
+                return getSongsRequests(songRequest.getGuild(), songRequest.getMember(), json);
+            } catch (JSONException | IOException e) {
+                System.err.println("YandexMusic error: " + e.getMessage());
+            }
+            return List.of();
         }
     }
 
     private class YandexMusicPlaylist implements Function<SongRequest, List<SongRequest>> {
         @Override
         public List<SongRequest> apply(SongRequest songRequest) {
-            return fromYandexMusic(songRequest, TRACKS_TITLES);
+            Matcher matcher = PLAYLIST_PATTERN.matcher(songRequest.getUrlOrName());
+            matcher.find();
+            String user = matcher.group(3);
+            String id = matcher.group(4);
+            String url = API_HOST + "/users/" + user + "/playlists/" + id;
+            try {
+                String body = Jsoup.connect(url).ignoreContentType(true).execute().body();
+                JSONArray tracks = new JSONObject(body).getJSONObject("result").getJSONArray("tracks");
+                JSONArray json = new JSONArray();
+                for (int i = 0; i < tracks.length(); i++) {
+                    json.put(tracks.getJSONObject(i).getJSONObject("track"));
+                }
+                return getSongsRequests(songRequest.getGuild(), songRequest.getMember(), json);
+            } catch (JSONException | IOException e) {
+                System.err.println("YandexMusic error: " + e.getMessage());
+            }
+            return List.of();
         }
     }
 
-    private List<SongRequest> fromYandexMusic(SongRequest songRequest, String className) {
-        // LATER not the best implementation
-        try {
-            Document doc = Jsoup.connect(songRequest.getUrlOrName()).get();
-            List<String> tracks = doc.getElementsByClass(className).stream()
-                    .map(Element::text).toList();
-            List<String> artists = doc.getElementsByClass(PLAYLIST_ARTISTS).stream()
-                    .map(Element::text).collect(Collectors.toList());
-            while (artists.size() < tracks.size()) {
-                artists.add(doc.getElementsByClass(ARTIST).get(0).text());
-            }
-            return IntStream.range(0, tracks.size()).mapToObj(
-                    i -> {
-                        String artist = artists.get(i);
-                        artist = !artist.isEmpty() ? artist : doc.getElementsByClass(ARTIST).get(0).text();
-                        return new SongRequest(
-                                songRequest.getGuild(),
-                                songRequest.getMember(),
-                                getSearchString(artist, tracks.get(i))
-                        );
-                    }
-            ).toList();
-        } catch (IOException e) {
-            System.err.println("YandexMusic error: " + e.getMessage());
+    private List<SongRequest> getSongsRequests(Guild guild, Member member, JSONArray tracks) throws JSONException {
+        List<SongRequest> result = new ArrayList<>();
+        for (int i = 0; i < tracks.length(); i++) {
+            JSONObject track = tracks.getJSONObject(i);
+            String author = track.getJSONArray("artists").getJSONObject(0).getString("name");
+            String name = track.getString("title");
+            result.add(new SongRequest(
+                    guild,
+                    member,
+                    getSearchString(author, name)
+            ));
         }
-        return new ArrayList<>();
+        return result;
     }
 
     private String getSearchString(String author, String name) {

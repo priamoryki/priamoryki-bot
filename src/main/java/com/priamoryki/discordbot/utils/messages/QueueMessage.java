@@ -55,11 +55,11 @@ public class QueueMessage implements UsefulMessage {
     public void update() {
         List<AudioTrack> queue = guildMusicManager.getQueue();
         int lastSongNumber = MAX_SONGS_NUMBER * (page - 1);
-        if (0 > lastSongNumber) {
+        if (lastSongNumber < 0) {
             page = 1;
         }
-        if (lastSongNumber > queue.size()) {
-            page = queue.size() / MAX_SONGS_NUMBER + 1;
+        if (lastSongNumber >= queue.size()) {
+            page = Math.max(1, (queue.size() + MAX_SONGS_NUMBER - 1) / MAX_SONGS_NUMBER);
         }
         try {
             message.editMessage(fillBuilder(new MessageEditBuilder(), queue).build()).complete();
@@ -68,7 +68,9 @@ public class QueueMessage implements UsefulMessage {
         }
     }
 
-    private <T, R extends AbstractMessageBuilder<T, R>> AbstractMessageBuilder<T, R> fillBuilder(AbstractMessageBuilder<T, R> messageBuilder, List<AudioTrack> queue) {
+    private <T, R extends AbstractMessageBuilder<T, R>> AbstractMessageBuilder<T, R> fillBuilder(
+            AbstractMessageBuilder<T, R> messageBuilder, List<AudioTrack> queue
+    ) {
         String content = "__Queue__:\n" +
                 IntStream.range(MAX_SONGS_NUMBER * (page - 1), Math.min(MAX_SONGS_NUMBER * page, queue.size()))
                         .mapToObj(
@@ -81,9 +83,9 @@ public class QueueMessage implements UsefulMessage {
                                 )
                         ).collect(Collectors.joining("\n")) +
                 String.format(
-                        "\nPage %d / %d | Total queue duration: `%s`",
+                        "%nPage %d / %d | Total queue duration: `%s`",
                         page,
-                        queue.size() / MAX_SONGS_NUMBER + 1,
+                        Math.max(1, (queue.size() + MAX_SONGS_NUMBER - 1) / MAX_SONGS_NUMBER),
                         Utils.normalizeTime(
                                 queue.stream().map(AudioTrack::getDuration).reduce(0L, Long::sum)
                         )
