@@ -32,7 +32,9 @@ public class MainMessage {
         }
     }
 
-    public static <T, R extends AbstractMessageBuilder<T, R>> AbstractMessageBuilder<T, R> fillWithDefaultMessage(AbstractMessageBuilder<T, R> messageBuilder) {
+    public static <T, R extends AbstractMessageBuilder<T, R>> AbstractMessageBuilder<T, R> fillWithDefaultMessage(
+            AbstractMessageBuilder<T, R> messageBuilder
+    ) {
         parseMainMessage();
         return messageBuilder.setContent(
                 String.format("```%s```", text)

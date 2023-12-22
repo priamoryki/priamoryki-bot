@@ -45,7 +45,9 @@ public class PlayerMessage implements UsefulMessage {
         );
     }
 
-    public static <T, R extends AbstractMessageBuilder<T, R>> AbstractMessageBuilder<T, R> fillWithDefaultMessage(AbstractMessageBuilder<T, R> messageBuilder) {
+    public static <T, R extends AbstractMessageBuilder<T, R>> AbstractMessageBuilder<T, R> fillWithDefaultMessage(
+            AbstractMessageBuilder<T, R> messageBuilder
+    ) {
         return messageBuilder.setEmbeds(
                 new EmbedBuilder().setColor(Color.BLUE).setTitle("PLAYER MESSAGE").build()
         ).setComponents(ActionRow.of(getButtons()));
@@ -92,7 +94,9 @@ public class PlayerMessage implements UsefulMessage {
         timer = new Timer();
     }
 
-    private <T, R extends AbstractMessageBuilder<T, R>> AbstractMessageBuilder<T, R> fillBuilder(AbstractMessageBuilder<T, R> messageBuilder) {
+    private <T, R extends AbstractMessageBuilder<T, R>> AbstractMessageBuilder<T, R> fillBuilder(
+            AbstractMessageBuilder<T, R> messageBuilder
+    ) {
         AudioTrack track = guildMusicManager.getPlayer().getPlayingTrack();
         if (track == null) {
             return fillWithDefaultMessage(messageBuilder);
