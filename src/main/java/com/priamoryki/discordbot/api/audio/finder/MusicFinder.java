@@ -10,7 +10,8 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
@@ -37,7 +38,10 @@ public class MusicFinder {
                 .filter(source -> source.matches(songRequest.getUrlOrName()))
                 .findFirst().map(source -> source.find(songRequest)).orElse(List.of(songRequest));
 
-        AudioTrack[] result = new AudioTrack[requests.size()];
+        List<List<AudioTrack>> result = new ArrayList<>(requests.size());
+        for (int i = 0; i < requests.size(); i++) {
+            result.add(new ArrayList<>());
+        }
         Phaser phaser = new Phaser();
         phaser.register();
         IntStream.range(0, requests.size()).forEach(i -> {
@@ -51,7 +55,7 @@ public class MusicFinder {
                     @Override
                     public void trackLoaded(AudioTrack track) {
                         track.setUserData(member.getUser());
-                        result[i] = track;
+                        result.get(i).add(track);
                     }
 
                     @Override
@@ -77,6 +81,6 @@ public class MusicFinder {
             });
         });
         phaser.arriveAndAwaitAdvance();
-        return Arrays.stream(result).filter(Objects::nonNull).toList();
+        return result.stream().flatMap(Collection::stream).filter(Objects::nonNull).toList();
     }
 }
