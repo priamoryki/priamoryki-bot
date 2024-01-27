@@ -7,6 +7,9 @@ import javax.persistence.EntityManager;
 
 import static com.priamoryki.discordbot.utils.Utils.UPDATED_PROPERTY;
 
+/**
+ * @author Michael Ruzavin
+ */
 @Service
 public class SyncService {
     private final EntityManager entityManager;
