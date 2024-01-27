@@ -1,6 +1,7 @@
 package com.priamoryki.discordbot.utils.messages;
 
 import com.priamoryki.discordbot.api.audio.GuildMusicManager;
+import com.priamoryki.discordbot.utils.GuildAttributesService;
 import com.priamoryki.discordbot.utils.Utils;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -12,7 +13,7 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.utils.messages.AbstractMessageBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
 
-import java.awt.Color;
+import java.awt.*;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
@@ -26,12 +27,14 @@ public class PlayerMessage implements UsefulMessage {
     private static final int BLOCKS_NUMBER = 27;
     private static final long MINIMAL_UPDATE_PERIOD = 15_000;
     private final GuildMusicManager guildMusicManager;
+    private final GuildAttributesService guildAttributesService;
     private Message message;
     private Timer timer;
     private long lastUpdateTime;
 
-    public PlayerMessage(GuildMusicManager guildMusicManager) {
+    public PlayerMessage(GuildMusicManager guildMusicManager, GuildAttributesService guildAttributesService) {
         this.guildMusicManager = guildMusicManager;
+        this.guildAttributesService = guildAttributesService;
         createNewMessage();
     }
 
@@ -54,7 +57,8 @@ public class PlayerMessage implements UsefulMessage {
     }
 
     private void createNewMessage() {
-        message = guildMusicManager.getData().getOrCreatePlayerMessage(guildMusicManager.getGuild());
+        message = guildAttributesService
+                .getOrCreatePlayerMessage(guildMusicManager.getGuild());
     }
 
     @Override

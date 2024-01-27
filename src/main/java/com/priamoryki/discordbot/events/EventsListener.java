@@ -3,8 +3,8 @@ package com.priamoryki.discordbot.events;
 import com.priamoryki.discordbot.commands.Command;
 import com.priamoryki.discordbot.commands.CommandException;
 import com.priamoryki.discordbot.commands.CommandsStorage;
-import com.priamoryki.discordbot.entities.ServerInfo;
-import com.priamoryki.discordbot.utils.DataSource;
+import com.priamoryki.discordbot.utils.BotData;
+import com.priamoryki.discordbot.utils.GuildAttributesService;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -16,10 +16,10 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -28,17 +28,20 @@ import java.util.Objects;
  * @author Pavel Lymar
  */
 public class EventsListener extends ListenerAdapter {
-    private final DataSource data;
+    private final Logger logger = LoggerFactory.getLogger(EventsListener.class);
+    private final BotData data;
     private final CommandsStorage commands;
+    private final GuildAttributesService guildAttributesService;
 
-    public EventsListener(DataSource data, CommandsStorage commands) {
+    public EventsListener(BotData data, CommandsStorage commands, GuildAttributesService guildAttributesService) {
         this.data = data;
         this.commands = commands;
+        this.guildAttributesService = guildAttributesService;
     }
 
     @Override
     public void onReady(@NotNull ReadyEvent event) {
-        System.out.println("Bot is working now!");
+        logger.info("Bot is working now!");
     }
 
     @Override
@@ -47,17 +50,14 @@ public class EventsListener extends ListenerAdapter {
     }
 
     private void createGuildAttributes(Guild guild) {
-        ServerInfo serverInfo = new ServerInfo();
-        serverInfo.setServerId(guild.getIdLong());
-        data.getServersRepository().update(serverInfo);
-        Message message = data.getOrCreateMainMessage(guild);
-        data.getOrCreatePlayerMessage(guild);
+        guildAttributesService.createGuildAttributes(guild);
+        Member member = guild.getMemberById(data.getBotId());
         try {
-            commands.executeCommand("clear_all", message.getGuild(), message.getMember());
+            commands.executeCommand("clear_all", guild, member);
         } catch (CommandException e) {
-            System.err.println(e.getMessage());
+            logger.debug(e.getMessage());
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Cleaning messages error on creating guild attributes", e);
         }
     }
 
@@ -75,7 +75,7 @@ public class EventsListener extends ListenerAdapter {
         Guild guild = message.getGuild();
         Member member = message.getMember();
         String messageText = message.getContentDisplay();
-        // LATER вот бы это делать более обдуманно
+        // LATER think about recreating GuildAttributes
 //        if (messageText.equals("create")) {
 //            createGuildAttributes(message.getGuild());
 //        }
@@ -88,11 +88,11 @@ public class EventsListener extends ListenerAdapter {
                     List.of(Long.toString(message.getIdLong()))
             );
         } catch (CommandException e) {
-            System.err.println(e.getMessage());
+            logger.debug(e.getMessage());
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error on clearing received message", e);
         }
-        if (message.getChannel().getIdLong() != data.getMainChannelId(guild.getIdLong())) {
+        if (message.getChannel().getIdLong() != guildAttributesService.getMainChannelId(guild.getIdLong())) {
             return;
         }
         if (!messageText.startsWith(data.getPrefix())) {
@@ -107,9 +107,10 @@ public class EventsListener extends ListenerAdapter {
             try {
                 command.executeWithPermissions(guild, member, splittedMessage.subList(1, splittedMessage.size()));
             } catch (CommandException e) {
+                logger.debug(e.getMessage());
                 message.reply(e.getMessage()).queue();
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error("Error on command execution", e);
             }
         } else {
             message.reply("Can't find such command!").queue();
@@ -120,19 +121,20 @@ public class EventsListener extends ListenerAdapter {
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
         Command command = commands.getCommand(event.getName());
         if (command != null && command.isAvailableFromChat()) {
-            List<String> args = new ArrayList<>();
-            for (OptionData option : command.getOptions()) {
-                event.getOptionsByName(option.getName()).stream()
-                        .map(OptionMapping::getAsString)
-                        .forEach(op -> args.addAll(Arrays.asList(op.split(" "))));
-            }
+            List<String> args = command.getOptions().stream()
+                    .flatMap(option -> event.getOptionsByName(option.getName()).stream())
+                    .map(OptionMapping::getAsString)
+                    .flatMap(op -> Arrays.stream(op.split(" ")))
+                    .toList();
             try {
                 command.executeWithPermissions(event.getGuild(), event.getMember(), args);
             } catch (CommandException e) {
+                logger.debug(e.getMessage());
                 event.reply(e.getMessage()).setEphemeral(true).queue();
                 return;
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error("Error on command execution", e);
+                return;
             }
         }
         event.reply("DONE!").setEphemeral(true).queue();
@@ -149,9 +151,10 @@ public class EventsListener extends ListenerAdapter {
                     event.getMember()
             );
         } catch (CommandException e) {
+            logger.debug(e.getMessage());
             event.reply(e.getMessage()).queue();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error on proceeding button interaction", e);
         }
     }
 }

@@ -1,32 +1,45 @@
 package com.priamoryki.discordbot.utils.sync;
 
+import com.yandex.disk.rest.Credentials;
 import com.yandex.disk.rest.DownloadListener;
 import com.yandex.disk.rest.RestClient;
 import com.yandex.disk.rest.exceptions.ServerException;
+import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- * @author Pavel Lymar
+ * @author Pavel Lymar, Michael Ruzavin
  */
-public class YaDiskSyncService implements SyncService {
-    private final String dbLocalPath;
-    private final String dbServerPath;
+@Service
+public class YaDiskFileLoader implements FileLoader {
+    private final Logger logger = LoggerFactory.getLogger(YaDiskFileLoader.class);
     private final RestClient cloudApi;
+    @Value("${db.local.path}")
+    public String dbLocalPath;
+    @Value("${db.server.path}")
+    public String dbServerPath;
 
-    public YaDiskSyncService(String dbLocalPath, String dbServerPath, RestClient cloudApi) {
-        this.dbLocalPath = dbLocalPath;
-        this.dbServerPath = dbServerPath;
-        this.cloudApi = cloudApi;
+    public YaDiskFileLoader(@Value("${YADISK_TOKEN}") String yandexDiskToken) {
+        this.cloudApi = new RestClient(new Credentials("me", yandexDiskToken));
+    }
+
+    @PostConstruct
+    public void init() {
+        load();
     }
 
     @Override
     public void load() {
         try {
             if (!new File(dbLocalPath).delete()) {
-                System.err.printf("Can't delete file %s%n", dbLocalPath);
+                logger.error("Can't delete file {}", dbLocalPath);
             }
             cloudApi.downloadFile(
                     dbServerPath,
@@ -39,7 +52,7 @@ public class YaDiskSyncService implements SyncService {
                     }
             );
         } catch (IOException | ServerException e) {
-            e.printStackTrace();
+            logger.error("Error on loading file", e);
         }
     }
 
@@ -51,7 +64,7 @@ public class YaDiskSyncService implements SyncService {
                 cloudApi.makeFolder(path);
             }
         } catch (IOException | ServerException e) {
-            System.err.printf("Can't create directory: %s%n", e.getMessage());
+            logger.error("Can't create directory", e);
         }
         try {
             cloudApi.uploadFile(
@@ -66,7 +79,7 @@ public class YaDiskSyncService implements SyncService {
                     }
             );
         } catch (IOException | ServerException e) {
-            e.printStackTrace();
+            logger.error("Error on uploading file", e);
         }
     }
 }

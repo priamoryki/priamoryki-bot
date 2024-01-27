@@ -9,6 +9,8 @@ import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,6 +25,7 @@ import java.util.stream.IntStream;
  * @author Pavel Lymar
  */
 public class MusicFinder {
+    private final Logger logger = LoggerFactory.getLogger(MusicFinder.class);
     private final ExecutorService downloaders;
     private final AudioPlayerManager audioPlayerManager;
     private final List<CustomAudioSource> sources;
@@ -69,12 +72,12 @@ public class MusicFinder {
 
                     @Override
                     public void noMatches() {
-                        System.out.println("no matches for request " + urlOrName);
+                        logger.info("no matches for request {}", urlOrName);
                     }
 
                     @Override
                     public void loadFailed(FriendlyException exception) {
-                        System.out.println("load failed for request " + urlOrName);
+                        logger.info("load failed for request {}", urlOrName);
                     }
                 });
                 phaser.arriveAndDeregister();

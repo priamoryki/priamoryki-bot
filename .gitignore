@@ -5,7 +5,7 @@ target/
 !**/src/test/**/target/
 dependency-reduced-pom.xml
 .env
-/data/servers.db
+data/servers.db
 
 ### STS ###
 .apt_generated

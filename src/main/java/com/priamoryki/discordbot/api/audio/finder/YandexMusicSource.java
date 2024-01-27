@@ -7,6 +7,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,12 +28,32 @@ public class YandexMusicSource extends CustomAudioSource {
     private static final Pattern PLAYLIST_PATTERN =
             Pattern.compile("^(https?://)?(www\\.)?music\\.yandex\\.[a-z]+/users/(.+)/playlists/(\\d+)$");
     private static final String API_HOST = "https://api.music.yandex.net";
+    private final Logger logger = LoggerFactory.getLogger(YandexMusicSource.class);
 
     public YandexMusicSource() {
         super();
         patterns.put(TRACK_PATTERN, new YandexMusicSong());
         patterns.put(ALBUM_PATTERN, new YandexMusicAlbum());
         patterns.put(PLAYLIST_PATTERN, new YandexMusicPlaylist());
+    }
+
+    private List<SongRequest> getSongsRequests(Guild guild, Member member, JSONArray tracks) throws JSONException {
+        List<SongRequest> result = new ArrayList<>();
+        for (int i = 0; i < tracks.length(); i++) {
+            JSONObject track = tracks.getJSONObject(i);
+            String author = track.getJSONArray("artists").getJSONObject(0).getString("name");
+            String name = track.getString("title");
+            result.add(new SongRequest(
+                    guild,
+                    member,
+                    getSearchString(author, name)
+            ));
+        }
+        return result;
+    }
+
+    private String getSearchString(String author, String name) {
+        return "scsearch:" + author + " - " + name;
     }
 
     private class YandexMusicSong implements Function<SongRequest, List<SongRequest>> {
@@ -46,7 +68,7 @@ public class YandexMusicSource extends CustomAudioSource {
                 JSONArray json = new JSONObject(body).getJSONArray("result");
                 return getSongsRequests(songRequest.getGuild(), songRequest.getMember(), json);
             } catch (JSONException | IOException e) {
-                System.err.println("YandexMusic error: " + e.getMessage());
+                logger.error("YandexMusicSong error", e);
             }
             return List.of();
         }
@@ -64,7 +86,7 @@ public class YandexMusicSource extends CustomAudioSource {
                 JSONArray json = new JSONObject(body).getJSONObject("result").getJSONArray("volumes").getJSONArray(0);
                 return getSongsRequests(songRequest.getGuild(), songRequest.getMember(), json);
             } catch (JSONException | IOException e) {
-                System.err.println("YandexMusic error: " + e.getMessage());
+                logger.error("YandexMusicAlbum error", e);
             }
             return List.of();
         }
@@ -87,28 +109,9 @@ public class YandexMusicSource extends CustomAudioSource {
                 }
                 return getSongsRequests(songRequest.getGuild(), songRequest.getMember(), json);
             } catch (JSONException | IOException e) {
-                System.err.println("YandexMusic error: " + e.getMessage());
+                logger.error("YandexMusicPlaylist error", e);
             }
             return List.of();
         }
-    }
-
-    private List<SongRequest> getSongsRequests(Guild guild, Member member, JSONArray tracks) throws JSONException {
-        List<SongRequest> result = new ArrayList<>();
-        for (int i = 0; i < tracks.length(); i++) {
-            JSONObject track = tracks.getJSONObject(i);
-            String author = track.getJSONArray("artists").getJSONObject(0).getString("name");
-            String name = track.getString("title");
-            result.add(new SongRequest(
-                    guild,
-                    member,
-                    getSearchString(author, name)
-            ));
-        }
-        return result;
-    }
-
-    private String getSearchString(String author, String name) {
-        return "scsearch:" + author + " - " + name;
     }
 }
