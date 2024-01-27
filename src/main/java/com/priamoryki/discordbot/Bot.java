@@ -39,22 +39,36 @@ import com.priamoryki.discordbot.commands.sounds.Silence;
 import com.priamoryki.discordbot.commands.sounds.Titan;
 import com.priamoryki.discordbot.commands.sounds.Tuturu;
 import com.priamoryki.discordbot.commands.sounds.Wtf;
-import com.priamoryki.discordbot.utils.DataSource;
+import com.priamoryki.discordbot.events.EventsListener;
+import com.priamoryki.discordbot.utils.BotData;
+import com.priamoryki.discordbot.utils.GuildAttributesService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Service;
 
 /**
- * @author Pavel Lymar
+ * @author Pavel Lymar, Michael Ruzavin
  */
-public class Bot {
-    public static void main(String[] args) {
+@Service
+public class Bot implements CommandLineRunner {
+    private final Logger logger = LoggerFactory.getLogger(Bot.class);
+    private final BotData data;
+    private final MusicManager musicManager;
+    private final GuildAttributesService guildAttributesService;
+
+    public Bot(BotData data, MusicManager musicManager, GuildAttributesService guildAttributesService) {
+        this.data = data;
+        this.musicManager = musicManager;
+        this.guildAttributesService = guildAttributesService;
+    }
+
+    public void start() {
         try {
-            DataSource data = new DataSource();
-
-            MusicManager musicManager = new MusicManager(data);
-
             CommandsStorage commands = new CommandsStorage(
                     // Chat commands
-                    new Clear(data),
-                    new ClearAll(data),
+                    new Clear(data, guildAttributesService),
+                    new ClearAll(guildAttributesService),
                     // Voice channel commands
                     new Join(musicManager),
                     new Leave(musicManager),
@@ -99,9 +113,15 @@ public class Bot {
                     new Wtf(musicManager)
             );
 
-            data.setupBot(commands);
+            EventsListener eventsListener = new EventsListener(data, commands, guildAttributesService);
+            data.setupBot(commands, eventsListener);
         } catch (Exception e) {
-            System.err.println("Error on bot start occurred: " + e.getMessage());
+            logger.error("Error on bot start", e);
         }
+    }
+
+    @Override
+    public void run(String... args) {
+        start();
     }
 }

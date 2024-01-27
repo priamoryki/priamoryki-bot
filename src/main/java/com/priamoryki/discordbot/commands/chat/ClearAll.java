@@ -1,7 +1,7 @@
 package com.priamoryki.discordbot.commands.chat;
 
 import com.priamoryki.discordbot.commands.Command;
-import com.priamoryki.discordbot.utils.DataSource;
+import com.priamoryki.discordbot.utils.GuildAttributesService;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageHistory;
@@ -12,10 +12,10 @@ import java.util.List;
  * @author Pavel Lymar
  */
 public class ClearAll implements Command {
-    private final DataSource data;
+    private final GuildAttributesService guildAttributesService;
 
-    public ClearAll(DataSource data) {
-        this.data = data;
+    public ClearAll(GuildAttributesService guildAttributesService) {
+        this.guildAttributesService = guildAttributesService;
     }
 
     @Override
@@ -35,7 +35,10 @@ public class ClearAll implements Command {
 
     @Override
     public void execute(Guild guild, Member member, List<String> args) {
-        MessageHistory.getHistoryFromBeginning(data.getOrCreateMainChannel(guild)).complete().getRetrievedHistory()
+        MessageHistory
+                .getHistoryFromBeginning(guildAttributesService.getOrCreateMainChannel(guild))
+                .complete()
+                .getRetrievedHistory()
                 .stream().filter(m -> !m.isPinned()).forEach(m -> m.delete().queue());
     }
 }

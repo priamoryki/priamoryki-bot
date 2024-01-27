@@ -1,7 +1,8 @@
 package com.priamoryki.discordbot.commands.chat;
 
 import com.priamoryki.discordbot.commands.Command;
-import com.priamoryki.discordbot.utils.DataSource;
+import com.priamoryki.discordbot.utils.BotData;
+import com.priamoryki.discordbot.utils.GuildAttributesService;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -13,10 +14,12 @@ import java.util.List;
  * @author Pavel Lymar
  */
 public class Clear implements Command {
-    private final DataSource data;
+    private final BotData data;
+    private final GuildAttributesService guildAttributesService;
 
-    public Clear(DataSource data) {
+    public Clear(BotData data, GuildAttributesService guildAttributesService) {
         this.data = data;
+        this.guildAttributesService = guildAttributesService;
     }
 
     @Override
@@ -35,13 +38,12 @@ public class Clear implements Command {
             return;
         }
         long id = Long.parseLong(args.get(0));
-        List<Message> messages = MessageHistory.getHistoryFromBeginning(data.getOrCreateMainChannel(guild))
+        Message message = MessageHistory
+                .getHistoryFromBeginning(guildAttributesService.getOrCreateMainChannel(guild))
                 .complete()
-                .getRetrievedHistory();
-        for (Message msg : messages) {
-            if (msg.getIdLong() == id && !data.isBot(member.getUser())) {
-                msg.delete().queue();
-            }
+                .getMessageById(id);
+        if (message != null && !data.isBot(member.getUser())) {
+            message.delete().queue();
         }
     }
 }

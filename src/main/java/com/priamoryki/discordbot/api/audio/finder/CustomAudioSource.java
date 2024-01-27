@@ -2,11 +2,11 @@ package com.priamoryki.discordbot.api.audio.finder;
 
 import com.priamoryki.discordbot.api.audio.SongRequest;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 public abstract class CustomAudioSource {
     protected final Map<Pattern, Function<SongRequest, List<SongRequest>>> patterns;
 
-    public CustomAudioSource() {
+    protected CustomAudioSource() {
         this.patterns = new HashMap<>();
     }
 
@@ -29,11 +29,14 @@ public abstract class CustomAudioSource {
     }
 
     List<SongRequest> find(SongRequest songRequest) {
-        for (Pattern pattern : patterns.keySet()) {
-            if (pattern.matcher(songRequest.getUrlOrName()).matches()) {
-                return patterns.get(pattern).apply(songRequest);
+        for (var entry : patterns.entrySet()) {
+            var pattern = entry.getKey();
+            var function = entry.getValue();
+            Matcher matcher = pattern.matcher(songRequest.getUrlOrName());
+            if (matcher.matches()) {
+                return function.apply(songRequest);
             }
         }
-        return new ArrayList<>();
+        return List.of();
     }
 }

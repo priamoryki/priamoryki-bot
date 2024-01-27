@@ -1,6 +1,7 @@
 package com.priamoryki.discordbot.utils.messages;
 
 import com.priamoryki.discordbot.api.audio.GuildMusicManager;
+import com.priamoryki.discordbot.utils.GuildAttributesService;
 import com.priamoryki.discordbot.utils.Utils;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.entities.Message;
@@ -22,11 +23,13 @@ import java.util.stream.IntStream;
 public class QueueMessage implements UsefulMessage {
     private static final int MAX_SONGS_NUMBER = 20;
     private final GuildMusicManager guildMusicManager;
+    private final GuildAttributesService guildAttributesService;
     private Message message;
     private int page = 1;
 
-    public QueueMessage(GuildMusicManager guildMusicManager) {
+    public QueueMessage(GuildMusicManager guildMusicManager, GuildAttributesService guildAttributesService) {
         this.guildMusicManager = guildMusicManager;
+        this.guildAttributesService = guildAttributesService;
     }
 
     private static List<Button> getButtons() {
@@ -37,7 +40,8 @@ public class QueueMessage implements UsefulMessage {
     }
 
     private void createNewMessage() {
-        message = guildMusicManager.getData().getOrCreateMainChannel(guildMusicManager.getGuild())
+        message = guildAttributesService
+                .getOrCreateMainChannel(guildMusicManager.getGuild())
                 .sendMessage(fillBuilder(new MessageCreateBuilder(), guildMusicManager.getQueue()).build()).complete();
     }
 

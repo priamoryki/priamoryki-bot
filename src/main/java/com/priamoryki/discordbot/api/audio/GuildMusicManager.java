@@ -2,10 +2,8 @@ package com.priamoryki.discordbot.api.audio;
 
 import com.github.natanbc.lavadsp.timescale.TimescalePcmAudioFilter;
 import com.priamoryki.discordbot.api.audio.finder.MusicFinder;
-import com.priamoryki.discordbot.api.audio.finder.SpotifySource;
-import com.priamoryki.discordbot.api.audio.finder.YandexMusicSource;
 import com.priamoryki.discordbot.commands.CommandException;
-import com.priamoryki.discordbot.utils.DataSource;
+import com.priamoryki.discordbot.utils.GuildAttributesService;
 import com.priamoryki.discordbot.utils.messages.PlayerMessage;
 import com.priamoryki.discordbot.utils.messages.QueueMessage;
 import com.sedmelluq.discord.lavaplayer.filter.AudioFilter;
@@ -31,13 +29,11 @@ import java.util.TimerTask;
 import static com.sedmelluq.discord.lavaplayer.track.TrackMarkerHandler.MarkerState.REACHED;
 
 /**
- * @author Pavel Lymar
+ * @author Pavel Lymar, Michael Ruzavin
  */
 public class GuildMusicManager extends AudioEventAdapter {
-    private final DataSource data;
-    private final Guild guild;
-    private final AudioPlayerManager audioPlayerManager;
     private final MusicFinder musicFinder;
+    private final Guild guild;
     private final AudioPlayer player;
     private final Deque<AudioTrack> queue;
     private final PlayerSendHandler sendHandler;
@@ -46,20 +42,19 @@ public class GuildMusicManager extends AudioEventAdapter {
     private GuildMusicParameters musicParameters;
     private Timer timer;
 
-    public GuildMusicManager(DataSource data, Guild guild, AudioPlayerManager audioPlayerManager) {
-        this.data = data;
+    public GuildMusicManager(
+            GuildAttributesService guildAttributesService,
+            AudioPlayerManager audioPlayerManager,
+            MusicFinder musicFinder,
+            Guild guild
+    ) {
+        this.musicFinder = musicFinder;
         this.guild = guild;
-        this.audioPlayerManager = audioPlayerManager;
-        this.musicFinder = new MusicFinder(
-                audioPlayerManager,
-                new SpotifySource(),
-                new YandexMusicSource()
-        );
         this.player = audioPlayerManager.createPlayer();
         this.queue = new ArrayDeque<>();
         this.sendHandler = new PlayerSendHandler(player);
-        this.playerMessage = new PlayerMessage(this);
-        this.queueMessage = new QueueMessage(this);
+        this.playerMessage = new PlayerMessage(this, guildAttributesService);
+        this.queueMessage = new QueueMessage(this, guildAttributesService);
         this.musicParameters = new GuildMusicParameters();
 
         player.addListener(this);
@@ -79,10 +74,6 @@ public class GuildMusicManager extends AudioEventAdapter {
 
     public boolean isPlaying() {
         return player.getPlayingTrack() != null;
-    }
-
-    public DataSource getData() {
-        return data;
     }
 
     public Guild getGuild() {
@@ -110,7 +101,7 @@ public class GuildMusicManager extends AudioEventAdapter {
     }
 
     private void startNewDisconnectionTask() {
-        long period = 5 * 60_000;
+        long period = 5 * 60_000L;
         if (timer != null) {
             timer.cancel();
         }

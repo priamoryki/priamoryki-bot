@@ -7,8 +7,8 @@ import java.util.function.Supplier;
 
 public class AuthTokenService {
     private final AuthService authService;
-    private volatile TokenHolder tokenHolder = TokenHolder.EMPTY;
     private final int tokenExpirationOffsetSeconds;
+    private TokenHolder tokenHolder = TokenHolder.EMPTY;
 
     public AuthTokenService(AuthService authService, int tokenExpirationOffsetSeconds) {
         this.authService = authService;

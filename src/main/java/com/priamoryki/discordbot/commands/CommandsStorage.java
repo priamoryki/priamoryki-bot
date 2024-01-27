@@ -27,7 +27,10 @@ public class CommandsStorage {
 
     public void addCommand(Command command) {
         for (String name : command.getNames()) {
-            commands.put(name, command);
+            if (commands.containsKey(name)) {
+                throw new IllegalStateException("Can't put commands with the same name (" + name + ")!");
+            }
+            commands.putIfAbsent(name, command);
         }
     }
 
