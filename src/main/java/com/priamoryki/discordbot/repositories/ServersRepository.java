@@ -6,8 +6,6 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import java.util.List;
 
-import static com.priamoryki.discordbot.utils.Utils.UPDATED_PROPERTY;
-
 /**
  * @author Pavel Lymar
  */

@@ -1,6 +1,6 @@
 package com.priamoryki.discordbot.configs;
 
-import com.priamoryki.discordbot.utils.sync.FileLoader;
+import com.priamoryki.discordbot.common.sync.FileLoader;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

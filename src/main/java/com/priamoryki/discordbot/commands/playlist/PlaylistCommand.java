@@ -2,7 +2,7 @@ package com.priamoryki.discordbot.commands.playlist;
 
 import com.priamoryki.discordbot.commands.Command;
 import com.priamoryki.discordbot.commands.CommandException;
-import com.priamoryki.discordbot.utils.user.playlist.UserPlaylistEditor;
+import com.priamoryki.discordbot.api.playlists.UserPlaylistEditor;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 
@@ -14,7 +14,7 @@ import java.util.List;
 public abstract class PlaylistCommand implements Command {
     protected final UserPlaylistEditor userPlaylistEditor;
 
-    public PlaylistCommand(UserPlaylistEditor userPlaylistEditor) {
+    protected PlaylistCommand(UserPlaylistEditor userPlaylistEditor) {
         this.userPlaylistEditor = userPlaylistEditor;
     }
 

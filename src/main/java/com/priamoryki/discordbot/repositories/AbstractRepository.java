@@ -2,7 +2,7 @@ package com.priamoryki.discordbot.repositories;
 
 import javax.persistence.EntityManager;
 
-import static com.priamoryki.discordbot.utils.Utils.UPDATED_PROPERTY;
+import static com.priamoryki.discordbot.common.Utils.UPDATED_PROPERTY;
 
 /**
  * @author Pavel Lymar

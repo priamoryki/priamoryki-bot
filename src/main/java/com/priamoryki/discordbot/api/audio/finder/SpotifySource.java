@@ -1,9 +1,9 @@
 package com.priamoryki.discordbot.api.audio.finder;
 
 import com.priamoryki.discordbot.api.audio.SongRequest;
-import com.priamoryki.discordbot.utils.auth.holder.TokenHolder;
-import com.priamoryki.discordbot.utils.auth.service.AuthService;
-import com.priamoryki.discordbot.utils.auth.service.AuthTokenService;
+import com.priamoryki.discordbot.common.auth.holder.TokenHolder;
+import com.priamoryki.discordbot.common.auth.service.AuthService;
+import com.priamoryki.discordbot.common.auth.service.AuthTokenService;
 import org.apache.hc.core5.http.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

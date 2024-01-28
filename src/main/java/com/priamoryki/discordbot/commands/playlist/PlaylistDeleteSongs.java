@@ -1,8 +1,7 @@
-package com.priamoryki.discordbot.commands.music.queue;
+package com.priamoryki.discordbot.commands.playlist;
 
-import com.priamoryki.discordbot.api.audio.MusicManager;
 import com.priamoryki.discordbot.commands.CommandException;
-import com.priamoryki.discordbot.commands.MusicCommand;
+import com.priamoryki.discordbot.api.playlists.UserPlaylistEditor;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -13,26 +12,26 @@ import java.util.List;
 /**
  * @author Pavel Lymar
  */
-public class DeleteFromQueue extends MusicCommand {
-    public DeleteFromQueue(MusicManager musicManager) {
-        super(musicManager);
+public class PlaylistDeleteSongs extends PlaylistCommand {
+    public PlaylistDeleteSongs(UserPlaylistEditor userPlaylistEditor) {
+        super(userPlaylistEditor);
     }
 
     @Override
     public List<String> getNames() {
-        return List.of("delete_from_queue");
+        return List.of("playlist_delete_songs");
     }
 
     @Override
     public String getDescription() {
-        return "Deletes n's track from queue";
+        return "Removes songs from playlist by indexes";
     }
 
     @Override
     public List<OptionData> getOptions() {
         return List.of(
-                new OptionData(OptionType.INTEGER, "from_id", "first index of sublist to delete from the queue", true),
-                new OptionData(OptionType.INTEGER, "to_id", "last index of sublist to delete from the queue", false)
+                new OptionData(OptionType.INTEGER, "from_id", "first index of sublist to delete from the playlist", true),
+                new OptionData(OptionType.INTEGER, "to_id", "last index of sublist to delete from the queue", true)
         );
     }
 
@@ -48,6 +47,6 @@ public class DeleteFromQueue extends MusicCommand {
         }
         int from = Integer.parseInt(args.get(0));
         int to = args.size() == 1 ? from : Integer.parseInt(args.get(1));
-        musicManager.getGuildMusicManager(guild).deleteFromQueue(from, to);
+        userPlaylistEditor.removeSongs(member.getUser(), from, to);
     }
 }

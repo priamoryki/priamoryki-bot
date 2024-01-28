@@ -1,7 +1,7 @@
 package com.priamoryki.discordbot.api.audio.finder;
 
 import com.priamoryki.discordbot.api.audio.SongRequest;
-import com.priamoryki.discordbot.utils.Utils;
+import com.priamoryki.discordbot.common.Utils;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;

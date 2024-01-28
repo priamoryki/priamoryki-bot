@@ -3,9 +3,10 @@ package com.priamoryki.discordbot.api.audio;
 import com.github.natanbc.lavadsp.timescale.TimescalePcmAudioFilter;
 import com.priamoryki.discordbot.api.audio.finder.MusicFinder;
 import com.priamoryki.discordbot.commands.CommandException;
-import com.priamoryki.discordbot.utils.GuildAttributesService;
-import com.priamoryki.discordbot.utils.messages.PlayerMessage;
-import com.priamoryki.discordbot.utils.messages.QueueMessage;
+import com.priamoryki.discordbot.common.GuildAttributesService;
+import com.priamoryki.discordbot.api.messages.PlayerMessage;
+import com.priamoryki.discordbot.api.messages.QueueMessage;
+import com.priamoryki.discordbot.common.Utils;
 import com.sedmelluq.discord.lavaplayer.filter.AudioFilter;
 import com.sedmelluq.discord.lavaplayer.filter.equalizer.Equalizer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
@@ -172,17 +173,8 @@ public class GuildMusicManager extends AudioEventAdapter {
         player.getPlayingTrack().setPosition(time);
     }
 
-    private void validateId(int id) throws CommandException {
-        if (1 > id) {
-            throw new CommandException("Id parameter should be natural number!");
-        }
-        if (id > queue.size()) {
-            throw new CommandException("Id parameter should not be more than queue size!");
-        }
-    }
-
     public void skipTo(int id) throws CommandException {
-        validateId(id);
+        Utils.validateId(id, queue.size());
         List<AudioTrack> list = new ArrayList<>(queue);
         queue.clear();
         queue.addAll(list.subList(id - 1, list.size()));
@@ -195,8 +187,7 @@ public class GuildMusicManager extends AudioEventAdapter {
     }
 
     public void deleteFromQueue(int from, int  to) throws CommandException {
-        validateId(from);
-        validateId(to);
+        Utils.validateBounds(from, to, queue.size(), "Can't remove interval that isn't in queue!");
         List<AudioTrack> list = new ArrayList<>(queue);
         list.subList(from - 1, to).clear();
         queue.clear();

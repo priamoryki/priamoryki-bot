@@ -1,6 +1,6 @@
 package com.priamoryki.discordbot.commands;
 
-import com.priamoryki.discordbot.utils.Utils;
+import com.priamoryki.discordbot.common.Utils;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;

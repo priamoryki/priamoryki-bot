@@ -1,8 +1,8 @@
 package com.priamoryki.discordbot.commands.playlist.buttons;
 
 import com.priamoryki.discordbot.commands.playlist.PlaylistCommand;
-import com.priamoryki.discordbot.utils.user.playlist.PlaylistMessagesService;
-import com.priamoryki.discordbot.utils.user.playlist.UserPlaylistEditor;
+import com.priamoryki.discordbot.api.playlists.PlaylistMessagesService;
+import com.priamoryki.discordbot.api.playlists.UserPlaylistEditor;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 

@@ -27,14 +27,14 @@ import com.priamoryki.discordbot.commands.music.queue.PlayNext;
 import com.priamoryki.discordbot.commands.music.queue.PrintQueue;
 import com.priamoryki.discordbot.commands.music.queue.ShuffleQueue;
 import com.priamoryki.discordbot.commands.music.queue.SkipTo;
-import com.priamoryki.discordbot.commands.playlist.AddSongs;
-import com.priamoryki.discordbot.commands.playlist.CreatePlaylist;
-import com.priamoryki.discordbot.commands.playlist.DeletePlaylist;
-import com.priamoryki.discordbot.commands.playlist.EditPlaylist;
-import com.priamoryki.discordbot.commands.playlist.GetPlaylists;
-import com.priamoryki.discordbot.commands.playlist.GetSongs;
-import com.priamoryki.discordbot.commands.playlist.PlayPlaylist;
-import com.priamoryki.discordbot.commands.playlist.RemoveSongs;
+import com.priamoryki.discordbot.commands.playlist.PlaylistAddSongs;
+import com.priamoryki.discordbot.commands.playlist.PlaylistCreate;
+import com.priamoryki.discordbot.commands.playlist.PlaylistDelete;
+import com.priamoryki.discordbot.commands.playlist.PlaylistEdit;
+import com.priamoryki.discordbot.commands.playlist.PlaylistGetAll;
+import com.priamoryki.discordbot.commands.playlist.PlaylistGetSongs;
+import com.priamoryki.discordbot.commands.playlist.PlaylistPlay;
+import com.priamoryki.discordbot.commands.playlist.PlaylistDeleteSongs;
 import com.priamoryki.discordbot.commands.playlist.buttons.PlaylistNextPage;
 import com.priamoryki.discordbot.commands.playlist.buttons.PlaylistPreviousPage;
 import com.priamoryki.discordbot.commands.sounds.Boobs;
@@ -51,10 +51,10 @@ import com.priamoryki.discordbot.commands.sounds.Titan;
 import com.priamoryki.discordbot.commands.sounds.Tuturu;
 import com.priamoryki.discordbot.commands.sounds.Wtf;
 import com.priamoryki.discordbot.events.EventsListener;
-import com.priamoryki.discordbot.utils.BotData;
-import com.priamoryki.discordbot.utils.GuildAttributesService;
-import com.priamoryki.discordbot.utils.user.playlist.PlaylistMessagesService;
-import com.priamoryki.discordbot.utils.user.playlist.UserPlaylistEditor;
+import com.priamoryki.discordbot.common.BotData;
+import com.priamoryki.discordbot.common.GuildAttributesService;
+import com.priamoryki.discordbot.api.playlists.PlaylistMessagesService;
+import com.priamoryki.discordbot.api.playlists.UserPlaylistEditor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -138,20 +138,22 @@ public class Bot implements CommandLineRunner {
                     new Tuturu(musicManager),
                     new Wtf(musicManager),
                     // Playlist commands
-                    new AddSongs(userPlaylistEditor, musicFinder),
-                    new CreatePlaylist(userPlaylistEditor),
-                    new DeletePlaylist(userPlaylistEditor),
-                    new EditPlaylist(userPlaylistEditor),
-                    new GetPlaylists(userPlaylistEditor, guildAttributesService),
-                    new PlayPlaylist(musicManager, userPlaylistEditor),
-                    new RemoveSongs(userPlaylistEditor),
+                    new PlaylistAddSongs(userPlaylistEditor, musicFinder),
+                    new PlaylistCreate(userPlaylistEditor),
+                    new PlaylistDelete(userPlaylistEditor),
+                    new PlaylistEdit(userPlaylistEditor),
+                    new PlaylistGetAll(userPlaylistEditor, guildAttributesService),
+                    new PlaylistPlay(musicManager, userPlaylistEditor),
+                    new PlaylistDeleteSongs(userPlaylistEditor),
                     // Get playlist songs commands
-                    new GetSongs(userPlaylistEditor, playlistMessagesService),
+                    new PlaylistGetSongs(userPlaylistEditor, playlistMessagesService),
                     new PlaylistPreviousPage(userPlaylistEditor, playlistMessagesService),
                     new PlaylistNextPage(userPlaylistEditor, playlistMessagesService)
             );
 
-            EventsListener eventsListener = new EventsListener(data, commands, guildAttributesService);
+            EventsListener eventsListener = new EventsListener(
+                    data, commands, guildAttributesService
+            );
             data.setupBot(commands, eventsListener);
         } catch (Exception e) {
             logger.error("Error on bot start", e);

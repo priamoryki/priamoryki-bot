@@ -28,8 +28,8 @@ public class PlaylistsRepository extends AbstractRepository<Playlist> {
 
     public void addSongs(Playlist playlist, Collection<PlaylistSong> songs) {
         manager.getTransaction().begin();
-        playlist.getSongs().addAll(songs);
         songs.forEach(manager::persist);
+        playlist.getSongs().addAll(songs);
         manager.getTransaction().commit();
         update(playlist);
     }
