@@ -19,7 +19,7 @@ import java.io.OutputStream;
  */
 @Service
 public class YaDiskFileLoader implements FileLoader {
-    private final Logger logger = LoggerFactory.getLogger(YaDiskFileLoader.class);
+    private final Logger logger = LoggerFactory.getLogger(getClass());
     private final RestClient cloudApi;
     @Value("${db.local.path}")
     public String dbLocalPath;

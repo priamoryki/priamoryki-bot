@@ -28,7 +28,7 @@ public class YandexMusicSource extends CustomAudioSource {
     private static final Pattern PLAYLIST_PATTERN =
             Pattern.compile("^(https?://)?(www\\.)?music\\.yandex\\.[a-z]+/users/(.+)/playlists/(\\d+)$");
     private static final String API_HOST = "https://api.music.yandex.net";
-    private final Logger logger = LoggerFactory.getLogger(YandexMusicSource.class);
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     public YandexMusicSource() {
         super();

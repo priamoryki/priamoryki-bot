@@ -35,7 +35,7 @@ public class SpotifySource extends CustomAudioSource {
             Pattern.compile("^(https?://)?(www\\.)?open\\.spotify\\.com/playlist/([^&=%\\?]{22})$");
     private static final String SPOTIFY_CLIENT_ID_ENV_NAME = "SPOTIFY_CLIENT_ID";
     private static final String SPOTIFY_CLIENT_SECRET_ENV_NAME = "SPOTIFY_CLIENT_SECRET";
-    private final Logger logger = LoggerFactory.getLogger(SpotifySource.class);
+    private final Logger logger = LoggerFactory.getLogger(getClass());
     private final SpotifyApi spotifyApi;
     private final AuthTokenService authTokenService;
 
@@ -69,7 +69,7 @@ public class SpotifySource extends CustomAudioSource {
     }
 
     private static class SpotifyAuthService implements AuthService {
-        private final Logger logger = LoggerFactory.getLogger(SpotifyAuthService.class);
+        private final Logger logger = LoggerFactory.getLogger(getClass());
         private final SpotifyApi spotifyApi;
 
         public SpotifyAuthService(SpotifyApi spotifyApi) {

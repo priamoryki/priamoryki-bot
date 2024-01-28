@@ -25,7 +25,7 @@ import java.util.stream.IntStream;
  * @author Pavel Lymar
  */
 public class MusicFinder {
-    private final Logger logger = LoggerFactory.getLogger(MusicFinder.class);
+    private final Logger logger = LoggerFactory.getLogger(getClass());
     private final ExecutorService downloaders;
     private final AudioPlayerManager audioPlayerManager;
     private final List<CustomAudioSource> sources;

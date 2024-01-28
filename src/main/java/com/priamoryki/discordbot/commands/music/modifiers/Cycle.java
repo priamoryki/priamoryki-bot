@@ -12,6 +12,9 @@ import java.util.List;
 
 import static com.priamoryki.discordbot.utils.Utils.parseTime;
 
+/**
+ * @author Pavel Lymar
+ */
 public class Cycle extends MusicCommand {
     public Cycle(MusicManager musicManager) {
         super(musicManager);

@@ -5,6 +5,9 @@ import com.priamoryki.discordbot.utils.auth.holder.TokenHolder;
 import java.time.Instant;
 import java.util.function.Supplier;
 
+/**
+ * @author Pavel Lymar
+ */
 public class AuthTokenService {
     private final AuthService authService;
     private final int tokenExpirationOffsetSeconds;
@@ -15,9 +18,6 @@ public class AuthTokenService {
         this.tokenExpirationOffsetSeconds = tokenExpirationOffsetSeconds;
     }
 
-    /**
-     * Получение токена доступа к системе.
-     */
     public String getToken() {
         Instant currentTimeUtc = Instant.now();
         if (isValidToken(currentTimeUtc, tokenHolder.accessTokenExpirationTime())) {

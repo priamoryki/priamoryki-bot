@@ -52,7 +52,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class Bot implements CommandLineRunner {
-    private final Logger logger = LoggerFactory.getLogger(Bot.class);
+    private final Logger logger = LoggerFactory.getLogger(getClass());
     private final BotData data;
     private final MusicManager musicManager;
     private final GuildAttributesService guildAttributesService;

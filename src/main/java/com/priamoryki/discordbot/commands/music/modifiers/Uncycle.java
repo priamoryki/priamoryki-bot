@@ -8,6 +8,9 @@ import net.dv8tion.jda.api.entities.Member;
 
 import java.util.List;
 
+/**
+ * @author Pavel Lymar
+ */
 public class Uncycle extends MusicCommand {
     public Uncycle(MusicManager musicManager) {
         super(musicManager);

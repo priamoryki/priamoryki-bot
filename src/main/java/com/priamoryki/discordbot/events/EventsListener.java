@@ -28,7 +28,7 @@ import java.util.Objects;
  * @author Pavel Lymar
  */
 public class EventsListener extends ListenerAdapter {
-    private final Logger logger = LoggerFactory.getLogger(EventsListener.class);
+    private final Logger logger = LoggerFactory.getLogger(getClass());
     private final BotData data;
     private final CommandsStorage commands;
     private final GuildAttributesService guildAttributesService;

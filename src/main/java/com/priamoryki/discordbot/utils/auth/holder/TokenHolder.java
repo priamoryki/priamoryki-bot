@@ -2,6 +2,9 @@ package com.priamoryki.discordbot.utils.auth.holder;
 
 import java.time.Instant;
 
+/**
+ * @author Pavel Lymar
+ */
 public record TokenHolder(
         String accessToken,
         Instant accessTokenExpirationTime,
