@@ -117,7 +117,8 @@ public class PlayerMessage implements UsefulMessage {
         if (isLive) {
             blocks = BLOCKS_NUMBER;
         }
-        EmbedBuilder builder = new EmbedBuilder().setColor(Color.BLUE).setAuthor("♪" + user.getName() + "♪");
+        EmbedBuilder builder = new EmbedBuilder();
+        builder.setColor(Color.BLUE).setAuthor("♪" + user.getName() + "♪", null, user.getAvatarUrl());
         if (Utils.isUrl(url)) {
             builder.setTitle(firstNotEmpty(title, url), url);
         } else {

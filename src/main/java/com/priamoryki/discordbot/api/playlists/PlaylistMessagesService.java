@@ -27,7 +27,7 @@ public class PlaylistMessagesService {
         if (oldPlaylistMessage != null) {
             oldPlaylistMessage.delete();
         }
-        PlaylistMessage newPlaylistMessage = new PlaylistMessage(guildAttributesService, playlist);
+        PlaylistMessage newPlaylistMessage = new PlaylistMessage(guildAttributesService, playlist, member.getUser());
         newPlaylistMessage.update(member.getGuild());
         playlistIdToMessage.put(member, newPlaylistMessage);
     }
