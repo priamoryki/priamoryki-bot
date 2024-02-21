@@ -3,7 +3,7 @@ package com.priamoryki.discordbot.repositories;
 import com.priamoryki.discordbot.entities.ServerInfo;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 import java.util.List;
 
 import static com.priamoryki.discordbot.utils.Utils.UPDATED_PROPERTY;

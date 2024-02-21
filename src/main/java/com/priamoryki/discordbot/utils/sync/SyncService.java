@@ -3,7 +3,7 @@ package com.priamoryki.discordbot.utils.sync;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 import static com.priamoryki.discordbot.utils.Utils.UPDATED_PROPERTY;
 
