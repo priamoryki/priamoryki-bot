@@ -37,6 +37,7 @@ public class YaDiskFileLoader implements FileLoader {
 
     @Override
     public void load() {
+        logger.info("Loading file {} from YaDisk", dbServerPath);
         try {
             if (!new File(dbLocalPath).delete()) {
                 logger.error("Can't delete file {}", dbLocalPath);
@@ -58,6 +59,7 @@ public class YaDiskFileLoader implements FileLoader {
 
     @Override
     public void upload() {
+        logger.info("Uploading file {} to YaDisk", dbLocalPath);
         try {
             String path = dbServerPath.substring(0, Math.max(0, dbServerPath.lastIndexOf("/")));
             if (!path.isBlank()) {

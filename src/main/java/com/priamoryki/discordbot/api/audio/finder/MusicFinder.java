@@ -72,12 +72,12 @@ public class MusicFinder {
 
                     @Override
                     public void noMatches() {
-                        logger.info("no matches for request {}", urlOrName);
+                        logger.info("No matches for request {}", urlOrName);
                     }
 
                     @Override
                     public void loadFailed(FriendlyException exception) {
-                        logger.info("load failed for request {}", urlOrName);
+                        logger.info("Load failed for request {}", urlOrName);
                     }
                 });
                 phaser.arriveAndDeregister();
