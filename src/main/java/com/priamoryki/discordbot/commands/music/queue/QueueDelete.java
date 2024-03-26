@@ -1,4 +1,4 @@
-package com.priamoryki.discordbot.commands.music.modifiers;
+package com.priamoryki.discordbot.commands.music.queue;
 
 import com.priamoryki.discordbot.api.audio.MusicManager;
 import com.priamoryki.discordbot.commands.CommandException;
@@ -13,24 +13,25 @@ import java.util.List;
 /**
  * @author Pavel Lymar
  */
-public class SetSpeed extends MusicCommand {
-    public SetSpeed(MusicManager musicManager) {
+public class QueueDelete extends MusicCommand {
+    public QueueDelete(MusicManager musicManager) {
         super(musicManager);
     }
 
+    @Override
     public List<String> getNames() {
-        return List.of("set_speed");
+        return List.of("queue_delete");
     }
 
     @Override
     public String getDescription() {
-        return "Sets music speed multiplier";
+        return "Deletes n's track from queue";
     }
 
     @Override
     public List<OptionData> getOptions() {
         return List.of(
-                new OptionData(OptionType.STRING, "multiplier", "speed multiplier", true)
+                new OptionData(OptionType.INTEGER, "track_number", "number of the track in the queue", true)
         );
     }
 
@@ -44,15 +45,12 @@ public class SetSpeed extends MusicCommand {
         if (args.size() != 1) {
             throw new CommandException("Invalid number of arguments!");
         }
-        double speed;
+        int n;
         try {
-            speed = Double.parseDouble(args.get(0));
+            n = Integer.parseInt(args.get(0));
         } catch (Exception e) {
-            throw new CommandException("Argument isn't double!");
+            throw new CommandException("Argument isn't integer!");
         }
-        if (0 >= speed || speed > 2) {
-            throw new CommandException("Argument must be in bounds (0, 2]!");
-        }
-        musicManager.getGuildMusicManager(guild).setSpeed(speed);
+        musicManager.getGuildMusicManager(guild).deleteFromQueue(n);
     }
 }

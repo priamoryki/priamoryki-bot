@@ -46,7 +46,7 @@ public class PlayerMessage implements UsefulMessage {
                 Button.primary("PAUSE", Emoji.fromUnicode("⏸")),
                 Button.primary("SKIP", Emoji.fromUnicode("⏯")),
                 Button.primary("REPEAT", Emoji.fromUnicode("🔁")),
-                Button.primary("PRINT_QUEUE", Emoji.fromUnicode("🗒️"))
+                Button.primary("QUEUE_PRINT", Emoji.fromUnicode("🗒️"))
         );
     }
 

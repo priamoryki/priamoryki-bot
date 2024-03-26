@@ -10,19 +10,19 @@ import java.util.List;
 /**
  * @author Pavel Lymar
  */
-public class ClearQueue extends MusicCommand {
-    public ClearQueue(MusicManager musicManager) {
+public class QueuePrint extends MusicCommand {
+    public QueuePrint(MusicManager musicManager) {
         super(musicManager);
     }
 
     @Override
     public List<String> getNames() {
-        return List.of("clear_queue");
+        return List.of("queue_print");
     }
 
     @Override
     public String getDescription() {
-        return "Clears music queue and skips current composition";
+        return "Prints current queue";
     }
 
     @Override
@@ -32,6 +32,6 @@ public class ClearQueue extends MusicCommand {
 
     @Override
     public void execute(Guild guild, Member member, List<String> args) {
-        musicManager.getGuildMusicManager(guild).clearQueue();
+        musicManager.getGuildMusicManager(guild).getQueueMessage().update();
     }
 }
