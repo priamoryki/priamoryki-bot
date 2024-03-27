@@ -1,11 +1,11 @@
-package com.priamoryki.discordbot.utils.sync;
+package com.priamoryki.discordbot.common.sync;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
 
-import static com.priamoryki.discordbot.utils.Utils.UPDATED_PROPERTY;
+import static com.priamoryki.discordbot.common.Utils.UPDATED_PROPERTY;
 
 /**
  * @author Michael Ruzavin

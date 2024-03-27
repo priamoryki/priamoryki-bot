@@ -8,7 +8,7 @@ import com.priamoryki.discordbot.api.audio.MusicManager;
 public abstract class MusicCommand implements Command {
     protected final MusicManager musicManager;
 
-    public MusicCommand(MusicManager musicManager) {
+    protected MusicCommand(MusicManager musicManager) {
         this.musicManager = musicManager;
     }
 }

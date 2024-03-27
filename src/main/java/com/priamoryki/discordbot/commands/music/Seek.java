@@ -10,7 +10,7 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.util.List;
 
-import static com.priamoryki.discordbot.utils.Utils.parseTime;
+import static com.priamoryki.discordbot.common.Utils.parseTime;
 
 /**
  * @author Pavel Lymar

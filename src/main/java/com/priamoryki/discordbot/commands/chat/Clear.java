@@ -1,8 +1,8 @@
 package com.priamoryki.discordbot.commands.chat;
 
 import com.priamoryki.discordbot.commands.Command;
-import com.priamoryki.discordbot.utils.BotData;
-import com.priamoryki.discordbot.utils.GuildAttributesService;
+import com.priamoryki.discordbot.common.BotData;
+import com.priamoryki.discordbot.common.GuildAttributesService;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -25,11 +25,6 @@ public class Clear implements Command {
     @Override
     public List<String> getNames() {
         return List.of("clear");
-    }
-
-    @Override
-    public boolean isAvailableFromChat() {
-        return false;
     }
 
     @Override

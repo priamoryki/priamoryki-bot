@@ -1,4 +1,4 @@
-package com.priamoryki.discordbot.utils.sync;
+package com.priamoryki.discordbot.common.sync;
 
 /**
  * @author Pavel Lymar, Michael Ruzavin

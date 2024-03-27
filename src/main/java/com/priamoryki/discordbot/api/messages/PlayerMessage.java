@@ -1,8 +1,8 @@
-package com.priamoryki.discordbot.utils.messages;
+package com.priamoryki.discordbot.api.messages;
 
 import com.priamoryki.discordbot.api.audio.GuildMusicManager;
-import com.priamoryki.discordbot.utils.GuildAttributesService;
-import com.priamoryki.discordbot.utils.Utils;
+import com.priamoryki.discordbot.common.GuildAttributesService;
+import com.priamoryki.discordbot.common.Utils;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
@@ -117,7 +117,8 @@ public class PlayerMessage implements UsefulMessage {
         if (isLive) {
             blocks = BLOCKS_NUMBER;
         }
-        EmbedBuilder builder = new EmbedBuilder().setColor(Color.BLUE).setAuthor("♪" + user.getName() + "♪");
+        EmbedBuilder builder = new EmbedBuilder();
+        builder.setColor(Color.BLUE).setAuthor("♪" + user.getName() + "♪", null, user.getAvatarUrl());
         if (Utils.isUrl(url)) {
             builder.setTitle(firstNotEmpty(title, url), url);
         } else {

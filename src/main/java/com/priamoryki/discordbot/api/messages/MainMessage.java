@@ -1,4 +1,4 @@
-package com.priamoryki.discordbot.utils.messages;
+package com.priamoryki.discordbot.api.messages;
 
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
@@ -17,6 +17,10 @@ public class MainMessage {
     private static final String MAIN_MESSAGE_PATH = "data/MainMessage.txt";
     private static String text;
 
+    private MainMessage() {
+
+    }
+
     public static List<Button> getButtons() {
         return List.of(
                 Button.primary("CLEAR_ALL", Emoji.fromUnicode("🧹"))
@@ -27,7 +31,8 @@ public class MainMessage {
         if (text == null) {
             try {
                 text = new String(Files.readAllBytes(Paths.get(MAIN_MESSAGE_PATH)));
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }

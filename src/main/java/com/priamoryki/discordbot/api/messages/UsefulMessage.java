@@ -1,4 +1,4 @@
-package com.priamoryki.discordbot.utils.messages;
+package com.priamoryki.discordbot.api.messages;
 
 /**
  * @author Pavel Lymar

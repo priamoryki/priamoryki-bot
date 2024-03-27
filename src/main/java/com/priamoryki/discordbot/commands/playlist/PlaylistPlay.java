@@ -1,10 +1,12 @@
-package com.priamoryki.discordbot.commands.music.queue;
+package com.priamoryki.discordbot.commands.playlist;
 
 import com.priamoryki.discordbot.api.audio.MusicManager;
 import com.priamoryki.discordbot.api.audio.SongRequest;
 import com.priamoryki.discordbot.commands.CommandException;
 import com.priamoryki.discordbot.commands.MusicCommand;
-import com.priamoryki.discordbot.common.Utils;
+import com.priamoryki.discordbot.entities.Playlist;
+import com.priamoryki.discordbot.entities.PlaylistSong;
+import com.priamoryki.discordbot.api.playlists.UserPlaylistEditor;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -15,25 +17,28 @@ import java.util.List;
 /**
  * @author Pavel Lymar
  */
-public class PlayNext extends MusicCommand {
-    public PlayNext(MusicManager musicManager) {
+public class PlaylistPlay extends MusicCommand {
+    private final UserPlaylistEditor userPlaylistEditor;
+
+    public PlaylistPlay(MusicManager musicManager, UserPlaylistEditor userPlaylistEditor) {
         super(musicManager);
+        this.userPlaylistEditor = userPlaylistEditor;
     }
 
     @Override
     public List<String> getNames() {
-        return List.of("play_next");
+        return List.of("playlist_play");
     }
 
     @Override
     public String getDescription() {
-        return "Adds track at the beginning of the queue";
+        return "Adds music from playlist to the queue";
     }
 
     @Override
     public List<OptionData> getOptions() {
         return List.of(
-                new OptionData(OptionType.STRING, "url_or_query", "URL or query for searching track", true)
+                new OptionData(OptionType.INTEGER, "playlist_id", "Playlist id", true)
         );
     }
 
@@ -47,17 +52,12 @@ public class PlayNext extends MusicCommand {
         if (args.isEmpty()) {
             throw new CommandException("Invalid number of arguments!");
         }
+        Long id = Long.parseLong(args.get(0));
+        Playlist playlist = userPlaylistEditor.getPlaylist(member.getUser(), id);
+        List<PlaylistSong> songs = playlist.getSongs();
         musicManager.getGuildMusicManager(guild).join(member);
-        if (args.size() == 1 && Utils.isUrl(args.get(0))) {
-            musicManager.getGuildMusicManager(guild).playNext(new SongRequest(guild, member, args.get(0)));
-            return;
+        for (PlaylistSong song : songs) {
+            musicManager.getGuildMusicManager(guild).play(new SongRequest(guild, member, song.getUrl()));
         }
-        musicManager.getGuildMusicManager(guild).playNext(
-                new SongRequest(
-                        guild,
-                        member,
-                        "ytsearch:" + String.join(" ", args)
-                )
-        );
     }
 }

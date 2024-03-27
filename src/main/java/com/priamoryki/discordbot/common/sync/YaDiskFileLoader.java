@@ -1,4 +1,4 @@
-package com.priamoryki.discordbot.utils.sync;
+package com.priamoryki.discordbot.common.sync;
 
 import com.yandex.disk.rest.Credentials;
 import com.yandex.disk.rest.DownloadListener;

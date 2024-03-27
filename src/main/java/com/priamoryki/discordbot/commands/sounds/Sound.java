@@ -15,7 +15,7 @@ import java.util.List;
 public abstract class Sound extends MusicCommand {
     private final String filename;
 
-    public Sound(MusicManager musicManager, String filename) {
+    protected Sound(MusicManager musicManager, String filename) {
         super(musicManager);
         this.filename = filename;
     }
