@@ -28,11 +28,11 @@ import java.util.regex.Pattern;
  */
 public class SpotifySource extends CustomAudioSource {
     private static final Pattern TRACK_PATTERN =
-            Pattern.compile("^(https?://)?(www\\.)?open\\.spotify\\.com/track/([^&=%\\?]{22})$");
+            Pattern.compile("^(https?://)?(www\\.)?open\\.spotify\\.com/track/(?<track>[^&=%?]{22})$");
     private static final Pattern ALBUM_PATTERN =
-            Pattern.compile("^(https?://)?(www\\.)?open\\.spotify\\.com/album/([^&=%\\?]{22})$");
+            Pattern.compile("^(https?://)?(www\\.)?open\\.spotify\\.com/album/(?<album>[^&=%?]{22})$");
     private static final Pattern PLAYLIST_PATTERN =
-            Pattern.compile("^(https?://)?(www\\.)?open\\.spotify\\.com/playlist/([^&=%\\?]{22})$");
+            Pattern.compile("^(https?://)?(www\\.)?open\\.spotify\\.com/playlist/(?<playlist>[^&=%?]{22})$");
     private static final String SPOTIFY_CLIENT_ID_ENV_NAME = "SPOTIFY_CLIENT_ID";
     private static final String SPOTIFY_CLIENT_SECRET_ENV_NAME = "SPOTIFY_CLIENT_SECRET";
     private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -102,19 +102,20 @@ public class SpotifySource extends CustomAudioSource {
         @Override
         public List<SongRequest> apply(SongRequest songRequest) {
             Matcher matcher = TRACK_PATTERN.matcher(songRequest.getUrlOrName());
-            matcher.find();
-            String id = matcher.group(3);
-            try {
-                Track track = getSpotifyApi().getTrack(id).build().execute();
-                return List.of(
-                        new SongRequest(
-                                songRequest.getGuild(),
-                                songRequest.getMember(),
-                                getSearchString(track.getArtists()[0].getName(), track.getName())
-                        )
-                );
-            } catch (IOException | SpotifyWebApiException | ParseException e) {
-                logger.error("SpotifySong error", e);
+            if (matcher.find()) {
+                String id = matcher.group("track");
+                try {
+                    Track track = getSpotifyApi().getTrack(id).build().execute();
+                    return List.of(
+                            new SongRequest(
+                                    songRequest.getGuild(),
+                                    songRequest.getMember(),
+                                    getSearchString(track.getArtists()[0].getName(), track.getName())
+                            )
+                    );
+                } catch (IOException | SpotifyWebApiException | ParseException e) {
+                    logger.error("SpotifySong error", e);
+                }
             }
             return List.of();
         }
@@ -124,17 +125,18 @@ public class SpotifySource extends CustomAudioSource {
         @Override
         public List<SongRequest> apply(SongRequest songRequest) {
             Matcher matcher = ALBUM_PATTERN.matcher(songRequest.getUrlOrName());
-            matcher.find();
-            String id = matcher.group(3);
-            try {
-                Album album = getSpotifyApi().getAlbum(id).build().execute();
-                return Arrays.stream(album.getTracks().getItems()).map(track -> new SongRequest(
-                        songRequest.getGuild(),
-                        songRequest.getMember(),
-                        getSearchString(track.getArtists()[0].getName(), track.getName())
-                )).toList();
-            } catch (IOException | SpotifyWebApiException | ParseException e) {
-                logger.error("SpotifyAlbum error", e);
+            if (matcher.find()) {
+                String id = matcher.group("album");
+                try {
+                    Album album = getSpotifyApi().getAlbum(id).build().execute();
+                    return Arrays.stream(album.getTracks().getItems()).map(track -> new SongRequest(
+                            songRequest.getGuild(),
+                            songRequest.getMember(),
+                            getSearchString(track.getArtists()[0].getName(), track.getName())
+                    )).toList();
+                } catch (IOException | SpotifyWebApiException | ParseException e) {
+                    logger.error("SpotifyAlbum error", e);
+                }
             }
             return List.of();
         }
@@ -143,18 +145,19 @@ public class SpotifySource extends CustomAudioSource {
     private class SpotifyPlaylist implements Function<SongRequest, List<SongRequest>> {
         @Override
         public List<SongRequest> apply(SongRequest songRequest) {
-            Matcher matcher = ALBUM_PATTERN.matcher(songRequest.getUrlOrName());
-            matcher.find();
-            String id = matcher.group(3);
-            try {
-                Playlist playlist = getSpotifyApi().getPlaylist(id).build().execute();
-                return Arrays.stream(playlist.getTracks().getItems()).map(PlaylistTrack::getTrack).map(track -> new SongRequest(
-                        songRequest.getGuild(),
-                        songRequest.getMember(),
-                        getSearchString(((Track) track).getArtists()[0].getName(), track.getName())
-                )).toList();
-            } catch (IOException | SpotifyWebApiException | ParseException e) {
-                logger.error("SpotifyPlaylist error", e);
+            Matcher matcher = PLAYLIST_PATTERN.matcher(songRequest.getUrlOrName());
+            if (matcher.find()) {
+                String id = matcher.group("playlist");
+                try {
+                    Playlist playlist = getSpotifyApi().getPlaylist(id).build().execute();
+                    return Arrays.stream(playlist.getTracks().getItems()).map(PlaylistTrack::getTrack).map(track -> new SongRequest(
+                            songRequest.getGuild(),
+                            songRequest.getMember(),
+                            getSearchString(((Track) track).getArtists()[0].getName(), track.getName())
+                    )).toList();
+                } catch (IOException | SpotifyWebApiException | ParseException e) {
+                    logger.error("SpotifyPlaylist error", e);
+                }
             }
             return List.of();
         }

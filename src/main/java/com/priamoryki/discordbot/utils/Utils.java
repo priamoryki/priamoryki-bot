@@ -32,6 +32,10 @@ public final class Utils {
         }
     }
 
+    public static String firstNotEmpty(String... strings) {
+        return Arrays.stream(strings).filter(s -> !s.isEmpty()).findFirst().orElse("");
+    }
+
     public static String normalizeTime(long time) {
         time /= 1000;
         long s = time % 60;

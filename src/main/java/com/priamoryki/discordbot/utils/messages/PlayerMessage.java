@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static com.priamoryki.discordbot.utils.Utils.firstNotEmpty;
+
 /**
  * @author Pavel Lymar
  */
@@ -106,6 +108,7 @@ public class PlayerMessage implements UsefulMessage {
             return fillWithDefaultMessage(messageBuilder);
         }
         User user = track.getUserData(User.class);
+        String title = track.getInfo().title;
         String url = track.getInfo().uri;
         long currentTime = track.getPosition();
         long duration = track.getDuration();
@@ -116,9 +119,9 @@ public class PlayerMessage implements UsefulMessage {
         }
         EmbedBuilder builder = new EmbedBuilder().setColor(Color.BLUE).setAuthor("♪" + user.getName() + "♪");
         if (Utils.isUrl(url)) {
-            builder.setTitle(track.getInfo().title, track.getInfo().uri);
+            builder.setTitle(firstNotEmpty(title, url), url);
         } else {
-            builder.setTitle(track.getInfo().title);
+            builder.setTitle(title);
         }
         String timeLine = "🟥".repeat(blocks) + "🟦".repeat(BLOCKS_NUMBER - blocks);
         String timeString = isLive ? "LIVE" : Utils.normalizeTime(currentTime) + " / " + Utils.normalizeTime(duration);
