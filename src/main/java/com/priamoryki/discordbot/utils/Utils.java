@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
+import org.apache.http.HttpRequest;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -52,6 +53,24 @@ public final class Utils {
             time += Math.pow(60, i) * Long.parseLong(list.get(i));
         }
         return time;
+    }
+
+    public static void fakeChrome(HttpRequest request) {
+        fakeChrome(request, false);
+    }
+
+    public static void fakeChrome(HttpRequest request, boolean isVideo) {
+        request.setHeader("Connection", "keep-alive");
+        request.setHeader("DNT", "1");
+        request.setHeader("Upgrade-Insecure-Requests", "1");
+        request.setHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,video/mp4,image/avif,image/webp,*/*;q=0.8");
+        request.setHeader("Accept-Encoding", "none");
+        request.setHeader("TE", "trailers");
+        request.setHeader("Accept-Language", "en-US,en;q=0.9");
+        request.setHeader("Sec-Fetch-Dest", isVideo ? "empty" : "document");
+        request.setHeader("Sec-Fetch-Mode", "cors");
+        request.setHeader("Sec-Fetch-Site", "same-site");
+        request.setHeader("User-Agent", "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/114.0");
     }
 
     public static boolean isTheSameVoiceChannelWithMember(Member bot, Member member) {

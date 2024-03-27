@@ -3,6 +3,7 @@ package com.priamoryki.discordbot.configs;
 import com.priamoryki.discordbot.api.audio.finder.MusicFinder;
 import com.priamoryki.discordbot.api.audio.finder.SpotifySource;
 import com.priamoryki.discordbot.api.audio.finder.YandexMusicSource;
+import com.priamoryki.discordbot.api.audio.customsources.tiktok.TikTokAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.local.LocalAudioSourceManager;
@@ -24,6 +25,7 @@ public class MusicConfig {
         audioPlayerManager.registerSourceManager(new YoutubeAudioSourceManager());
         audioPlayerManager.registerSourceManager(new TwitchStreamAudioSourceManager());
         audioPlayerManager.registerSourceManager(SoundCloudAudioSourceManager.createDefault());
+        audioPlayerManager.registerSourceManager(new TikTokAudioSourceManager());
         audioPlayerManager.getConfiguration().setFilterHotSwapEnabled(true);
         return audioPlayerManager;
     }
