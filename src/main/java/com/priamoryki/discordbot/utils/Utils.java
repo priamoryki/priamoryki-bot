@@ -17,8 +17,6 @@ import java.util.stream.Collectors;
  * @author Pavel Lymar
  */
 public final class Utils {
-    public static final String UPDATED_PROPERTY = "entity-updated";
-
     private Utils() {
 
     }

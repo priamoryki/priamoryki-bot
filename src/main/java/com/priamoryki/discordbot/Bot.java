@@ -18,13 +18,13 @@ import com.priamoryki.discordbot.commands.music.modifiers.BassBoost;
 import com.priamoryki.discordbot.commands.music.modifiers.Cycle;
 import com.priamoryki.discordbot.commands.music.modifiers.NightCore;
 import com.priamoryki.discordbot.commands.music.modifiers.Reset;
-import com.priamoryki.discordbot.commands.music.modifiers.SetSpeed;
+import com.priamoryki.discordbot.commands.music.modifiers.Speed;
 import com.priamoryki.discordbot.commands.music.modifiers.Uncycle;
-import com.priamoryki.discordbot.commands.music.queue.ClearQueue;
-import com.priamoryki.discordbot.commands.music.queue.DeleteFromQueue;
+import com.priamoryki.discordbot.commands.music.queue.QueueClear;
+import com.priamoryki.discordbot.commands.music.queue.QueueDelete;
 import com.priamoryki.discordbot.commands.music.queue.PlayNext;
-import com.priamoryki.discordbot.commands.music.queue.PrintQueue;
-import com.priamoryki.discordbot.commands.music.queue.ShuffleQueue;
+import com.priamoryki.discordbot.commands.music.queue.QueuePrint;
+import com.priamoryki.discordbot.commands.music.queue.QueueShuffle;
 import com.priamoryki.discordbot.commands.music.queue.SkipTo;
 import com.priamoryki.discordbot.commands.sounds.Boobs;
 import com.priamoryki.discordbot.commands.sounds.GJ;
@@ -81,20 +81,20 @@ public class Bot implements CommandLineRunner {
                     new Repeat(musicManager),
                     new Seek(musicManager),
                     // Queue commands
-                    new ClearQueue(musicManager),
-                    new DeleteFromQueue(musicManager),
-                    new ShuffleQueue(musicManager),
+                    new QueueClear(musicManager),
+                    new QueueDelete(musicManager),
+                    new QueueShuffle(musicManager),
                     new SkipTo(musicManager),
                     new PlayNext(musicManager),
                     // Print queue commands
-                    new PrintQueue(musicManager),
+                    new QueuePrint(musicManager),
                     new PreviousPage(musicManager),
                     new NextPage(musicManager),
                     // Modifiers
                     new BassBoost(musicManager),
                     new NightCore(musicManager),
                     new Reset(musicManager),
-                    new SetSpeed(musicManager),
+                    new Speed(musicManager),
                     new Cycle(musicManager),
                     new Uncycle(musicManager),
                     // Sounds

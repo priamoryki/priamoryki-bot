@@ -10,19 +10,19 @@ import java.util.List;
 /**
  * @author Pavel Lymar
  */
-public class PrintQueue extends MusicCommand {
-    public PrintQueue(MusicManager musicManager) {
+public class QueueShuffle extends MusicCommand {
+    public QueueShuffle(MusicManager musicManager) {
         super(musicManager);
     }
 
     @Override
     public List<String> getNames() {
-        return List.of("print_queue");
+        return List.of("queue_shuffle");
     }
 
     @Override
     public String getDescription() {
-        return "Prints current queue";
+        return "Shuffles queue";
     }
 
     @Override
@@ -32,6 +32,6 @@ public class PrintQueue extends MusicCommand {
 
     @Override
     public void execute(Guild guild, Member member, List<String> args) {
-        musicManager.getGuildMusicManager(guild).getQueueMessage().update();
+        musicManager.getGuildMusicManager(guild).shuffleQueue();
     }
 }

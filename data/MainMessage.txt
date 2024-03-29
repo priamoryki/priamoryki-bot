@@ -5,16 +5,16 @@ BOT COMMANDS:
     skip
     play_next URL | query
     repeat ON | OFF
-    print_queue
-    shuffle_queue
-    delete_from_queue n
+    queue_print
+    queue_shuffle
+    queue_delete n
     skip_to n
-    clear_queue
+    queue_clear
     join
     leave
 
 MUSIC MODIFIERS:
-    set_speed n
+    speed n
     nightcore
     bassboost
     reset

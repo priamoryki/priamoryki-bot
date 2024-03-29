@@ -27,33 +27,21 @@ public class GuildAttributesService {
     }
 
     public long getMainChannelId(long guildId) {
-        ServerInfo serverInfo = serversRepository.getServerById(guildId);
-        if (serverInfo == null || serverInfo.getChannelId() == null) {
-            return INVALID_ID;
-        }
-        return serverInfo.getChannelId();
+        return serversRepository.findById(guildId).map(ServerInfo::getChannelId).orElse(INVALID_ID);
     }
 
     public long getMainMessageId(long guildId) {
-        ServerInfo serverInfo = serversRepository.getServerById(guildId);
-        if (serverInfo == null || serverInfo.getMessageId() == null) {
-            return INVALID_ID;
-        }
-        return serverInfo.getMessageId();
+        return serversRepository.findById(guildId).map(ServerInfo::getMessageId).orElse(INVALID_ID);
     }
 
     public long getPlayerMessageId(long guildId) {
-        ServerInfo serverInfo = serversRepository.getServerById(guildId);
-        if (serverInfo == null || serverInfo.getPlayerMessageId() == null) {
-            return INVALID_ID;
-        }
-        return serverInfo.getPlayerMessageId();
+        return serversRepository.findById(guildId).map(ServerInfo::getPlayerMessageId).orElse(INVALID_ID);
     }
 
     public void createGuildAttributes(Guild guild) {
         ServerInfo serverInfo = new ServerInfo();
         serverInfo.setServerId(guild.getIdLong());
-        serversRepository.update(serverInfo);
+        serversRepository.save(serverInfo);
         getOrCreateMainMessage(guild);
         getOrCreatePlayerMessage(guild);
     }
@@ -64,9 +52,9 @@ public class GuildAttributesService {
             channel = guild.createTextChannel(
                     botName
             ).complete();
-            ServerInfo serverInfo = serversRepository.getServerById(guild.getIdLong());
+            ServerInfo serverInfo = serversRepository.findById(guild.getIdLong()).get();
             serverInfo.setChannelId(channel.getIdLong());
-            serversRepository.update(serverInfo);
+            serversRepository.save(serverInfo);
         }
         return channel;
     }
@@ -79,9 +67,9 @@ public class GuildAttributesService {
             message = channel.sendMessage(
                     MainMessage.fillWithDefaultMessage(new MessageCreateBuilder()).build()
             ).complete();
-            ServerInfo serverInfo = serversRepository.getServerById(guild.getIdLong());
+            ServerInfo serverInfo = serversRepository.findById(guild.getIdLong()).get();
             serverInfo.setMessageId(message.getIdLong());
-            serversRepository.update(serverInfo);
+            serversRepository.save(serverInfo);
             message.pin().complete();
         }
         return message;
@@ -95,9 +83,9 @@ public class GuildAttributesService {
             message = channel.sendMessage(
                     PlayerMessage.fillWithDefaultMessage(new MessageCreateBuilder()).build()
             ).complete();
-            ServerInfo serverInfo = serversRepository.getServerById(guild.getIdLong());
+            ServerInfo serverInfo = serversRepository.findById(guild.getIdLong()).get();
             serverInfo.setPlayerMessageId(message.getIdLong());
-            serversRepository.update(serverInfo);
+            serversRepository.save(serverInfo);
             message.pin().complete();
         }
         return message;
