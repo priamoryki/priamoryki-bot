@@ -1,4 +1,4 @@
-package com.priamoryki.discordbot.utils;
+package com.priamoryki.discordbot.common;
 
 import com.priamoryki.discordbot.commands.Command;
 import net.dv8tion.jda.api.entities.GuildVoiceState;

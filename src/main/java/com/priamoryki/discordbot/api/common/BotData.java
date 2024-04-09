@@ -1,8 +1,9 @@
-package com.priamoryki.discordbot.utils;
+package com.priamoryki.discordbot.api.common;
 
+import com.priamoryki.discordbot.api.events.EventsListener;
 import com.priamoryki.discordbot.commands.Command;
 import com.priamoryki.discordbot.commands.CommandsStorage;
-import com.priamoryki.discordbot.events.EventsListener;
+import com.priamoryki.discordbot.common.Utils;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.User;
 import org.springframework.beans.factory.annotation.Value;

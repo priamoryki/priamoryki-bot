@@ -1,6 +1,6 @@
-package com.priamoryki.discordbot.utils.auth.service;
+package com.priamoryki.discordbot.common.auth.service;
 
-import com.priamoryki.discordbot.utils.auth.holder.TokenHolder;
+import com.priamoryki.discordbot.common.auth.holder.TokenHolder;
 
 /**
  * @author Pavel Lymar

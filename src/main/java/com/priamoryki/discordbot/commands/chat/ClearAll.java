@@ -1,7 +1,7 @@
 package com.priamoryki.discordbot.commands.chat;
 
+import com.priamoryki.discordbot.api.common.GuildAttributesService;
 import com.priamoryki.discordbot.commands.Command;
-import com.priamoryki.discordbot.utils.GuildAttributesService;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageHistory;

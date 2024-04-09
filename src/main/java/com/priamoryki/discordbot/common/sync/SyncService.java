@@ -1,4 +1,4 @@
-package com.priamoryki.discordbot.utils.sync;
+package com.priamoryki.discordbot.common.sync;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;

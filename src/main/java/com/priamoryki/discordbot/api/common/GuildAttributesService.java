@@ -1,9 +1,9 @@
-package com.priamoryki.discordbot.utils;
+package com.priamoryki.discordbot.api.common;
 
-import com.priamoryki.discordbot.entities.ServerInfo;
-import com.priamoryki.discordbot.repositories.ServersRepository;
-import com.priamoryki.discordbot.utils.messages.MainMessage;
-import com.priamoryki.discordbot.utils.messages.PlayerMessage;
+import com.priamoryki.discordbot.api.database.entities.ServerInfo;
+import com.priamoryki.discordbot.api.database.repositories.ServersRepository;
+import com.priamoryki.discordbot.api.messages.MainMessage;
+import com.priamoryki.discordbot.api.messages.PlayerMessage;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;

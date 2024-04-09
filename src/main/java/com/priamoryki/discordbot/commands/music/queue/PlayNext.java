@@ -4,7 +4,7 @@ import com.priamoryki.discordbot.api.audio.MusicManager;
 import com.priamoryki.discordbot.api.audio.SongRequest;
 import com.priamoryki.discordbot.commands.CommandException;
 import com.priamoryki.discordbot.commands.MusicCommand;
-import com.priamoryki.discordbot.utils.Utils;
+import com.priamoryki.discordbot.common.Utils;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.interactions.commands.OptionType;

@@ -28,7 +28,7 @@ import org.apache.http.impl.client.BasicCookieStore;
 
 import java.util.stream.Collectors;
 
-import static com.priamoryki.discordbot.utils.Utils.fakeChrome;
+import static com.priamoryki.discordbot.common.Utils.fakeChrome;
 
 public class TikTokAudioTrackHttpManager implements AutoCloseable {
     protected final HttpInterfaceManager httpInterfaceManager;

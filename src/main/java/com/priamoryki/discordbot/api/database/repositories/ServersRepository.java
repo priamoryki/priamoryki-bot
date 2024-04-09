@@ -1,6 +1,6 @@
-package com.priamoryki.discordbot.repositories;
+package com.priamoryki.discordbot.api.database.repositories;
 
-import com.priamoryki.discordbot.entities.ServerInfo;
+import com.priamoryki.discordbot.api.database.entities.ServerInfo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

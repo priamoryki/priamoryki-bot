@@ -1,4 +1,4 @@
-package com.priamoryki.discordbot.utils.messages;
+package com.priamoryki.discordbot.api.messages;
 
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.ActionRow;

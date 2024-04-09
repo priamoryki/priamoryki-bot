@@ -1,6 +1,6 @@
-package com.priamoryki.discordbot.repositories;
+package com.priamoryki.discordbot.api.database.repositories;
 
-import com.priamoryki.discordbot.utils.sync.UpdatePlannedProperty;
+import com.priamoryki.discordbot.common.sync.UpdatePlannedProperty;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 

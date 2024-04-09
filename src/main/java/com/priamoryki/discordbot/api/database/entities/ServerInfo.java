@@ -1,4 +1,4 @@
-package com.priamoryki.discordbot.entities;
+package com.priamoryki.discordbot.api.database.entities;
 
 import org.hibernate.annotations.UpdateTimestamp;
 

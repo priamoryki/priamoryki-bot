@@ -1,4 +1,4 @@
-package com.priamoryki.discordbot.utils.auth.holder;
+package com.priamoryki.discordbot.common.auth.holder;
 
 import java.time.Instant;
 

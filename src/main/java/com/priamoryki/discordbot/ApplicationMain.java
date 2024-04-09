@@ -1,6 +1,6 @@
 package com.priamoryki.discordbot;
 
-import com.priamoryki.discordbot.repositories.CommonRepositoryImpl;
+import com.priamoryki.discordbot.api.database.repositories.CommonRepositoryImpl;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;

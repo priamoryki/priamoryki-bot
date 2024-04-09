@@ -39,7 +39,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.priamoryki.discordbot.utils.Utils.fakeChrome;
+import static com.priamoryki.discordbot.common.Utils.fakeChrome;
 import static com.sedmelluq.discord.lavaplayer.tools.FriendlyException.Severity.SUSPICIOUS;
 
 public class TikTokAudioSourceManager extends AbstractDuncteBotHttpSource {
@@ -128,7 +128,7 @@ public class TikTokAudioSourceManager extends AbstractDuncteBotHttpSource {
     }
 
     protected MetaData extractData(String userId, String videoId) {
-        logger.info("userId: {}, videoId: {}", userId, videoId);
+        logger.debug("Extracting data from TikTok for userId: {}, videoId: {}", userId, videoId);
         String url = String.format("https://www.tiktok.com/@%s/video/%s", userId, videoId);
         return extractData(url);
     }
