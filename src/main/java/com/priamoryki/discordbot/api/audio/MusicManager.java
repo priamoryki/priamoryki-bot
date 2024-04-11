@@ -1,7 +1,7 @@
 package com.priamoryki.discordbot.api.audio;
 
 import com.priamoryki.discordbot.api.audio.finder.MusicFinder;
-import com.priamoryki.discordbot.utils.GuildAttributesService;
+import com.priamoryki.discordbot.api.common.GuildAttributesService;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import net.dv8tion.jda.api.entities.Guild;
 import org.springframework.stereotype.Service;

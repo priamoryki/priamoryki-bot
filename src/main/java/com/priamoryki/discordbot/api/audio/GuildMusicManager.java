@@ -2,10 +2,10 @@ package com.priamoryki.discordbot.api.audio;
 
 import com.github.natanbc.lavadsp.timescale.TimescalePcmAudioFilter;
 import com.priamoryki.discordbot.api.audio.finder.MusicFinder;
+import com.priamoryki.discordbot.api.common.GuildAttributesService;
+import com.priamoryki.discordbot.api.messages.PlayerMessage;
+import com.priamoryki.discordbot.api.messages.QueueMessage;
 import com.priamoryki.discordbot.commands.CommandException;
-import com.priamoryki.discordbot.utils.GuildAttributesService;
-import com.priamoryki.discordbot.utils.messages.PlayerMessage;
-import com.priamoryki.discordbot.utils.messages.QueueMessage;
 import com.sedmelluq.discord.lavaplayer.filter.AudioFilter;
 import com.sedmelluq.discord.lavaplayer.filter.equalizer.Equalizer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;

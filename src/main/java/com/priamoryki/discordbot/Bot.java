@@ -1,6 +1,9 @@
 package com.priamoryki.discordbot;
 
 import com.priamoryki.discordbot.api.audio.MusicManager;
+import com.priamoryki.discordbot.api.common.BotData;
+import com.priamoryki.discordbot.api.common.GuildAttributesService;
+import com.priamoryki.discordbot.api.events.EventsListener;
 import com.priamoryki.discordbot.commands.CommandsStorage;
 import com.priamoryki.discordbot.commands.chat.Clear;
 import com.priamoryki.discordbot.commands.chat.ClearAll;
@@ -39,9 +42,6 @@ import com.priamoryki.discordbot.commands.sounds.Silence;
 import com.priamoryki.discordbot.commands.sounds.Titan;
 import com.priamoryki.discordbot.commands.sounds.Tuturu;
 import com.priamoryki.discordbot.commands.sounds.Wtf;
-import com.priamoryki.discordbot.events.EventsListener;
-import com.priamoryki.discordbot.utils.BotData;
-import com.priamoryki.discordbot.utils.GuildAttributesService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
