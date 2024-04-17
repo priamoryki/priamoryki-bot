@@ -31,7 +31,7 @@
     * Set environment variables in `.env` file
     * Run from project folder
         ```shell
-        sudo docker compose up
+        sudo docker compose up -d
         ```
 * Enjoy
 
