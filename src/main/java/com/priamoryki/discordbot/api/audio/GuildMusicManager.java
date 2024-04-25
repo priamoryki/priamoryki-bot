@@ -6,6 +6,7 @@ import com.priamoryki.discordbot.api.common.GuildAttributesService;
 import com.priamoryki.discordbot.api.messages.PlayerMessage;
 import com.priamoryki.discordbot.api.messages.QueueMessage;
 import com.priamoryki.discordbot.commands.CommandException;
+import com.priamoryki.discordbot.common.Utils;
 import com.sedmelluq.discord.lavaplayer.filter.AudioFilter;
 import com.sedmelluq.discord.lavaplayer.filter.equalizer.Equalizer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
@@ -32,6 +33,9 @@ import static com.sedmelluq.discord.lavaplayer.track.TrackMarkerHandler.MarkerSt
  * @author Pavel Lymar, Michael Ruzavin
  */
 public class GuildMusicManager extends AudioEventAdapter {
+    private static final float[] BASS_BOOST = {
+            0.2f, 0.15f, 0.1f, 0.05f, 0.0f, -0.05f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f
+    };
     private final MusicFinder musicFinder;
     private final Guild guild;
     private final AudioPlayer player;
@@ -169,17 +173,8 @@ public class GuildMusicManager extends AudioEventAdapter {
         player.getPlayingTrack().setPosition(time);
     }
 
-    private void validateId(int id) throws CommandException {
-        if (1 > id) {
-            throw new CommandException("Id parameter should be natural number!");
-        }
-        if (id > queue.size()) {
-            throw new CommandException("Id parameter should not be more than queue size!");
-        }
-    }
-
     public void skipTo(int id) throws CommandException {
-        validateId(id);
+        Utils.validateId(id, queue.size());
         List<AudioTrack> list = new ArrayList<>(queue);
         queue.clear();
         queue.addAll(list.subList(id - 1, list.size()));
@@ -191,10 +186,10 @@ public class GuildMusicManager extends AudioEventAdapter {
         skip();
     }
 
-    public void deleteFromQueue(int id) throws CommandException {
-        validateId(id);
+    public void deleteFromQueue(int from, int to) throws CommandException {
+        Utils.validateBounds(from, to, queue.size(), "Can't remove interval that isn't in queue!");
         List<AudioTrack> list = new ArrayList<>(queue);
-        list.remove(id - 1);
+        list.subList(from - 1, to).clear();
         queue.clear();
         queue.addAll(list);
     }
@@ -208,9 +203,6 @@ public class GuildMusicManager extends AudioEventAdapter {
 
     private void rebuildFilters() {
         float multiplier = 1;
-        float[] BASS_BOOST = {
-                0.2f, 0.15f, 0.1f, 0.05f, 0.0f, -0.05f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f
-        };
         player.setFilterFactory(
                 (audioTrack, audioDataFormat, universalPcmAudioFilter) -> {
                     List<AudioFilter> filters = new ArrayList<>();

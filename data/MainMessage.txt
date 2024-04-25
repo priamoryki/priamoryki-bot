@@ -7,7 +7,7 @@ BOT COMMANDS:
     repeat ON | OFF
     queue_print
     queue_shuffle
-    queue_delete n
+    queue_delete from_id to_id
     skip_to n
     queue_clear
     join

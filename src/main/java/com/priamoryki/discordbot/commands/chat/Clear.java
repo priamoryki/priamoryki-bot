@@ -28,11 +28,6 @@ public class Clear implements Command {
     }
 
     @Override
-    public boolean isAvailableFromChat() {
-        return false;
-    }
-
-    @Override
     public void execute(Guild guild, Member member, List<String> args) {
         if (args.size() != 1) {
             return;

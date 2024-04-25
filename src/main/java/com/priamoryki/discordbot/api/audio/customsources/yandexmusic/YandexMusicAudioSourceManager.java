@@ -3,15 +3,12 @@ package com.priamoryki.discordbot.api.audio.customsources.yandexmusic;
 import com.priamoryki.discordbot.api.audio.customsources.ProxyAudioRequestGetter;
 import com.priamoryki.discordbot.api.audio.customsources.ProxyAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManager;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.sedmelluq.discord.lavaplayer.tools.JsonBrowser;
 import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -41,15 +38,14 @@ public class YandexMusicAudioSourceManager extends ProxyAudioSourceManager {
         return "yandex-music";
     }
 
-    private List<String> getSongsRequests(JSONArray tracks) throws JSONException {
-        List<String> result = new ArrayList<>();
-        for (int i = 0; i < tracks.length(); i++) {
-            JSONObject track = tracks.getJSONObject(i);
-            String author = track.getJSONArray("artists").getJSONObject(0).getString("name");
-            String name = track.getString("title");
-            result.add(getSearchString(author, name));
-        }
-        return result;
+    private List<String> getSongsRequests(JsonBrowser tracks) {
+        return tracks.values().stream()
+                .map(track -> {
+                    String author = track.get("artists").values().get(0).get("name").text();
+                    String name = track.get("title").text();
+                    return getSearchString(author, name);
+                })
+                .toList();
     }
 
     private String getSearchString(String author, String name) {
@@ -63,9 +59,9 @@ public class YandexMusicAudioSourceManager extends ProxyAudioSourceManager {
             String url = API_HOST + "/tracks/" + id;
             try {
                 String body = Jsoup.connect(url).ignoreContentType(true).execute().body();
-                JSONArray json = new JSONObject(body).getJSONArray("result");
+                JsonBrowser json = JsonBrowser.parse(body).get("result");
                 return getSongsRequests(json);
-            } catch (JSONException | IOException e) {
+            } catch (IOException e) {
                 logger.error("YandexMusicSong error", e);
             }
             return List.of();
@@ -79,9 +75,9 @@ public class YandexMusicAudioSourceManager extends ProxyAudioSourceManager {
             String url = API_HOST + "/albums/" + id + "/with-tracks";
             try {
                 String body = Jsoup.connect(url).ignoreContentType(true).execute().body();
-                JSONArray json = new JSONObject(body).getJSONObject("result").getJSONArray("volumes").getJSONArray(0);
+                JsonBrowser json = JsonBrowser.parse(body).get("result").get("volumes").values().get(0);
                 return getSongsRequests(json);
-            } catch (JSONException | IOException e) {
+            } catch (IOException e) {
                 logger.error("YandexMusicAlbum error", e);
             }
             return List.of();
@@ -96,13 +92,12 @@ public class YandexMusicAudioSourceManager extends ProxyAudioSourceManager {
             String url = API_HOST + "/users/" + user + "/playlists/" + id;
             try {
                 String body = Jsoup.connect(url).ignoreContentType(true).execute().body();
-                JSONArray tracks = new JSONObject(body).getJSONObject("result").getJSONArray("tracks");
-                JSONArray json = new JSONArray();
-                for (int i = 0; i < tracks.length(); i++) {
-                    json.put(tracks.getJSONObject(i).getJSONObject("track"));
-                }
-                return getSongsRequests(json);
-            } catch (JSONException | IOException e) {
+                JsonBrowser tracks = JsonBrowser.newList();
+                JsonBrowser.parse(body).get("result").get("tracks").values().stream()
+                        .map(track -> track.get("track"))
+                        .forEach(tracks::add);
+                return getSongsRequests(tracks);
+            } catch (IOException e) {
                 logger.error("YandexMusicPlaylist error", e);
             }
             return List.of();

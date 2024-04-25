@@ -1,6 +1,7 @@
 package com.priamoryki.discordbot.common;
 
 import com.priamoryki.discordbot.commands.Command;
+import com.priamoryki.discordbot.commands.CommandException;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
@@ -53,6 +54,30 @@ public final class Utils {
             time += Math.pow(60, i) * Long.parseLong(list.get(i));
         }
         return time;
+    }
+
+    public static void validateId(int id, int size) throws CommandException {
+        if (1 > id) {
+            throw new CommandException("Id parameter should be natural number!");
+        }
+        if (id > size) {
+            throw new CommandException("Id parameter shouldn't be more than size!");
+        }
+    }
+
+    public static void validateBounds(int from, int to, int size, String message) throws CommandException {
+        if (from > to) {
+            throw new CommandException("Incorrect order of arguments!");
+        }
+        if (1 > from) {
+            throw new CommandException(message);
+        }
+        if (from > size) {
+            throw new CommandException(message);
+        }
+        if (to > size) {
+            throw new CommandException(message);
+        }
     }
 
     public static void fakeChrome(HttpRequest request) {
