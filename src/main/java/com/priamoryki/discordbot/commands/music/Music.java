@@ -48,16 +48,9 @@ public class Music extends MusicCommand {
             throw new CommandException("Invalid number of arguments!");
         }
         musicManager.getGuildMusicManager(guild).join(member);
-        if (args.size() == 1 && Utils.isUrl(args.get(0))) {
-            musicManager.getGuildMusicManager(guild).play(new SongRequest(guild, member, args.get(0)));
-            return;
-        }
-        musicManager.getGuildMusicManager(guild).play(
-                new SongRequest(
-                        guild,
-                        member,
-                        "ytsearch:" + String.join(" ", args)
-                )
-        );
+        String urlOrName = args.size() == 1 && Utils.isUrl(args.get(0))
+                ? args.get(0)
+                : "ytsearch:" + String.join(" ", args);
+        musicManager.getGuildMusicManager(guild).play(new SongRequest(guild, member, urlOrName));
     }
 }

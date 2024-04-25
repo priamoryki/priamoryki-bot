@@ -31,7 +31,8 @@ public class QueueDelete extends MusicCommand {
     @Override
     public List<OptionData> getOptions() {
         return List.of(
-                new OptionData(OptionType.INTEGER, "track_number", "number of the track in the queue", true)
+                new OptionData(OptionType.INTEGER, "from_id", "first index of sublist to delete from the queue", true),
+                new OptionData(OptionType.INTEGER, "to_id", "last index of sublist to delete from the queue", false)
         );
     }
 
@@ -42,15 +43,11 @@ public class QueueDelete extends MusicCommand {
 
     @Override
     public void execute(Guild guild, Member member, List<String> args) throws CommandException {
-        if (args.size() != 1) {
+        if (args.isEmpty() || args.size() > 2) {
             throw new CommandException("Invalid number of arguments!");
         }
-        int n;
-        try {
-            n = Integer.parseInt(args.get(0));
-        } catch (Exception e) {
-            throw new CommandException("Argument isn't integer!");
-        }
-        musicManager.getGuildMusicManager(guild).deleteFromQueue(n);
+        int from = Integer.parseInt(args.get(0));
+        int to = args.size() == 1 ? from : Integer.parseInt(args.get(1));
+        musicManager.getGuildMusicManager(guild).deleteFromQueue(from, to);
     }
 }

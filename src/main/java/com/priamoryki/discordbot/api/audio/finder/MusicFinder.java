@@ -31,9 +31,9 @@ public class MusicFinder {
 
     public List<AudioTrack> find(SongRequest songRequest) {
         List<AudioTrack> result = new ArrayList<>();
-        Guild guild = songRequest.getGuild();
-        Member member = songRequest.getMember();
-        String urlOrName = songRequest.getUrlOrName();
+        Guild guild = songRequest.guild();
+        Member member = songRequest.member();
+        String urlOrName = songRequest.urlOrName();
         audioPlayerManager.loadItemSync(urlOrName, new AudioLoadResultHandler() {
             @Override
             public void trackLoaded(AudioTrack track) {
