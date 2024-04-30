@@ -33,7 +33,7 @@ public class Music extends MusicCommand {
     @Override
     public List<OptionData> getOptions() {
         return List.of(
-                new OptionData(OptionType.STRING, "url_or_query", "URL or query for searching track", true)
+                new OptionData(OptionType.STRING, "query", "URL or query for searching track", true)
         );
     }
 

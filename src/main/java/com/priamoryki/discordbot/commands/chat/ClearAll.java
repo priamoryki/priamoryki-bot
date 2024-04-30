@@ -29,11 +29,6 @@ public class ClearAll implements Command {
     }
 
     @Override
-    public boolean isAvailableFromChat() {
-        return true;
-    }
-
-    @Override
     public void execute(Guild guild, Member member, List<String> args) {
         MessageHistory
                 .getHistoryFromBeginning(guildAttributesService.getOrCreateMainChannel(guild))

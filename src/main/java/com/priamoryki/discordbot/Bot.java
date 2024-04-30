@@ -113,7 +113,9 @@ public class Bot implements CommandLineRunner {
                     new Wtf(musicManager)
             );
 
-            EventsListener eventsListener = new EventsListener(data, commands, guildAttributesService);
+            EventsListener eventsListener = new EventsListener(
+                    data, commands, guildAttributesService
+            );
             data.setupBot(commands, eventsListener);
         } catch (Exception e) {
             logger.error("Error on bot start", e);

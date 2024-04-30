@@ -31,7 +31,7 @@ public class Repeat extends MusicCommand {
     @Override
     public List<OptionData> getOptions() {
         return List.of(
-                new OptionData(OptionType.STRING, "on_or_off", "ON or OFF option")
+                new OptionData(OptionType.STRING, "toggle", "ON or OFF option")
         );
     }
 
