@@ -45,3 +45,5 @@
   * Yes, you can. Read more [here](#create-bot-instance-based-on-template).
 * I found an issue. How can I report it?
   * Create new issue [here](https://github.com/priamoryki/priamoryki-bot/issues).
+* I've deleted bot channel. What can I do to recreate it?
+  * Just tag the bot in any channel or kick and reinvite it to the server.

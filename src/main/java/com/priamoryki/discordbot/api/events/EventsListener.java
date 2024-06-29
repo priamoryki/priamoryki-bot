@@ -2,9 +2,12 @@ package com.priamoryki.discordbot.api.events;
 
 import com.priamoryki.discordbot.api.common.BotData;
 import com.priamoryki.discordbot.api.common.GuildAttributesService;
+import com.priamoryki.discordbot.api.messages.MainMessage;
 import com.priamoryki.discordbot.commands.Command;
 import com.priamoryki.discordbot.commands.CommandException;
 import com.priamoryki.discordbot.commands.CommandsStorage;
+import com.sedmelluq.discord.lavaplayer.tools.JsonBrowser;
+import io.micrometer.core.instrument.util.IOUtils;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -16,10 +19,12 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -39,8 +44,16 @@ public class EventsListener extends ListenerAdapter {
         this.guildAttributesService = guildAttributesService;
     }
 
+    private boolean isBotMentioned(Message message) {
+        return message.getMentions().getUsers().stream().anyMatch(data::isBot);
+    }
+
     @Override
     public void onReady(@NotNull ReadyEvent event) {
+        for (Guild guild : data.getGuilds()) {
+            Message message = guildAttributesService.getOrCreateMainMessage(guild);
+            message.editMessage(MainMessage.fillWithDefaultMessage(new MessageEditBuilder()).build()).queue();
+        }
         logger.info("Bot is working now!");
     }
 
@@ -61,46 +74,59 @@ public class EventsListener extends ListenerAdapter {
         }
     }
 
+    public void onBotAuthorMessage(@NotNull MessageReceivedEvent event) {
+        Message message = event.getMessage();
+        if (isBotMentioned(message)) {
+            try {
+                var file = IOUtils.toString(message.getAttachments().get(0).getProxy().download().get(), StandardCharsets.UTF_8);
+                JsonBrowser json = JsonBrowser.parse(file);
+                String text = json.get("message").text();
+                List<Guild> guilds = json.get("guilds").values().stream()
+                        .map(JsonBrowser::text)
+                        .map(Long::valueOf)
+                        .map(data::getGuildById)
+                        .toList();
+                if (guilds.isEmpty()) {
+                    guilds = data.getGuilds();
+                }
+
+                for (Guild guild : guilds) {
+                    guildAttributesService.sendNotification(guild, text);
+                }
+            } catch (Exception e) {
+                logger.error(e.getMessage());
+            }
+        }
+    }
+
     public void onPrivateMessageReceived(@NotNull MessageReceivedEvent event) {
+        if (event.getAuthor().getIdLong() == data.getBotAuthorId()) {
+            onBotAuthorMessage(event);
+        }
         // LATER
     }
 
-    @Override
-    public void onMessageReceived(@NotNull MessageReceivedEvent event) {
-        if (event.isFromType(ChannelType.PRIVATE)) {
-            onPrivateMessageReceived(event);
-            return;
-        }
+    public void onGuildMessageReceived(@NotNull MessageReceivedEvent event) {
         Message message = event.getMessage();
         Guild guild = message.getGuild();
         Member member = message.getMember();
         String messageText = message.getContentDisplay();
-        // LATER think about recreating GuildAttributes
-//        if (messageText.equals("create")) {
-//            createGuildAttributes(message.getGuild());
-//        }
-//        data.getOrCreateMainMessage(message.getGuild()).editMessage(MainMessage.getDefaultMessage()).complete();
-        try {
-            commands.executeCommand(
-                    "clear",
-                    guild,
-                    member,
-                    List.of(Long.toString(message.getIdLong()))
-            );
-        } catch (CommandException e) {
-            logger.debug(e.getMessage());
-        } catch (Exception e) {
-            logger.error("Error on clearing received message", e);
+        boolean isUserBot = data.isBot(member.getUser());
+
+        if (isBotMentioned(message)) {
+            createGuildAttributes(guild);
         }
-        if (message.getChannel().getIdLong() != guildAttributesService.getMainChannelId(guild.getIdLong())) {
+
+        if (!isUserBot) {
+            message.delete().queue();
+        }
+
+        if (message.getChannel().getIdLong() != guildAttributesService.getMainChannelId(guild.getIdLong())
+                || !messageText.startsWith(data.getPrefix())
+                || isUserBot) {
             return;
         }
-        if (!messageText.startsWith(data.getPrefix())) {
-            return;
-        }
-        if (data.isBot(member.getUser())) {
-            return;
-        }
+
         List<String> splittedMessage = List.of(messageText.substring(data.getPrefix().length()).split(" "));
         Command command = commands.getCommand(splittedMessage.get(0));
         if (command != null && command.isAvailableFromChat()) {
@@ -118,6 +144,15 @@ public class EventsListener extends ListenerAdapter {
     }
 
     @Override
+    public void onMessageReceived(@NotNull MessageReceivedEvent event) {
+        if (event.isFromType(ChannelType.PRIVATE)) {
+            onPrivateMessageReceived(event);
+        } else {
+            onGuildMessageReceived(event);
+        }
+    }
+
+    @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
         Command command = commands.getCommand(event.getName());
         if (command != null && command.isAvailableFromChat()) {
@@ -128,16 +163,15 @@ public class EventsListener extends ListenerAdapter {
                     .toList();
             try {
                 command.executeWithPermissions(event.getGuild(), event.getMember(), args);
+                event.reply("DONE!").setEphemeral(true).queue();
             } catch (CommandException e) {
                 logger.debug(e.getMessage());
                 event.reply(e.getMessage()).setEphemeral(true).queue();
-                return;
             } catch (Exception e) {
                 logger.error("Error on command execution", e);
-                return;
+                event.reply("Something went wrong. Try again later.").setEphemeral(true).queue();
             }
         }
-        event.reply("DONE!").setEphemeral(true).queue();
     }
 
 
