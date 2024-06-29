@@ -21,6 +21,8 @@ import java.io.OutputStream;
 public class YaDiskFileLoader implements FileLoader {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final RestClient cloudApi;
+    @Value("${db.sync}")
+    private Boolean sync;
     @Value("${db.local.path}")
     public String dbLocalPath;
     @Value("${db.server.path}")
@@ -37,6 +39,10 @@ public class YaDiskFileLoader implements FileLoader {
 
     @Override
     public void load() {
+        if (!sync) {
+            return;
+        }
+
         logger.info("Loading file {} from YaDisk", dbServerPath);
         try {
             if (!new File(dbLocalPath).delete()) {
@@ -59,6 +65,10 @@ public class YaDiskFileLoader implements FileLoader {
 
     @Override
     public void upload() {
+        if (!sync) {
+            return;
+        }
+
         logger.info("Uploading file {} to YaDisk", dbLocalPath);
         try {
             String path = dbServerPath.substring(0, Math.max(0, dbServerPath.lastIndexOf("/")));
