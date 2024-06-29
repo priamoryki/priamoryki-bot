@@ -4,6 +4,7 @@ services:
     build: ./
     environment:
       TOKEN: ${TOKEN}
+      BOT_AUTHOR_ID: ${BOT_AUTHOR_ID}
       YADISK_TOKEN: ${YADISK_TOKEN}
       SPOTIFY_CLIENT_ID: ${SPOTIFY_CLIENT_ID}
       SPOTIFY_CLIENT_SECRET: ${SPOTIFY_CLIENT_SECRET}

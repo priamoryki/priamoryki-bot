@@ -5,7 +5,6 @@ import com.priamoryki.discordbot.api.common.BotData;
 import com.priamoryki.discordbot.api.common.GuildAttributesService;
 import com.priamoryki.discordbot.api.events.EventsListener;
 import com.priamoryki.discordbot.commands.CommandsStorage;
-import com.priamoryki.discordbot.commands.chat.Clear;
 import com.priamoryki.discordbot.commands.chat.ClearAll;
 import com.priamoryki.discordbot.commands.music.Music;
 import com.priamoryki.discordbot.commands.music.Repeat;
@@ -67,7 +66,6 @@ public class Bot implements CommandLineRunner {
         try {
             CommandsStorage commands = new CommandsStorage(
                     // Chat commands
-                    new Clear(data, guildAttributesService),
                     new ClearAll(guildAttributesService),
                     // Voice channel commands
                     new Join(musicManager),
@@ -113,7 +111,9 @@ public class Bot implements CommandLineRunner {
                     new Wtf(musicManager)
             );
 
-            EventsListener eventsListener = new EventsListener(data, commands, guildAttributesService);
+            EventsListener eventsListener = new EventsListener(
+                    data, commands, guildAttributesService
+            );
             data.setupBot(commands, eventsListener);
         } catch (Exception e) {
             logger.error("Error on bot start", e);
