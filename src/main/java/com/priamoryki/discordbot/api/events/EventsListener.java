@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -155,7 +156,8 @@ public class EventsListener extends ListenerAdapter {
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
         Command command = commands.getCommand(event.getName());
-        if (command != null && command.isAvailableFromChat()) {
+        long mainChannelId = guildAttributesService.getMainChannelId(event.getGuild().getIdLong());
+        if (command != null && command.isAvailableFromChat() && event.getChannel().getIdLong() == mainChannelId) {
             List<String> args = command.getOptions().stream()
                     .flatMap(option -> event.getOptionsByName(option.getName()).stream())
                     .map(OptionMapping::getAsString)
