@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.requests.RestRateLimiter;
 import net.dv8tion.jda.api.utils.messages.AbstractMessageBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
 
@@ -66,7 +67,7 @@ public class PlayerMessage implements UsefulMessage {
     @Override
     public void update() {
         // LATER: temp fix for https://github.com/priamoryki/priamoryki-bot/issues/1
-        long time = (new Date()).getTime();
+        long time = Instant.now().toEpochMilli();
         if (time - lastUpdateTime < MINIMAL_UPDATE_PERIOD) {
             return;
         }

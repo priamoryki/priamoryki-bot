@@ -19,6 +19,7 @@ import java.io.OutputStream;
  */
 @Service
 public class YaDiskFileLoader implements FileLoader {
+    private static final String APP_FOLDER_PATH = "app:";
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final RestClient cloudApi;
     @Value("${db.sync}")
@@ -72,7 +73,7 @@ public class YaDiskFileLoader implements FileLoader {
         logger.info("Uploading file {} to YaDisk", dbLocalPath);
         try {
             String path = dbServerPath.substring(0, Math.max(0, dbServerPath.lastIndexOf("/")));
-            if (!path.isBlank() && !"app:".equals(path)) {
+            if (!path.isBlank() && !APP_FOLDER_PATH.equals(path)) {
                 cloudApi.makeFolder(path);
             }
         } catch (IOException | ServerException e) {
