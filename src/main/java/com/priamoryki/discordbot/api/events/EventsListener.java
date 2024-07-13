@@ -12,7 +12,6 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
-import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -118,13 +117,12 @@ public class EventsListener extends ListenerAdapter {
             createGuildAttributes(guild);
         }
 
-        if (!isUserBot) {
+        boolean isBotChannel = message.getChannel().getIdLong() != guildAttributesService.getMainChannelId(guild.getIdLong());
+        if (isBotChannel && !isUserBot) {
             message.delete().queue();
         }
 
-        if (message.getChannel().getIdLong() != guildAttributesService.getMainChannelId(guild.getIdLong())
-                || !messageText.startsWith(data.getPrefix())
-                || isUserBot) {
+        if (isBotChannel || !messageText.startsWith(data.getPrefix()) || isUserBot) {
             return;
         }
 
