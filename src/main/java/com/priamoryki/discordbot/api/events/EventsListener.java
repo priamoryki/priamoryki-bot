@@ -117,12 +117,12 @@ public class EventsListener extends ListenerAdapter {
             createGuildAttributes(guild);
         }
 
-        boolean isBotChannel = message.getChannel().getIdLong() != guildAttributesService.getMainChannelId(guild.getIdLong());
+        boolean isBotChannel = message.getChannel().getIdLong() == guildAttributesService.getMainChannelId(guild.getIdLong());
         if (isBotChannel && !isUserBot) {
             message.delete().queue();
         }
 
-        if (isBotChannel || !messageText.startsWith(data.getPrefix()) || isUserBot) {
+        if (!isBotChannel || !messageText.startsWith(data.getPrefix()) || isUserBot) {
             return;
         }
 
