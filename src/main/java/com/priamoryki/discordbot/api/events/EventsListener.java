@@ -100,7 +100,7 @@ public class EventsListener extends ListenerAdapter {
     }
 
     public void onPrivateMessageReceived(@NotNull MessageReceivedEvent event) {
-        if (event.getAuthor().getIdLong() == data.getBotAuthorId()) {
+        if (data.getBotAuthorIds().contains(event.getAuthor().getIdLong())) {
             onBotAuthorMessage(event);
         }
         // LATER

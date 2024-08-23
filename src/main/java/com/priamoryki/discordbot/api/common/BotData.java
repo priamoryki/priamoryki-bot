@@ -22,7 +22,7 @@ public class BotData {
     @Value("${bot.prefix}")
     private String botPrefix;
     @Value("${BOT_AUTHOR_ID}")
-    private Long botAuthorId;
+    private List<Long> botAuthorIds;
 
     public BotData(JDA bot) {
         this.bot = bot;
@@ -48,8 +48,8 @@ public class BotData {
         return botPrefix;
     }
 
-    public Long getBotAuthorId() {
-        return botAuthorId;
+    public List<Long> getBotAuthorIds() {
+        return botAuthorIds;
     }
 
     public boolean isBot(User user) {
