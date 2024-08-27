@@ -17,4 +17,4 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
-          script: priamoryki-bot/deploy.sh
+          script: cd priamoryki-bot && git pull && docker-compose up --build --force-recreate -d
