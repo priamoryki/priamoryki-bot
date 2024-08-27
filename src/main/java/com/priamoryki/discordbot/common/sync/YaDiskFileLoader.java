@@ -14,6 +14,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import static java.lang.Boolean.TRUE;
+
 /**
  * @author Pavel Lymar, Michael Ruzavin
  */
@@ -40,7 +42,7 @@ public class YaDiskFileLoader implements FileLoader {
 
     @Override
     public void load() {
-        if (!sync) {
+        if (!TRUE.equals(sync)) {
             return;
         }
 
@@ -66,7 +68,7 @@ public class YaDiskFileLoader implements FileLoader {
 
     @Override
     public void upload() {
-        if (!sync) {
+        if (!TRUE.equals(sync)) {
             return;
         }
 
