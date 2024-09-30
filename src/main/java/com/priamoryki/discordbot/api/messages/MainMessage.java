@@ -48,7 +48,7 @@ public class MainMessage {
         }
 
         StringBuilder result = new StringBuilder();
-        for (Map.Entry<String, List<Command>> entry : packageToCommands.entrySet()) {
+        for (var entry : packageToCommands.entrySet()) {
             String packageName = entry.getKey();
             String beautifulPackageName = packageName.substring(packageName.lastIndexOf('.') + 1).toUpperCase();
             result.append(beautifulPackageName).append(":").append("\n");

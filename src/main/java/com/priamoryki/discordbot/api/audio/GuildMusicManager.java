@@ -1,8 +1,10 @@
 package com.priamoryki.discordbot.api.audio;
 
 import com.github.natanbc.lavadsp.timescale.TimescalePcmAudioFilter;
+import com.priamoryki.discordbot.api.audio.customsources.CustomUserData;
 import com.priamoryki.discordbot.api.audio.finder.MusicFinder;
 import com.priamoryki.discordbot.api.common.GuildAttributesService;
+import com.priamoryki.discordbot.api.messages.HistoryMessage;
 import com.priamoryki.discordbot.api.messages.PlayerMessage;
 import com.priamoryki.discordbot.api.messages.QueueMessage;
 import com.priamoryki.discordbot.commands.CommandException;
@@ -43,6 +45,7 @@ public class GuildMusicManager extends AudioEventAdapter {
     private final PlayerSendHandler sendHandler;
     private final PlayerMessage playerMessage;
     private final QueueMessage queueMessage;
+    private final HistoryMessage historyMessage;
     private GuildMusicParameters musicParameters;
     private Timer timer;
 
@@ -59,6 +62,7 @@ public class GuildMusicManager extends AudioEventAdapter {
         this.sendHandler = new PlayerSendHandler(player);
         this.playerMessage = new PlayerMessage(this, guildAttributesService);
         this.queueMessage = new QueueMessage(this, guildAttributesService);
+        this.historyMessage = new HistoryMessage(this, guildAttributesService);
         this.musicParameters = new GuildMusicParameters();
 
         player.addListener(this);
@@ -104,6 +108,10 @@ public class GuildMusicManager extends AudioEventAdapter {
         return queueMessage;
     }
 
+    public HistoryMessage getHistoryMessage() {
+        return historyMessage;
+    }
+
     private void startNewDisconnectionTask() {
         long period = 5 * 60_000L;
         if (timer != null) {
@@ -133,7 +141,7 @@ public class GuildMusicManager extends AudioEventAdapter {
 
     public void leave(Member member) {
         // Clears queue and stops playing
-        clearQueue();
+        clearQueue(member);
         guild.getAudioManager().closeAudioConnection();
     }
 
@@ -159,7 +167,11 @@ public class GuildMusicManager extends AudioEventAdapter {
         player.stopTrack();
     }
 
-    public void skip() {
+    public void skip(Member member) {
+        if (!isPlaying()) {
+            return;
+        }
+        player.getPlayingTrack().getUserData(CustomUserData.class).setSkippedBy(member.getUser());
         boolean oldRepeat = musicParameters.getRepeat();
         musicParameters.setRepeat(false);
         stop();
@@ -173,17 +185,17 @@ public class GuildMusicManager extends AudioEventAdapter {
         player.getPlayingTrack().setPosition(time);
     }
 
-    public void skipTo(int id) throws CommandException {
+    public void skipTo(Member member, int id) throws CommandException {
         Utils.validateId(id, queue.size());
         List<AudioTrack> list = new ArrayList<>(queue);
         queue.clear();
         queue.addAll(list.subList(id - 1, list.size()));
-        skip();
+        skip(member);
     }
 
-    public void clearQueue() {
+    public void clearQueue(Member member) {
         queue.clear();
-        skip();
+        skip(member);
     }
 
     public void deleteFromQueue(int from, int to) throws CommandException {
@@ -203,29 +215,27 @@ public class GuildMusicManager extends AudioEventAdapter {
 
     private void rebuildFilters() {
         float multiplier = 1;
-        player.setFilterFactory(
-                (audioTrack, audioDataFormat, universalPcmAudioFilter) -> {
-                    List<AudioFilter> filters = new ArrayList<>();
+        player.setFilterFactory((audioTrack, audioDataFormat, universalPcmAudioFilter) -> {
+            List<AudioFilter> filters = new ArrayList<>();
 
-                    if (musicParameters.getBassBoost()) {
-                        Equalizer equalizer = new Equalizer(audioDataFormat.channelCount, universalPcmAudioFilter);
-                        for (int i = 0; i < BASS_BOOST.length; i++) {
-                            equalizer.setGain(i, multiplier * BASS_BOOST[i]);
-                        }
-                        filters.add(equalizer);
-                    }
-
-                    TimescalePcmAudioFilter timescale = new TimescalePcmAudioFilter(
-                            universalPcmAudioFilter, audioDataFormat.channelCount, audioDataFormat.sampleRate
-                    ).setSpeed(musicParameters.getSpeed());
-                    if (musicParameters.getNightcore()) {
-                        timescale.setRate(1.0 + 0.1);
-                    }
-                    filters.add(timescale);
-
-                    return filters;
+            if (musicParameters.getBassBoost()) {
+                Equalizer equalizer = new Equalizer(audioDataFormat.channelCount, universalPcmAudioFilter);
+                for (int i = 0; i < BASS_BOOST.length; i++) {
+                    equalizer.setGain(i, multiplier * BASS_BOOST[i]);
                 }
-        );
+                filters.add(equalizer);
+            }
+
+            TimescalePcmAudioFilter timescale = new TimescalePcmAudioFilter(
+                    universalPcmAudioFilter, audioDataFormat.channelCount, audioDataFormat.sampleRate
+            ).setSpeed(musicParameters.getSpeed());
+            if (musicParameters.getNightcore()) {
+                timescale.setRate(1.0 + 0.1);
+            }
+            filters.add(timescale);
+
+            return filters;
+        });
     }
 
     public void setSpeed(double speed) {
@@ -249,6 +259,7 @@ public class GuildMusicManager extends AudioEventAdapter {
     }
 
     private void startTrack(AudioTrack track, boolean flag) {
+        historyMessage.put(track);
         player.startTrack(track, flag);
         resume();
         playerMessage.startUpdateTask();

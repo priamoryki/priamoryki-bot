@@ -1,5 +1,6 @@
 package com.priamoryki.discordbot.api.audio.finder;
 
+import com.priamoryki.discordbot.api.audio.customsources.CustomUserData;
 import com.priamoryki.discordbot.api.audio.SongRequest;
 import com.priamoryki.discordbot.common.Utils;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
@@ -37,7 +38,8 @@ public class MusicFinder {
         audioPlayerManager.loadItemSync(urlOrName, new AudioLoadResultHandler() {
             @Override
             public void trackLoaded(AudioTrack track) {
-                track.setUserData(member.getUser());
+                track.setUserData(new CustomUserData());
+                track.getUserData(CustomUserData.class).setQueuedBy(member.getUser());
                 result.add(track);
             }
 

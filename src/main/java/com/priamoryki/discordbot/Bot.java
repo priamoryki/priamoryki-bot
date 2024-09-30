@@ -22,6 +22,7 @@ import com.priamoryki.discordbot.commands.music.modifiers.NightCore;
 import com.priamoryki.discordbot.commands.music.modifiers.Reset;
 import com.priamoryki.discordbot.commands.music.modifiers.Speed;
 import com.priamoryki.discordbot.commands.music.modifiers.Uncycle;
+import com.priamoryki.discordbot.commands.music.queue.History;
 import com.priamoryki.discordbot.commands.music.queue.PlayNext;
 import com.priamoryki.discordbot.commands.music.queue.QueueClear;
 import com.priamoryki.discordbot.commands.music.queue.QueueDelete;
@@ -82,6 +83,7 @@ public class Bot implements CommandLineRunner {
                     new QueueClear(musicManager),
                     new QueueDelete(musicManager),
                     new QueueShuffle(musicManager),
+                    new History(musicManager),
                     new SkipTo(musicManager),
                     new PlayNext(musicManager),
                     // Print queue commands

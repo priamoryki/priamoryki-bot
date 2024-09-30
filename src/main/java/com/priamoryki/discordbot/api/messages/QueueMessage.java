@@ -5,7 +5,6 @@ import com.priamoryki.discordbot.api.common.GuildAttributesService;
 import com.priamoryki.discordbot.common.Utils;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
@@ -78,13 +77,7 @@ public class QueueMessage implements UsefulMessage {
         String content = "__Queue__:\n" +
                 IntStream.range(MAX_SONGS_NUMBER * (page - 1), Math.min(MAX_SONGS_NUMBER * page, queue.size()))
                         .mapToObj(
-                                i -> String.format(
-                                        "%d) `%s` *by* ***%s*** [`%s`]",
-                                        i + 1,
-                                        queue.get(i).getInfo().title,
-                                        queue.get(i).getUserData(User.class).getName(),
-                                        Utils.normalizeTime(queue.get(i).getDuration())
-                                )
+                                i -> String.format("%d) %s", i + 1, Utils.audioTrackToString(queue.get(i)))
                         ).collect(Collectors.joining("\n")) +
                 String.format(
                         "%nPage %d / %d | Total queue duration: `%s`",
