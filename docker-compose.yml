@@ -1,6 +1,7 @@
 services:
   priamoryki-bot:
     build: ./
+    container_name: priamoryki-bot
     environment:
       TOKEN: ${TOKEN}
       BOT_AUTHOR_ID: ${BOT_AUTHOR_ID}
