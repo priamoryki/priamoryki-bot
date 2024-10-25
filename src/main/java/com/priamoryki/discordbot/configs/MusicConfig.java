@@ -9,6 +9,8 @@ import com.sedmelluq.discord.lavaplayer.source.local.LocalAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.soundcloud.SoundCloudAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.twitch.TwitchStreamAudioSourceManager;
 import dev.lavalink.youtube.YoutubeAudioSourceManager;
+import dev.lavalink.youtube.clients.Web;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -18,7 +20,12 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class MusicConfig {
     @Bean
-    public AudioPlayerManager getAudioPlayerManager() {
+    public AudioPlayerManager getAudioPlayerManager(
+            @Value("${PO_TOKEN}") String poToken,
+            @Value("${VISITOR_DATA}") String visitorData
+    ) {
+        Web.setPoTokenAndVisitorData(poToken, visitorData);
+
         AudioPlayerManager audioPlayerManager = new DefaultAudioPlayerManager();
         audioPlayerManager.registerSourceManager(new LocalAudioSourceManager());
         audioPlayerManager.registerSourceManager(new YoutubeAudioSourceManager());
