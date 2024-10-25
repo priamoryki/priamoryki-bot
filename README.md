@@ -13,6 +13,7 @@
 
 * Clone this repo
 * Setup `data/config.json` with your bot info
+* Get all required [tokens](#tokens)
 * Use one of following methods to create bot instance
   * MAVEN
     * Set environment variables
@@ -21,11 +22,13 @@
         export YADISK_TOKEN = "YANDEX DISK TOKEN"
         export SPOTIFY_CLIENT_ID = "SPOTIFY CLIENT ID FROM SPOTIFY API"
         export SPOTIFY_CLIENT_SECRET = "SPOTIFY CLIENT SECRET FROM SPOTIFY API"
+        export PO_TOKEN = "YOUTUBE PO_TOKEN"
+        export VISITOR_DATA = "YOUTUBE VISITOR_DATA"
         ```
     * Run from project folder
         ```shell
         mvn install
-        mvn exec:java -Dexec.mainClass="com.priamoryki.discordbot.Bot"
+        mvn exec:java -Dexec.mainClass="com.priamoryki.discordbot.ApplicationMain"
         ```
   * DOCKER
     * Set environment variables in `.env` file
@@ -34,6 +37,13 @@
         sudo docker-compose up --build --force-recreate -d
         ```
 * Enjoy
+
+## Tokens
+
+* [Get TOKEN for discord](https://discord.com/developers/docs/topics/oauth2)
+* [Get YADISK_TOKEN](https://yandex.ru/dev/id/doc/ru/concepts/ya-oauth-intro) or disable db.sync setting in [application.properties](src/main/resources/application.properties)
+* [Get SPOTIFY_CLIENT_ID and SPOTIFY_CLIENT_SECRET](https://developer.spotify.com/documentation/web-api/concepts/authorization)
+* [Get PO_TOKEN and VISITOR_DATA](https://github.com/iv-org/youtube-trusted-session-generator)
 
 ## Code structure
 
