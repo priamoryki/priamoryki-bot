@@ -1,4 +1,4 @@
-FROM maven:3.8.3-openjdk-17-slim AS build
+FROM maven:3.9.8-eclipse-temurin-21 AS build
 
 WORKDIR /usr/bin/priamoryki-bot
 
@@ -7,7 +7,7 @@ COPY pom.xml .
 
 RUN mvn -f pom.xml clean package
 
-FROM openjdk:17-slim
+FROM openjdk:21-slim
 
 WORKDIR /usr/bin/priamoryki-bot
 
