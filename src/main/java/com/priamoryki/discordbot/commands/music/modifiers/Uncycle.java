@@ -1,7 +1,6 @@
 package com.priamoryki.discordbot.commands.music.modifiers;
 
 import com.priamoryki.discordbot.api.audio.MusicManager;
-import com.priamoryki.discordbot.commands.CommandException;
 import com.priamoryki.discordbot.commands.MusicCommand;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -32,7 +31,7 @@ public class Uncycle extends MusicCommand {
     }
 
     @Override
-    public void execute(Guild guild, Member member, List<String> args) throws CommandException {
+    public void execute(Guild guild, Member member, List<String> args) {
         musicManager.getGuildMusicManager(guild).uncycle();
     }
 }
