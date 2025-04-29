@@ -48,7 +48,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>5.3.1</version>
+            <version>5.5.0</version>
         </dependency>
 
         <dependency>
@@ -60,7 +60,7 @@
         <dependency>
             <groupId>dev.lavalink.youtube</groupId>
             <artifactId>common</artifactId>
-            <version>130561e2d2f76605eb08b2c9cc4facbf400caccb-SNAPSHOT</version>
+            <version>1.13.0</version>
         </dependency>
 
         <dependency>
