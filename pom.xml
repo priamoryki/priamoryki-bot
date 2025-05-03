@@ -58,9 +58,9 @@
         </dependency>
 
         <dependency>
-	    <groupId>com.github.sqikerz.youtube-source</groupId>
-	    <artifactId>common</artifactId>
-             <version>234d46aae2</version>
+	    <groupId>dev.lavalink.youtube</groupId>
+            <artifactId>common</artifactId>
+            <version>1.13.1</version>
         </dependency>
 
         <dependency>
