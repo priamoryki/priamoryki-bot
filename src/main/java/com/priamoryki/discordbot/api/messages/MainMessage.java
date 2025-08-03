@@ -5,6 +5,7 @@ import com.priamoryki.discordbot.commands.CommandsStorage;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.LayoutComponent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.utils.messages.AbstractMessageBuilder;
 
@@ -24,9 +25,11 @@ public class MainMessage {
 
     }
 
-    public static List<Button> getButtons() {
+    public static List<LayoutComponent> getComponents() {
         return List.of(
-                Button.primary("CLEAR_ALL", Emoji.fromUnicode("🧹"))
+                ActionRow.of(
+                        Button.primary("CLEAR_ALL", Emoji.fromUnicode("🧹"))
+                )
         );
     }
 
@@ -35,7 +38,7 @@ public class MainMessage {
     ) {
         return messageBuilder.setContent(
                 String.format("```%s```", text)
-        ).setComponents(ActionRow.of(getButtons()));
+        ).setComponents(getComponents());
     }
 
     public static void fillTextField(CommandsStorage storage) {
