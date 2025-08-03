@@ -1,9 +1,13 @@
 package com.priamoryki.discordbot.common;
 
+import com.priamoryki.discordbot.api.audio.customsources.CustomUserData;
 import com.priamoryki.discordbot.commands.Command;
 import com.priamoryki.discordbot.commands.CommandException;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.interactions.InteractionContextType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import org.apache.http.HttpRequest;
@@ -114,6 +118,19 @@ public final class Utils {
     public static SlashCommandData commandToSlashCommand(String name, Command command) {
         return Commands.slash(name, command.getDescription())
                 .addOptions(command.getOptions())
-                .setGuildOnly(true);
+                .setContexts(InteractionContextType.GUILD);
+    }
+
+    public static String audioTrackToString(AudioTrack track) {
+        CustomUserData userData = track.getUserData(CustomUserData.class);
+        User skippedBy = userData.getSkippedBy();
+        return String.format(
+                "`%s` *by* ***%s*** [`%s`] ([link](<%s>))%s",
+                track.getInfo().title,
+                userData.getQueuedBy().getName(),
+                Utils.normalizeTime(track.getDuration()),
+                track.getInfo().uri,
+                skippedBy != null ? String.format(" *skipped by %s*", skippedBy.getName()) : ""
+        );
     }
 }

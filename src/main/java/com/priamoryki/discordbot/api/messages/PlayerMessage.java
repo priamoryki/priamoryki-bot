@@ -1,5 +1,6 @@
 package com.priamoryki.discordbot.api.messages;
 
+import com.priamoryki.discordbot.api.audio.customsources.CustomUserData;
 import com.priamoryki.discordbot.api.audio.GuildMusicManager;
 import com.priamoryki.discordbot.api.common.GuildAttributesService;
 import com.priamoryki.discordbot.common.Utils;
@@ -106,7 +107,7 @@ public class PlayerMessage implements UsefulMessage {
         if (track == null) {
             return fillWithDefaultMessage(messageBuilder);
         }
-        User user = track.getUserData(User.class);
+        User user = track.getUserData(CustomUserData.class).getQueuedBy();
         String title = track.getInfo().title;
         String url = track.getInfo().uri;
         long currentTime = track.getPosition();

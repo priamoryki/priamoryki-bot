@@ -5,34 +5,25 @@ import com.priamoryki.discordbot.commands.CommandException;
 import com.priamoryki.discordbot.commands.MusicCommand;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.util.List;
 
 /**
  * @author Pavel Lymar
  */
-public class SkipTo extends MusicCommand {
-    public SkipTo(MusicManager musicManager) {
+public class History extends MusicCommand {
+    public History(MusicManager musicManager) {
         super(musicManager);
     }
 
     @Override
     public List<String> getNames() {
-        return List.of("skip_to");
+        return List.of("history");
     }
 
     @Override
     public String getDescription() {
-        return "Skips to n's composition in queue";
-    }
-
-    @Override
-    public List<OptionData> getOptions() {
-        return List.of(
-                new OptionData(OptionType.INTEGER, "track_number", "number of the track in the queue", true)
-        );
+        return "Shows 10 last played tracks";
     }
 
     @Override
@@ -42,9 +33,6 @@ public class SkipTo extends MusicCommand {
 
     @Override
     public void execute(Guild guild, Member member, List<String> args) throws CommandException {
-        if (args.size() != 1) {
-            throw new CommandException("Invalid number of arguments!");
-        }
-        musicManager.getGuildMusicManager(guild).skipTo(member, Integer.parseInt(args.get(0)));
+        musicManager.getGuildMusicManager(guild).getHistoryMessage().update();
     }
 }

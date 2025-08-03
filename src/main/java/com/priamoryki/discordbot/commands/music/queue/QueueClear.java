@@ -32,6 +32,6 @@ public class QueueClear extends MusicCommand {
 
     @Override
     public void execute(Guild guild, Member member, List<String> args) {
-        musicManager.getGuildMusicManager(guild).clearQueue();
+        musicManager.getGuildMusicManager(guild).clearQueue(member);
     }
 }
