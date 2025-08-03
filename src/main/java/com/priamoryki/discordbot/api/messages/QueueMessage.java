@@ -7,6 +7,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.LayoutComponent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.utils.messages.AbstractMessageBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
@@ -31,10 +32,12 @@ public class QueueMessage implements UsefulMessage {
         this.guildAttributesService = guildAttributesService;
     }
 
-    private static List<Button> getButtons() {
+    private static List<LayoutComponent> getComponents() {
         return List.of(
-                Button.primary("PREVIOUS_PAGE", Emoji.fromUnicode("⏪")),
-                Button.primary("NEXT_PAGE", Emoji.fromUnicode("⏩"))
+                ActionRow.of(
+                        Button.primary("PREVIOUS_PAGE", Emoji.fromUnicode("⏪")),
+                        Button.primary("NEXT_PAGE", Emoji.fromUnicode("⏩"))
+                )
         );
     }
 
@@ -87,6 +90,6 @@ public class QueueMessage implements UsefulMessage {
                                 queue.stream().map(AudioTrack::getDuration).reduce(0L, Long::sum)
                         )
                 );
-        return messageBuilder.setContent(content).setComponents(ActionRow.of(getButtons()));
+        return messageBuilder.setContent(content).setComponents(getComponents());
     }
 }

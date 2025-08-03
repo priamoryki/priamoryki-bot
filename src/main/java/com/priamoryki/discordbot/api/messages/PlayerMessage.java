@@ -1,7 +1,7 @@
 package com.priamoryki.discordbot.api.messages;
 
-import com.priamoryki.discordbot.api.audio.customsources.CustomUserData;
 import com.priamoryki.discordbot.api.audio.GuildMusicManager;
+import com.priamoryki.discordbot.api.audio.customsources.CustomUserData;
 import com.priamoryki.discordbot.api.common.GuildAttributesService;
 import com.priamoryki.discordbot.common.Utils;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.LayoutComponent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.utils.messages.AbstractMessageBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
@@ -40,13 +41,23 @@ public class PlayerMessage implements UsefulMessage {
         createNewMessage();
     }
 
-    private static List<Button> getButtons() {
+    private static List<LayoutComponent> getComponents() {
         return List.of(
-                Button.primary("RESUME", Emoji.fromUnicode("▶")),
-                Button.primary("PAUSE", Emoji.fromUnicode("⏸")),
-                Button.primary("SKIP", Emoji.fromUnicode("⏯")),
-                Button.primary("REPEAT", Emoji.fromUnicode("🔁")),
-                Button.primary("QUEUE_PRINT", Emoji.fromUnicode("🗒️"))
+                ActionRow.of(
+                        Button.primary("RESUME", Emoji.fromUnicode("▶")),
+                        Button.primary("PAUSE", Emoji.fromUnicode("⏸")),
+                        Button.primary("SKIP", Emoji.fromUnicode("⏯")),
+                        Button.primary("REPEAT", Emoji.fromUnicode("🔂"))
+                ),
+                ActionRow.of(
+                        Button.primary("BASSBOOST", Emoji.fromUnicode("📢")),
+                        Button.primary("NIGHTCORE", Emoji.fromUnicode("🎶")),
+                        Button.primary("RESET", Emoji.fromUnicode("🔧"))
+                ),
+                ActionRow.of(
+                        Button.primary("HISTORY", Emoji.fromUnicode("🕰️")),
+                        Button.primary("QUEUE_PRINT", Emoji.fromUnicode("🗒️"))
+                )
         );
     }
 
@@ -55,7 +66,7 @@ public class PlayerMessage implements UsefulMessage {
     ) {
         return messageBuilder.setEmbeds(
                 new EmbedBuilder().setColor(Color.BLUE).setTitle("PLAYER MESSAGE").build()
-        ).setComponents(ActionRow.of(getButtons()));
+        ).setComponents(getComponents());
     }
 
     private void createNewMessage() {
@@ -129,6 +140,6 @@ public class PlayerMessage implements UsefulMessage {
         builder.setDescription(timeLine + "\n" + timeString)
                 .setFooter(guildMusicManager.getMusicParameters().getRepeat() ? "On repeat" : "Not on repeat")
                 .setTimestamp(Instant.now());
-        return messageBuilder.setEmbeds(builder.build()).setComponents(ActionRow.of(getButtons()));
+        return messageBuilder.setEmbeds(builder.build()).setComponents(getComponents());
     }
 }
