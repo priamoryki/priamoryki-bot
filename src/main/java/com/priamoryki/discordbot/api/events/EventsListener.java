@@ -52,7 +52,11 @@ public class EventsListener extends ListenerAdapter {
     public void onReady(@NotNull ReadyEvent event) {
         for (Guild guild : data.getGuilds()) {
             Message message = guildAttributesService.getOrCreateMainMessage(guild);
-            message.editMessage(MainMessage.fillWithDefaultMessage(new MessageEditBuilder()).build()).queue();
+            try {
+                message.editMessage(MainMessage.fillWithDefaultMessage(new MessageEditBuilder()).build()).queue();
+            } catch (Exception e) {
+                logger.error("Can't update main message for guild {}: {}", guild.getName(), e.getMessage());
+            }
         }
         logger.info("Bot is working now!");
     }
