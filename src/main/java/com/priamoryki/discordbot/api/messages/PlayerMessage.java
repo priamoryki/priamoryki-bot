@@ -55,6 +55,7 @@ public class PlayerMessage implements UsefulMessage {
                         Button.primary("RESET", Emoji.fromUnicode("🔧"))
                 ),
                 ActionRow.of(
+                        Button.primary("QUEUE_SHUFFLE", Emoji.fromUnicode("🔀")),
                         Button.primary("HISTORY", Emoji.fromUnicode("🕰️")),
                         Button.primary("QUEUE_PRINT", Emoji.fromUnicode("🗒️"))
                 )
