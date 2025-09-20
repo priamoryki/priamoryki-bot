@@ -14,12 +14,14 @@ import com.sedmelluq.discord.lavaplayer.filter.equalizer.Equalizer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
+import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import com.sedmelluq.discord.lavaplayer.track.TrackMarker;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -38,6 +40,7 @@ public class GuildMusicManager extends AudioEventAdapter {
     private static final float[] BASS_BOOST = {
             0.2f, 0.15f, 0.1f, 0.05f, 0.0f, -0.05f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f
     };
+    private final GuildAttributesService guildAttributesService;
     private final MusicFinder musicFinder;
     private final Guild guild;
     private final AudioPlayer player;
@@ -55,6 +58,7 @@ public class GuildMusicManager extends AudioEventAdapter {
             MusicFinder musicFinder,
             Guild guild
     ) {
+        this.guildAttributesService = guildAttributesService;
         this.musicFinder = musicFinder;
         this.guild = guild;
         this.player = audioPlayerManager.createPlayer();
@@ -146,13 +150,22 @@ public class GuildMusicManager extends AudioEventAdapter {
     }
 
     public void play(SongRequest songRequest) {
-        musicFinder.find(songRequest).forEach(track -> queue(track, true));
+        var result = musicFinder.find(songRequest);
+        List<AudioTrack> playlist = result.loadedTracks();
+        playlist.forEach(track -> queue(track, true));
+
+        MessageChannel channel = guildAttributesService.getOrCreateMainChannel(guild);
+        result.exceptions().forEach(e -> channel.sendMessage(e.getMessage()).queue());
     }
 
     public void playNext(SongRequest songRequest) {
-        List<AudioTrack> playlist = musicFinder.find(songRequest);
+        var result = musicFinder.find(songRequest);
+        List<AudioTrack> playlist = result.loadedTracks();
         Collections.reverse(playlist);
         playlist.forEach(track -> queue(track, false));
+
+        MessageChannel channel = guildAttributesService.getOrCreateMainChannel(guild);
+        result.exceptions().forEach(e -> channel.sendMessage(e.getMessage()).queue());
     }
 
     public void resume() {
@@ -259,7 +272,6 @@ public class GuildMusicManager extends AudioEventAdapter {
     }
 
     private void startTrack(AudioTrack track, boolean flag) {
-        historyMessage.put(track);
         player.startTrack(track, flag);
         resume();
         playerMessage.startUpdateTask();
@@ -293,6 +305,11 @@ public class GuildMusicManager extends AudioEventAdapter {
     }
 
     @Override
+    public void onTrackStart(AudioPlayer player, AudioTrack track) {
+        historyMessage.put(track);
+    }
+
+    @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
         AudioTrack nextTrack = musicParameters.getRepeat() ? track.makeClone() : queue.poll();
         // If nextTrack is null -> end of playlist
@@ -303,5 +320,11 @@ public class GuildMusicManager extends AudioEventAdapter {
         } else {
             startTrack(nextTrack, false);
         }
+    }
+
+    @Override
+    public void onTrackException(AudioPlayer player, AudioTrack track, FriendlyException exception) {
+        MessageChannel channel = guildAttributesService.getOrCreateMainChannel(guild);
+        channel.sendMessage("Error on track " + Utils.audioTrackToString(track) + " occurred: " + exception.getMessage()).queue();
     }
 }

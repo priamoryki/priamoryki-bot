@@ -1,7 +1,7 @@
 package com.priamoryki.discordbot.api.audio.finder;
 
-import com.priamoryki.discordbot.api.audio.customsources.CustomUserData;
 import com.priamoryki.discordbot.api.audio.SongRequest;
+import com.priamoryki.discordbot.api.audio.customsources.CustomUserData;
 import com.priamoryki.discordbot.common.Utils;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
@@ -30,8 +30,10 @@ public class MusicFinder {
         this.audioPlayerManager = audioPlayerManager;
     }
 
-    public List<AudioTrack> find(SongRequest songRequest) {
+    public FinderResult find(SongRequest songRequest) {
         List<AudioTrack> result = new ArrayList<>();
+        List<Exception> exceptions = new ArrayList<>();
+
         Guild guild = songRequest.guild();
         Member member = songRequest.member();
         String urlOrName = songRequest.urlOrName();
@@ -54,14 +56,20 @@ public class MusicFinder {
 
             @Override
             public void noMatches() {
-                logger.info("No matches for request {}", urlOrName);
+                logger.warn("No matches for request {}", urlOrName);
+                exceptions.add(new IllegalArgumentException("No matches for your request: " + urlOrName));
             }
 
             @Override
             public void loadFailed(FriendlyException e) {
-                logger.info("Load failed for request {}", urlOrName, e);
+                logger.error("Load failed for request {}", urlOrName, e);
+                exceptions.add(e);
             }
         });
-        return result.stream().filter(Objects::nonNull).toList();
+
+        return new FinderResult(
+                result.stream().filter(Objects::nonNull).toList(),
+                exceptions
+        );
     }
 }

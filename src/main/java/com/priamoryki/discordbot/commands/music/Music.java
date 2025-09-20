@@ -22,7 +22,7 @@ public class Music extends MusicCommand {
 
     @Override
     public List<String> getNames() {
-        return List.of("music", "музыка");
+        return List.of("music");
     }
 
     @Override

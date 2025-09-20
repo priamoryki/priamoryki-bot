@@ -21,7 +21,6 @@ import java.util.stream.IntStream;
  * @author Pavel Lymar
  */
 public class QueueMessage implements UsefulMessage {
-    private static final int MAX_SONGS_NUMBER = 20;
     private final GuildMusicManager guildMusicManager;
     private final GuildAttributesService guildAttributesService;
     private Message message;
@@ -39,6 +38,21 @@ public class QueueMessage implements UsefulMessage {
                         Button.primary("NEXT_PAGE", Emoji.fromUnicode("⏩"))
                 )
         );
+    }
+
+    private int getMaxSongsNumber(List<AudioTrack> queue) {
+        for (int maxSongsNumber : List.of(20, 15, 10, 5, 3, 2, 1)) {
+            boolean allPagesValid = IntStream.rangeClosed(1, getPagesNumber(queue, maxSongsNumber))
+                    .allMatch(p -> getContent(queue, maxSongsNumber, p).length() <= 2000);
+            if (allPagesValid) {
+                return maxSongsNumber;
+            }
+        }
+        return 1;
+    }
+
+    private int getPagesNumber(List<AudioTrack> queue, int maxSongsNumber) {
+        return Math.max(1, (queue.size() + maxSongsNumber - 1) / maxSongsNumber);
     }
 
     private void createNewMessage() {
@@ -60,12 +74,13 @@ public class QueueMessage implements UsefulMessage {
     @Override
     public void update() {
         List<AudioTrack> queue = guildMusicManager.getQueue();
-        int lastSongNumber = MAX_SONGS_NUMBER * (page - 1);
+        int maxSongsNumber = getMaxSongsNumber(queue);
+        int lastSongNumber = maxSongsNumber * (page - 1);
         if (lastSongNumber < 0) {
             page = 1;
         }
         if (lastSongNumber >= queue.size()) {
-            page = Math.max(1, (queue.size() + MAX_SONGS_NUMBER - 1) / MAX_SONGS_NUMBER);
+            page = getPagesNumber(queue, maxSongsNumber);
         }
         try {
             message.editMessage(fillBuilder(new MessageEditBuilder(), queue).build()).complete();
@@ -77,19 +92,24 @@ public class QueueMessage implements UsefulMessage {
     private <T, R extends AbstractMessageBuilder<T, R>> AbstractMessageBuilder<T, R> fillBuilder(
             AbstractMessageBuilder<T, R> messageBuilder, List<AudioTrack> queue
     ) {
-        String content = "__Queue__:\n" +
-                IntStream.range(MAX_SONGS_NUMBER * (page - 1), Math.min(MAX_SONGS_NUMBER * page, queue.size()))
+        String content = getContent(queue, getMaxSongsNumber(queue), page);
+        return messageBuilder.setContent(content).setComponents(getComponents());
+    }
+
+    private String getContent(List<AudioTrack> queue, int maxSongsNumber, int page) {
+        return "__Queue__:\n" +
+                IntStream.range(maxSongsNumber * (page - 1), Math.min(maxSongsNumber * page, queue.size()))
                         .mapToObj(
                                 i -> String.format("%d) %s", i + 1, Utils.audioTrackToString(queue.get(i)))
                         ).collect(Collectors.joining("\n")) +
                 String.format(
-                        "%nPage %d / %d | Total queue duration: `%s`",
+                        "%nPage %d / %d (%d tracks per page) | Total queue duration: `%s`",
                         page,
-                        Math.max(1, (queue.size() + MAX_SONGS_NUMBER - 1) / MAX_SONGS_NUMBER),
+                        Math.max(1, (queue.size() + maxSongsNumber - 1) / maxSongsNumber),
+                        maxSongsNumber,
                         Utils.normalizeTime(
                                 queue.stream().map(AudioTrack::getDuration).reduce(0L, Long::sum)
                         )
                 );
-        return messageBuilder.setContent(content).setComponents(getComponents());
     }
 }
