@@ -1,6 +1,7 @@
 package com.priamoryki.discordbot.api.messages;
 
 import com.priamoryki.discordbot.api.audio.GuildMusicManager;
+import com.priamoryki.discordbot.api.audio.GuildMusicParameters;
 import com.priamoryki.discordbot.api.audio.customsources.CustomUserData;
 import com.priamoryki.discordbot.api.common.GuildAttributesService;
 import com.priamoryki.discordbot.common.Utils;
@@ -44,9 +45,9 @@ public class PlayerMessage implements UsefulMessage {
     private static List<LayoutComponent> getComponents() {
         return List.of(
                 ActionRow.of(
-                        Button.primary("RESUME", Emoji.fromUnicode("▶")),
-                        Button.primary("PAUSE", Emoji.fromUnicode("⏸")),
-                        Button.primary("SKIP", Emoji.fromUnicode("⏯")),
+                        Button.primary("RESUME", Emoji.fromUnicode("▶️")),
+                        Button.primary("PAUSE", Emoji.fromUnicode("⏸️")),
+                        Button.primary("SKIP", Emoji.fromUnicode("⏯️")),
                         Button.primary("REPEAT", Emoji.fromUnicode("🔂"))
                 ),
                 ActionRow.of(
@@ -95,7 +96,7 @@ public class PlayerMessage implements UsefulMessage {
         long delay = 0;
         long period = Math.max(
                 MINIMAL_UPDATE_PERIOD,
-                guildMusicManager.getPlayer().getPlayingTrack().getDuration() / BLOCKS_NUMBER
+                guildMusicManager.getPlayingTrack().getDuration() / BLOCKS_NUMBER
         );
         timer.schedule(new TimerTask() {
             @Override
@@ -115,7 +116,7 @@ public class PlayerMessage implements UsefulMessage {
     private <T, R extends AbstractMessageBuilder<T, R>> AbstractMessageBuilder<T, R> fillBuilder(
             AbstractMessageBuilder<T, R> messageBuilder
     ) {
-        AudioTrack track = guildMusicManager.getPlayer().getPlayingTrack();
+        AudioTrack track = guildMusicManager.getPlayingTrack();
         if (track == null) {
             return fillWithDefaultMessage(messageBuilder);
         }
@@ -130,7 +131,7 @@ public class PlayerMessage implements UsefulMessage {
             blocks = BLOCKS_NUMBER;
         }
         EmbedBuilder builder = new EmbedBuilder();
-        builder.setColor(Color.BLUE).setAuthor("♪" + user.getName() + "♪", null, user.getAvatarUrl());
+        builder.setColor(Color.BLUE).setAuthor("🎧" + user.getName() + "🎧", null, user.getAvatarUrl());
         if (Utils.isUrl(url)) {
             builder.setTitle(firstNotEmpty(title, url), url);
         } else {
@@ -138,9 +139,25 @@ public class PlayerMessage implements UsefulMessage {
         }
         String timeLine = "🟥".repeat(blocks) + "🟦".repeat(BLOCKS_NUMBER - blocks);
         String timeString = isLive ? "LIVE" : Utils.normalizeTime(currentTime) + " / " + Utils.normalizeTime(duration);
+        timeString = "`" + timeString + "`";
+
+        GuildMusicParameters guildMusicParameters = guildMusicManager.getMusicParameters();
+        String state = guildMusicManager.isPaused() ? "PAUSED⏸️⏳" : "PLAYING🎶";
+        String repeat = guildMusicParameters.getRepeat() ? "YES✅" : "NO❌";
+        String cycled = guildMusicParameters.isCycled() ? getCycled(guildMusicParameters) : "NO❌";
         builder.setDescription(timeLine + "\n" + timeString)
-                .setFooter(guildMusicManager.getMusicParameters().getRepeat() ? "On repeat" : "Not on repeat")
+                .addField("State🎹", state, true)
+                .addField("Repeat🔂", repeat, true)
+                .addField("Cycled🔁🎵", cycled, true)
                 .setTimestamp(Instant.now());
         return messageBuilder.setEmbeds(builder.build()).setComponents(getComponents());
+    }
+
+    private String getCycled(GuildMusicParameters guildMusicParameters) {
+        return String.format(
+                "[`%s` - `%s`]",
+                Utils.normalizeTime(guildMusicParameters.getCycleStart()),
+                Utils.normalizeTime(guildMusicParameters.getCycleEnd())
+        );
     }
 }

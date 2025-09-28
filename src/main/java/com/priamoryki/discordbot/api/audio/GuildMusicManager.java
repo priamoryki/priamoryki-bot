@@ -85,7 +85,11 @@ public class GuildMusicManager extends AudioEventAdapter {
     }
 
     public boolean isPlaying() {
-        return player.getPlayingTrack() != null;
+        return getPlayingTrack() != null;
+    }
+
+    public boolean isPaused() {
+        return player.isPaused();
     }
 
     public Guild getGuild() {
@@ -96,8 +100,8 @@ public class GuildMusicManager extends AudioEventAdapter {
         return new ArrayList<>(queue);
     }
 
-    public AudioPlayer getPlayer() {
-        return player;
+    public AudioTrack getPlayingTrack() {
+        return player.getPlayingTrack();
     }
 
     public GuildMusicParameters getMusicParameters() {
@@ -184,7 +188,7 @@ public class GuildMusicManager extends AudioEventAdapter {
         if (!isPlaying()) {
             return;
         }
-        player.getPlayingTrack().getUserData(CustomUserData.class).setSkippedBy(member.getUser());
+        getPlayingTrack().getUserData(CustomUserData.class).setSkippedBy(member.getUser());
         boolean oldRepeat = musicParameters.getRepeat();
         musicParameters.setRepeat(false);
         stop();
@@ -195,7 +199,7 @@ public class GuildMusicManager extends AudioEventAdapter {
         if (!isPlaying()) {
             throw new CommandException("Music is not playing now!");
         }
-        player.getPlayingTrack().setPosition(time);
+        getPlayingTrack().setPosition(time);
     }
 
     public void skipTo(Member member, int id) throws CommandException {
@@ -290,7 +294,9 @@ public class GuildMusicManager extends AudioEventAdapter {
     }
 
     public void cycle(long start, long finish) {
-        AudioTrack track = player.getPlayingTrack();
+        musicParameters.setCycleStart(start);
+        musicParameters.setCycleEnd(finish);
+        AudioTrack track = getPlayingTrack();
         track.setPosition(start);
         track.setMarker(new TrackMarker(finish, markerState -> {
             if (markerState == REACHED) {
@@ -300,8 +306,10 @@ public class GuildMusicManager extends AudioEventAdapter {
     }
 
     public void uncycle() {
-        AudioTrack track = player.getPlayingTrack();
+        AudioTrack track = getPlayingTrack();
         track.setMarker(null);
+        musicParameters.setCycleStart(null);
+        musicParameters.setCycleEnd(null);
     }
 
     @Override

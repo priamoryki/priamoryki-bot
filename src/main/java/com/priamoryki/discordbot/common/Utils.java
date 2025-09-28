@@ -44,10 +44,23 @@ public final class Utils {
 
     public static String normalizeTime(long time) {
         time /= 1000;
-        long s = time % 60;
-        long m = (time / 60) % 60;
-        long h = (time / (60 * 60)) % 24;
-        return String.format("%02d:%02d:%02d", h, m, s);
+        List<Integer> dividers = List.of(60, 60, Integer.MAX_VALUE);
+        int minDividers = 2;
+
+        long divider = 1;
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < dividers.size(); i++) {
+            if (i >= minDividers && time / divider == 0) {
+                break;
+            }
+            var current = dividers.get(i);
+            if (!builder.isEmpty()) {
+                builder.insert(0, ":");
+            }
+            builder.insert(0, String.format("%02d", (time / divider) % current));
+            divider *= current;
+        }
+        return builder.toString();
     }
 
     public static long parseTime(String s) {
