@@ -30,6 +30,7 @@ import static com.priamoryki.discordbot.common.Utils.firstNotEmpty;
 public class PlayerMessage implements UsefulMessage {
     private static final int BLOCKS_NUMBER = 27;
     private static final long MINIMAL_UPDATE_PERIOD = 15_000;
+    private static final long OPTIMAL_UPDATE_PERIOD = 30_000;
     private final GuildMusicManager guildMusicManager;
     private final GuildAttributesService guildAttributesService;
     private Message message;
@@ -94,9 +95,10 @@ public class PlayerMessage implements UsefulMessage {
     public void startUpdateTask() {
         endUpdateTask();
         long delay = 0;
-        long period = Math.max(
+        long period = Math.clamp(
+                guildMusicManager.getPlayingTrack().getDuration() / BLOCKS_NUMBER,
                 MINIMAL_UPDATE_PERIOD,
-                guildMusicManager.getPlayingTrack().getDuration() / BLOCKS_NUMBER
+                OPTIMAL_UPDATE_PERIOD
         );
         timer.schedule(new TimerTask() {
             @Override
@@ -125,7 +127,8 @@ public class PlayerMessage implements UsefulMessage {
         String url = track.getInfo().uri;
         long currentTime = track.getPosition();
         long duration = track.getDuration();
-        int blocks = (int) ((track.getPosition() * BLOCKS_NUMBER) / duration);
+
+        int blocks = (int) ((currentTime * BLOCKS_NUMBER) / duration);
         boolean isLive = duration == Long.MAX_VALUE;
         if (isLive) {
             blocks = BLOCKS_NUMBER;
