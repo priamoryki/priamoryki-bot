@@ -142,7 +142,7 @@ public class GuildMusicManager extends AudioEventAdapter {
         GuildVoiceState voiceState = member.getVoiceState();
         GuildVoiceState selfVoiceState = guild.getSelfMember().getVoiceState();
         if (voiceState == null || !voiceState.inAudioChannel()) {
-            throw new CommandException("You are not in the voice channel!");
+            throw new CommandException(member.getAsMention() + " You are not in the voice channel!");
         }
         guild.getAudioManager().openAudioConnection(voiceState.getChannel());
         startNewDisconnectionTask();
