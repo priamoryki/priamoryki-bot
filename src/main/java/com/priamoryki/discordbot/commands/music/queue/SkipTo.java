@@ -45,6 +45,6 @@ public class SkipTo extends MusicCommand {
         if (args.size() != 1) {
             throw new CommandException("Invalid number of arguments!");
         }
-        musicManager.getGuildMusicManager(guild).skipTo(member, Integer.parseInt(args.get(0)));
+        musicManager.getGuildMusicManager(guild).skipTo(member, Integer.parseInt(args.getFirst()));
     }
 }

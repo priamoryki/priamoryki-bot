@@ -30,13 +30,13 @@ public interface Command extends Comparable<Command> {
 
     default void executeWithPermissions(Guild guild, Member member, List<String> args) throws CommandException {
         if (!Utils.isTheSameVoiceChannelWithMember(guild.getSelfMember(), member)) {
-            throw new CommandException("You are not in the same channel with bot!");
+            throw new CommandException(member.getAsMention() + " You are not in the same channel with bot!");
         }
         execute(guild, member, args);
     }
 
     @Override
     default int compareTo(@NotNull Command command) {
-        return getNames().get(0).compareTo(command.getNames().get(0));
+        return getNames().getFirst().compareTo(command.getNames().getFirst());
     }
 }

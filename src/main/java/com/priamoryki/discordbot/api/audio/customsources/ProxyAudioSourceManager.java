@@ -60,12 +60,11 @@ public abstract class ProxyAudioSourceManager implements AudioSourceManager {
                     phaser.register();
                     downloaders.submit(() -> {
                         var searchResult = originalAudioSourceManager.loadItem(manager, new AudioReference(urlOrName, urlOrName));
-                        if (searchResult instanceof AudioTrack audioTrack) {
-                            result.set(i, audioTrack);
-                        } else if (searchResult instanceof AudioPlaylist audioPlaylist && !audioPlaylist.getTracks().isEmpty()) {
-                            result.set(i, audioPlaylist.getTracks().get(0));
-                        } else {
-                            logger.debug("Cannot find audio track by request: {}", urlOrName);
+                        switch (searchResult) {
+                            case AudioTrack audioTrack -> result.set(i, audioTrack);
+                            case AudioPlaylist audioPlaylist
+                                    when !audioPlaylist.getTracks().isEmpty() -> result.set(i, audioPlaylist.getTracks().getFirst());
+                            default -> logger.debug("Cannot find audio track by request: {}", urlOrName);
                         }
                         phaser.arriveAndDeregister();
                     });

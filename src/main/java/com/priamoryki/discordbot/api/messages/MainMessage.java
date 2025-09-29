@@ -56,7 +56,7 @@ public class MainMessage {
             String beautifulPackageName = packageName.substring(packageName.lastIndexOf('.') + 1).toUpperCase();
             result.append(beautifulPackageName).append(":").append("\n");
             for (Command command : entry.getValue()) {
-                String name = command.getNames().get(0);
+                String name = command.getNames().getFirst();
                 String options = command.getOptions().stream().map(OptionData::getName).collect(Collectors.joining(" "));
                 result.append("\t").append(name).append(" ").append(options).append("\n");
             }

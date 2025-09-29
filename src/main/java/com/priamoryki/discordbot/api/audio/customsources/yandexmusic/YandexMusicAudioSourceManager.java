@@ -41,7 +41,7 @@ public class YandexMusicAudioSourceManager extends ProxyAudioSourceManager {
     private List<String> getSongsRequests(JsonBrowser tracks) {
         return tracks.values().stream()
                 .map(track -> {
-                    String author = track.get("artists").values().get(0).get("name").text();
+                    String author = track.get("artists").values().getFirst().get("name").text();
                     String name = track.get("title").text();
                     return getSearchString(author, name);
                 })
@@ -75,7 +75,7 @@ public class YandexMusicAudioSourceManager extends ProxyAudioSourceManager {
             String url = API_HOST + "/albums/" + id + "/with-tracks";
             try {
                 String body = Jsoup.connect(url).ignoreContentType(true).execute().body();
-                JsonBrowser json = JsonBrowser.parse(body).get("result").get("volumes").values().get(0);
+                JsonBrowser json = JsonBrowser.parse(body).get("result").get("volumes").values().getFirst();
                 return getSongsRequests(json);
             } catch (IOException e) {
                 logger.error("YandexMusicAlbum error", e);

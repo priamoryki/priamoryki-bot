@@ -82,7 +82,7 @@ public class EventsListener extends ListenerAdapter {
         Message message = event.getMessage();
         if (isBotMentioned(message)) {
             try {
-                var file = IOUtils.toString(message.getAttachments().get(0).getProxy().download().get(), StandardCharsets.UTF_8);
+                var file = IOUtils.toString(message.getAttachments().getFirst().getProxy().download().get(), StandardCharsets.UTF_8);
                 JsonBrowser json = JsonBrowser.parse(file);
                 String text = json.get("message").text();
                 List<Guild> guilds = json.get("guilds").values().stream()
@@ -98,7 +98,7 @@ public class EventsListener extends ListenerAdapter {
                     guildAttributesService.sendNotification(guild, text);
                 }
             } catch (Exception e) {
-                logger.error(e.getMessage());
+                logger.error("Error on sending news: {}", e.getMessage(), e);
             }
         }
     }
@@ -112,8 +112,8 @@ public class EventsListener extends ListenerAdapter {
 
     public void onGuildMessageReceived(@NotNull MessageReceivedEvent event) {
         Message message = event.getMessage();
-        Guild guild = message.getGuild();
-        Member member = message.getMember();
+        Guild guild = event.getGuild();
+        Member member = event.getMember();
         String messageText = message.getContentDisplay();
         boolean isUserBot = data.isBot(member.getUser());
 
@@ -131,7 +131,7 @@ public class EventsListener extends ListenerAdapter {
         }
 
         List<String> splittedMessage = List.of(messageText.substring(data.getPrefix().length()).split(" "));
-        Command command = commands.getCommand(splittedMessage.get(0));
+        Command command = commands.getCommand(splittedMessage.getFirst());
         if (command != null && command.isAvailableFromChat()) {
             try {
                 command.executeWithPermissions(guild, member, splittedMessage.subList(1, splittedMessage.size()));

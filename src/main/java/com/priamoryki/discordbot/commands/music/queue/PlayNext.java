@@ -48,8 +48,8 @@ public class PlayNext extends MusicCommand {
             throw new CommandException("Invalid number of arguments!");
         }
         musicManager.getGuildMusicManager(guild).join(member);
-        if (args.size() == 1 && Utils.isUrl(args.get(0))) {
-            musicManager.getGuildMusicManager(guild).playNext(new SongRequest(guild, member, args.get(0)));
+        if (args.size() == 1 && Utils.isUrl(args.getFirst())) {
+            musicManager.getGuildMusicManager(guild).playNext(new SongRequest(guild, member, args.getFirst()));
             return;
         }
         musicManager.getGuildMusicManager(guild).playNext(
