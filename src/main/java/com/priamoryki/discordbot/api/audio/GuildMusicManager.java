@@ -21,6 +21,7 @@ import com.sedmelluq.discord.lavaplayer.track.TrackMarker;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 
 import java.util.ArrayDeque;
@@ -184,11 +185,11 @@ public class GuildMusicManager extends AudioEventAdapter {
         player.stopTrack();
     }
 
-    public void skip(Member member) {
+    public void skip(User user) {
         if (!isPlaying()) {
             return;
         }
-        getPlayingTrack().getUserData(CustomUserData.class).setSkippedBy(member.getUser());
+        getPlayingTrack().getUserData(CustomUserData.class).setSkippedBy(user);
         boolean oldRepeat = musicParameters.getRepeat();
         musicParameters.setRepeat(false);
         stop();
@@ -207,12 +208,12 @@ public class GuildMusicManager extends AudioEventAdapter {
         List<AudioTrack> list = new ArrayList<>(queue);
         queue.clear();
         queue.addAll(list.subList(id - 1, list.size()));
-        skip(member);
+        skip(member.getUser());
     }
 
     public void clearQueue(Member member) {
         queue.clear();
-        skip(member);
+        skip(member.getUser());
     }
 
     public void deleteFromQueue(int from, int to) throws CommandException {
@@ -334,5 +335,6 @@ public class GuildMusicManager extends AudioEventAdapter {
     public void onTrackException(AudioPlayer player, AudioTrack track, FriendlyException exception) {
         MessageChannel channel = guildAttributesService.getOrCreateMainChannel(guild);
         channel.sendMessage("Error on track " + Utils.audioTrackToString(track) + " occurred: " + exception.getMessage()).queue();
+        skip(null);
     }
 }

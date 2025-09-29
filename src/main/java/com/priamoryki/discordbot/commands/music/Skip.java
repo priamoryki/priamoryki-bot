@@ -32,6 +32,6 @@ public class Skip extends MusicCommand {
 
     @Override
     public void execute(Guild guild, Member member, List<String> args) {
-        musicManager.getGuildMusicManager(guild).skip(member);
+        musicManager.getGuildMusicManager(guild).skip(member.getUser());
     }
 }
