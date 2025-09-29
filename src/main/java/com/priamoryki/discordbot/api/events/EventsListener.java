@@ -112,8 +112,8 @@ public class EventsListener extends ListenerAdapter {
 
     public void onGuildMessageReceived(@NotNull MessageReceivedEvent event) {
         Message message = event.getMessage();
-        Guild guild = message.getGuild();
-        Member member = message.getMember();
+        Guild guild = event.getGuild();
+        Member member = event.getMember();
         String messageText = message.getContentDisplay();
         boolean isUserBot = data.isBot(member.getUser());
 
