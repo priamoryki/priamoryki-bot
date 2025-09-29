@@ -49,9 +49,9 @@ public class Repeat extends MusicCommand {
         if (args.size() != 1) {
             throw new CommandException("Invalid number of arguments!");
         }
-        if (args.get(0).equalsIgnoreCase("ON")) {
+        if (args.getFirst().equalsIgnoreCase("ON")) {
             musicManager.getGuildMusicManager(guild).setRepeat(true);
-        } else if (args.get(0).equalsIgnoreCase("OFF")) {
+        } else if (args.getFirst().equalsIgnoreCase("OFF")) {
             musicManager.getGuildMusicManager(guild).setRepeat(false);
         } else {
             throw new CommandException("Unknown argument! Only ON | OFF accepted!");

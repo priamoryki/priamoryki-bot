@@ -37,6 +37,6 @@ public interface Command extends Comparable<Command> {
 
     @Override
     default int compareTo(@NotNull Command command) {
-        return getNames().get(0).compareTo(command.getNames().get(0));
+        return getNames().getFirst().compareTo(command.getNames().getFirst());
     }
 }

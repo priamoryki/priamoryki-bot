@@ -50,7 +50,7 @@ public class MusicFinder {
                 if (Utils.isUrl(urlOrName)) {
                     playlist.getTracks().forEach(this::trackLoaded);
                 } else {
-                    trackLoaded(playlist.getTracks().get(0));
+                    trackLoaded(playlist.getTracks().getFirst());
                 }
             }
 

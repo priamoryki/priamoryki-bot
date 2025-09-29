@@ -46,7 +46,7 @@ public class Speed extends MusicCommand {
         }
         double speed;
         try {
-            speed = Double.parseDouble(args.get(0));
+            speed = Double.parseDouble(args.getFirst());
         } catch (Exception e) {
             throw new CommandException("Argument isn't double!");
         }

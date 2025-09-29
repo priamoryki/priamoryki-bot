@@ -47,7 +47,7 @@ public class Seek extends MusicCommand {
         if (args.size() != 1) {
             throw new CommandException("Invalid number of arguments!");
         }
-        long time = parseTime(args.get(0));
+        long time = parseTime(args.getFirst());
         musicManager.getGuildMusicManager(guild).seek(1_000L * time);
     }
 }
