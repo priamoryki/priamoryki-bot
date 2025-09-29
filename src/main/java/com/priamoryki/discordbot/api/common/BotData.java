@@ -52,6 +52,10 @@ public class BotData {
         return botAuthorIds;
     }
 
+    public User getBotAuthor() {
+        return bot.getUserById(botAuthorIds.getFirst());
+    }
+
     public boolean isBot(User user) {
         return user.getIdLong() == getBotId();
     }

@@ -1,9 +1,11 @@
 package com.priamoryki.discordbot.commands;
 
+import com.priamoryki.discordbot.api.common.ExceptionNotifier;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,16 +18,19 @@ import java.util.function.Consumer;
 /**
  * @author Pavel Lymar
  */
+@Service
 public class CommandsStorage {
     private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final ExceptionNotifier exceptionNotifier;
     private final HashMap<String, Command> commands;
 
-    public CommandsStorage() {
+    public CommandsStorage(ExceptionNotifier exceptionNotifier) {
+        this.exceptionNotifier = exceptionNotifier;
         commands = new HashMap<>();
     }
 
-    public CommandsStorage(Command... commands) {
-        this();
+    public CommandsStorage(ExceptionNotifier exceptionNotifier, Command... commands) {
+        this(exceptionNotifier);
         addCommands(commands);
     }
 
@@ -62,6 +67,7 @@ public class CommandsStorage {
             logger.debug(e.getMessage());
         } catch (Exception e) {
             logger.error("Error on command execution", e);
+            exceptionNotifier.notify(e);
         }
     }
 
@@ -109,6 +115,7 @@ public class CommandsStorage {
         } catch (Exception e) {
             logger.error("Error on command execution", e);
             onException.accept(e);
+            exceptionNotifier.notify(e);
         }
     }
 }

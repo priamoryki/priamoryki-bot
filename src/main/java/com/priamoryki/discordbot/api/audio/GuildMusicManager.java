@@ -3,6 +3,7 @@ package com.priamoryki.discordbot.api.audio;
 import com.github.natanbc.lavadsp.timescale.TimescalePcmAudioFilter;
 import com.priamoryki.discordbot.api.audio.customsources.CustomUserData;
 import com.priamoryki.discordbot.api.audio.finder.MusicFinder;
+import com.priamoryki.discordbot.api.common.ExceptionNotifier;
 import com.priamoryki.discordbot.api.common.GuildAttributesService;
 import com.priamoryki.discordbot.api.messages.HistoryMessage;
 import com.priamoryki.discordbot.api.messages.PlayerMessage;
@@ -25,6 +26,8 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -40,6 +43,8 @@ import static com.sedmelluq.discord.lavaplayer.track.TrackMarkerHandler.MarkerSt
 /**
  * @author Pavel Lymar, Michael Ruzavin
  */
+@Component
+@Scope("prototype")
 public class GuildMusicManager extends AudioEventAdapter {
     private static final float[] BASS_BOOST = {
             0.2f, 0.15f, 0.1f, 0.05f, 0.0f, -0.05f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f
@@ -47,6 +52,7 @@ public class GuildMusicManager extends AudioEventAdapter {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final GuildAttributesService guildAttributesService;
     private final MusicFinder musicFinder;
+    private final ExceptionNotifier exceptionNotifier;
     private final Guild guild;
     private final AudioPlayer player;
     private final Deque<AudioTrack> queue;
@@ -61,10 +67,12 @@ public class GuildMusicManager extends AudioEventAdapter {
             GuildAttributesService guildAttributesService,
             AudioPlayerManager audioPlayerManager,
             MusicFinder musicFinder,
+            ExceptionNotifier exceptionNotifier,
             Guild guild
     ) {
         this.guildAttributesService = guildAttributesService;
         this.musicFinder = musicFinder;
+        this.exceptionNotifier = exceptionNotifier;
         this.guild = guild;
         this.player = audioPlayerManager.createPlayer();
         this.queue = new ArrayDeque<>();
@@ -344,6 +352,7 @@ public class GuildMusicManager extends AudioEventAdapter {
         logger.error("Track Exception", e);
         MessageChannel channel = guildAttributesService.getOrCreateMainChannel(guild);
         channel.sendMessage("Error on track " + Utils.audioTrackToString(track) + " occurred: " + e.getMessage()).queue();
+        exceptionNotifier.notify(e);
         skip(null);
     }
 }

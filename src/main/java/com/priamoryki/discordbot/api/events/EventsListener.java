@@ -22,6 +22,7 @@ import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -31,7 +32,9 @@ import java.util.Objects;
 /**
  * @author Pavel Lymar
  */
+@Service
 public class EventsListener extends ListenerAdapter {
+    private static final String DEFAULT_EXCEPTION_MESSAGE = "Something went wrong. Try again later.";
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final BotData data;
     private final CommandsStorage commands;
@@ -133,7 +136,7 @@ public class EventsListener extends ListenerAdapter {
                 () -> {
                 },
                 e -> message.reply(e.getMessage()).queue(),
-                e -> message.reply("Something went wrong. Try again later.").queue(),
+                e -> message.reply(DEFAULT_EXCEPTION_MESSAGE).queue(),
                 true
         );
     }
@@ -165,7 +168,7 @@ public class EventsListener extends ListenerAdapter {
                     args,
                     () -> event.reply("DONE!").setEphemeral(true).queue(),
                     e -> event.reply(e.getMessage()).setEphemeral(true).queue(),
-                    e -> event.reply("Something went wrong. Try again later.").setEphemeral(true).queue(),
+                    e -> event.reply(DEFAULT_EXCEPTION_MESSAGE).setEphemeral(true).queue(),
                     true
             );
         }
@@ -173,15 +176,13 @@ public class EventsListener extends ListenerAdapter {
 
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
-        event.deferEdit().queue();
         commands.executeCommandWithPermissions(
                 Objects.requireNonNull(event.getButton().getId()).toLowerCase(),
                 event.getGuild(),
                 event.getMember(),
-                () -> {
-                },
+                () -> event.deferEdit().queue(),
                 e -> event.reply(e.getMessage()).queue(),
-                e -> event.reply("Something went wrong. Try again later.").setEphemeral(true).queue(),
+                e -> event.reply(DEFAULT_EXCEPTION_MESSAGE).setEphemeral(true).queue(),
                 false
         );
     }
