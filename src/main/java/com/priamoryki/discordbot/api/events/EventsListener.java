@@ -4,7 +4,6 @@ import com.priamoryki.discordbot.api.common.BotData;
 import com.priamoryki.discordbot.api.common.GuildAttributesService;
 import com.priamoryki.discordbot.api.messages.MainMessage;
 import com.priamoryki.discordbot.commands.Command;
-import com.priamoryki.discordbot.commands.CommandException;
 import com.priamoryki.discordbot.commands.CommandsStorage;
 import com.sedmelluq.discord.lavaplayer.tools.JsonBrowser;
 import io.micrometer.core.instrument.util.IOUtils;
@@ -23,6 +22,7 @@ import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -32,7 +32,9 @@ import java.util.Objects;
 /**
  * @author Pavel Lymar
  */
+@Service
 public class EventsListener extends ListenerAdapter {
+    private static final String DEFAULT_EXCEPTION_MESSAGE = "Something went wrong. Try again later.";
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final BotData data;
     private final CommandsStorage commands;
@@ -69,13 +71,7 @@ public class EventsListener extends ListenerAdapter {
     private void createGuildAttributes(Guild guild) {
         guildAttributesService.createGuildAttributes(guild);
         Member member = guild.getMemberById(data.getBotId());
-        try {
-            commands.executeCommand("clear_all", guild, member);
-        } catch (CommandException e) {
-            logger.debug(e.getMessage());
-        } catch (Exception e) {
-            logger.error("Cleaning messages error on creating guild attributes", e);
-        }
+        commands.executeCommand("clear_all", guild, member);
     }
 
     public void onBotAuthorMessage(@NotNull MessageReceivedEvent event) {
@@ -115,7 +111,7 @@ public class EventsListener extends ListenerAdapter {
         Guild guild = event.getGuild();
         Member member = event.getMember();
         String messageText = message.getContentDisplay();
-        boolean isUserBot = data.isBot(member.getUser());
+        boolean isUserBot = data.isBot(event.getAuthor());
 
         if (isBotMentioned(message)) {
             createGuildAttributes(guild);
@@ -131,19 +127,18 @@ public class EventsListener extends ListenerAdapter {
         }
 
         List<String> splittedMessage = List.of(messageText.substring(data.getPrefix().length()).split(" "));
-        Command command = commands.getCommand(splittedMessage.getFirst());
-        if (command != null && command.isAvailableFromChat()) {
-            try {
-                command.executeWithPermissions(guild, member, splittedMessage.subList(1, splittedMessage.size()));
-            } catch (CommandException e) {
-                logger.debug(e.getMessage());
-                message.reply(e.getMessage()).queue();
-            } catch (Exception e) {
-                logger.error("Error on command execution", e);
-            }
-        } else {
-            message.reply("Can't find such command!").queue();
-        }
+        String commandName = splittedMessage.getFirst();
+        commands.executeCommandWithPermissions(
+                commandName,
+                guild,
+                member,
+                splittedMessage.subList(1, splittedMessage.size()),
+                () -> {
+                },
+                e -> message.reply(e.getMessage()).queue(),
+                e -> message.reply(DEFAULT_EXCEPTION_MESSAGE).queue(),
+                true
+        );
     }
 
     @Override
@@ -157,7 +152,8 @@ public class EventsListener extends ListenerAdapter {
 
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
-        Command command = commands.getCommand(event.getName());
+        String commandName = event.getName();
+        Command command = commands.getCommand(commandName);
         long mainChannelId = guildAttributesService.getMainChannelId(event.getGuild().getIdLong());
         if (command != null && command.isAvailableFromChat() && event.getChannel().getIdLong() == mainChannelId) {
             List<String> args = command.getOptions().stream()
@@ -165,34 +161,29 @@ public class EventsListener extends ListenerAdapter {
                     .map(OptionMapping::getAsString)
                     .flatMap(op -> Arrays.stream(op.split(" ")))
                     .toList();
-            try {
-                command.executeWithPermissions(event.getGuild(), event.getMember(), args);
-                event.reply("DONE!").setEphemeral(true).queue();
-            } catch (CommandException e) {
-                logger.debug(e.getMessage());
-                event.reply(e.getMessage()).setEphemeral(true).queue();
-            } catch (Exception e) {
-                logger.error("Error on command execution", e);
-                event.reply("Something went wrong. Try again later.").setEphemeral(true).queue();
-            }
+            commands.executeCommandWithPermissions(
+                    commandName,
+                    event.getGuild(),
+                    event.getMember(),
+                    args,
+                    () -> event.reply("DONE!").setEphemeral(true).queue(),
+                    e -> event.reply(e.getMessage()).setEphemeral(true).queue(),
+                    e -> event.reply(DEFAULT_EXCEPTION_MESSAGE).setEphemeral(true).queue(),
+                    true
+            );
         }
     }
 
-
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
-        event.deferEdit().queue();
-        try {
-            commands.executeCommandWithPermissions(
-                    Objects.requireNonNull(event.getButton().getId()).toLowerCase(),
-                    event.getGuild(),
-                    event.getMember()
-            );
-        } catch (CommandException e) {
-            logger.debug(e.getMessage());
-            event.reply(e.getMessage()).queue();
-        } catch (Exception e) {
-            logger.error("Error on proceeding button interaction", e);
-        }
+        commands.executeCommandWithPermissions(
+                Objects.requireNonNull(event.getButton().getId()).toLowerCase(),
+                event.getGuild(),
+                event.getMember(),
+                () -> event.deferEdit().queue(),
+                e -> event.reply(e.getMessage()).queue(),
+                e -> event.reply(DEFAULT_EXCEPTION_MESSAGE).setEphemeral(true).queue(),
+                false
+        );
     }
 }

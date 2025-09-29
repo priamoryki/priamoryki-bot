@@ -3,6 +3,7 @@ package com.priamoryki.discordbot.api.audio;
 import com.github.natanbc.lavadsp.timescale.TimescalePcmAudioFilter;
 import com.priamoryki.discordbot.api.audio.customsources.CustomUserData;
 import com.priamoryki.discordbot.api.audio.finder.MusicFinder;
+import com.priamoryki.discordbot.api.common.ExceptionNotifier;
 import com.priamoryki.discordbot.api.common.GuildAttributesService;
 import com.priamoryki.discordbot.api.messages.HistoryMessage;
 import com.priamoryki.discordbot.api.messages.PlayerMessage;
@@ -23,6 +24,10 @@ import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -31,18 +36,23 @@ import java.util.Deque;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.stream.Collectors;
 
 import static com.sedmelluq.discord.lavaplayer.track.TrackMarkerHandler.MarkerState.REACHED;
 
 /**
  * @author Pavel Lymar, Michael Ruzavin
  */
+@Component
+@Scope("prototype")
 public class GuildMusicManager extends AudioEventAdapter {
     private static final float[] BASS_BOOST = {
             0.2f, 0.15f, 0.1f, 0.05f, 0.0f, -0.05f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f
     };
+    private final Logger logger = LoggerFactory.getLogger(getClass());
     private final GuildAttributesService guildAttributesService;
     private final MusicFinder musicFinder;
+    private final ExceptionNotifier exceptionNotifier;
     private final Guild guild;
     private final AudioPlayer player;
     private final Deque<AudioTrack> queue;
@@ -57,10 +67,12 @@ public class GuildMusicManager extends AudioEventAdapter {
             GuildAttributesService guildAttributesService,
             AudioPlayerManager audioPlayerManager,
             MusicFinder musicFinder,
+            ExceptionNotifier exceptionNotifier,
             Guild guild
     ) {
         this.guildAttributesService = guildAttributesService;
         this.musicFinder = musicFinder;
+        this.exceptionNotifier = exceptionNotifier;
         this.guild = guild;
         this.player = audioPlayerManager.createPlayer();
         this.queue = new ArrayDeque<>();
@@ -154,23 +166,27 @@ public class GuildMusicManager extends AudioEventAdapter {
         guild.getAudioManager().closeAudioConnection();
     }
 
-    public void play(SongRequest songRequest) {
+    public void play(SongRequest songRequest) throws CommandException {
         var result = musicFinder.find(songRequest);
         List<AudioTrack> playlist = result.loadedTracks();
+        List<Exception> exceptions = result.exceptions();
         playlist.forEach(track -> queue(track, true));
 
-        MessageChannel channel = guildAttributesService.getOrCreateMainChannel(guild);
-        result.exceptions().forEach(e -> channel.sendMessage(e.getMessage()).queue());
+        if (!exceptions.isEmpty()) {
+            throw new CommandException(result.exceptions().stream().map(Throwable::getMessage).collect(Collectors.joining("\n")));
+        }
     }
 
-    public void playNext(SongRequest songRequest) {
+    public void playNext(SongRequest songRequest) throws CommandException {
         var result = musicFinder.find(songRequest);
         List<AudioTrack> playlist = result.loadedTracks();
+        List<Exception> exceptions = result.exceptions();
         Collections.reverse(playlist);
         playlist.forEach(track -> queue(track, false));
 
-        MessageChannel channel = guildAttributesService.getOrCreateMainChannel(guild);
-        result.exceptions().forEach(e -> channel.sendMessage(e.getMessage()).queue());
+        if (!exceptions.isEmpty()) {
+            throw new CommandException(result.exceptions().stream().map(Throwable::getMessage).collect(Collectors.joining("\n")));
+        }
     }
 
     public void resume() {
@@ -332,9 +348,11 @@ public class GuildMusicManager extends AudioEventAdapter {
     }
 
     @Override
-    public void onTrackException(AudioPlayer player, AudioTrack track, FriendlyException exception) {
+    public void onTrackException(AudioPlayer player, AudioTrack track, FriendlyException e) {
+        logger.error("Track Exception", e);
         MessageChannel channel = guildAttributesService.getOrCreateMainChannel(guild);
-        channel.sendMessage("Error on track " + Utils.audioTrackToString(track) + " occurred: " + exception.getMessage()).queue();
+        channel.sendMessage("Error on track " + Utils.audioTrackToString(track) + " occurred: " + e.getMessage()).queue();
+        exceptionNotifier.notify(e);
         skip(null);
     }
 }
