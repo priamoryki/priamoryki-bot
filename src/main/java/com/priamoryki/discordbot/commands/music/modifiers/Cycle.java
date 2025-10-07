@@ -3,14 +3,13 @@ package com.priamoryki.discordbot.commands.music.modifiers;
 import com.priamoryki.discordbot.api.audio.MusicManager;
 import com.priamoryki.discordbot.commands.CommandException;
 import com.priamoryki.discordbot.commands.MusicCommand;
+import com.priamoryki.discordbot.common.Utils;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.util.List;
-
-import static com.priamoryki.discordbot.common.Utils.parseTime;
 
 /**
  * @author Pavel Lymar
@@ -48,8 +47,8 @@ public class Cycle extends MusicCommand {
         if (args.size() != 2) {
             throw new CommandException("Invalid number of arguments!");
         }
-        long start = parseTime(args.get(0));
-        long finish = parseTime(args.get(1));
+        long start = Utils.parseTime(args.get(0));
+        long finish = Utils.parseTime(args.get(1));
         musicManager.getGuildMusicManager(guild).cycle(1_000L * start, 1_000L * finish);
     }
 }

@@ -3,14 +3,13 @@ package com.priamoryki.discordbot.commands.music;
 import com.priamoryki.discordbot.api.audio.MusicManager;
 import com.priamoryki.discordbot.commands.CommandException;
 import com.priamoryki.discordbot.commands.MusicCommand;
+import com.priamoryki.discordbot.common.Utils;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.util.List;
-
-import static com.priamoryki.discordbot.common.Utils.parseTime;
 
 /**
  * @author Pavel Lymar
@@ -47,7 +46,7 @@ public class Seek extends MusicCommand {
         if (args.size() != 1) {
             throw new CommandException("Invalid number of arguments!");
         }
-        long time = parseTime(args.getFirst());
+        long time = Utils.parseTime(args.getFirst());
         musicManager.getGuildMusicManager(guild).seek(1_000L * time);
     }
 }

@@ -181,8 +181,7 @@ public class GuildMusicManager extends AudioEventAdapter {
         var result = musicFinder.find(songRequest);
         List<AudioTrack> playlist = result.loadedTracks();
         List<Exception> exceptions = result.exceptions();
-        Collections.reverse(playlist);
-        playlist.forEach(track -> queue(track, false));
+        Utils.getReversedList(playlist).forEach(track -> queue(track, false));
 
         if (!exceptions.isEmpty()) {
             throw new CommandException(result.exceptions().stream().map(Throwable::getMessage).collect(Collectors.joining("\n")));

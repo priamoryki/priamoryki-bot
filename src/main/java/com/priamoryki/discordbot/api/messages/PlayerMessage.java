@@ -22,8 +22,6 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static com.priamoryki.discordbot.common.Utils.firstNotEmpty;
-
 /**
  * @author Pavel Lymar
  */
@@ -136,7 +134,7 @@ public class PlayerMessage implements UsefulMessage {
         EmbedBuilder builder = new EmbedBuilder();
         builder.setColor(Color.BLUE).setAuthor("🎧" + user.getName() + "🎧", null, user.getAvatarUrl());
         if (Utils.isUrl(url)) {
-            builder.setTitle(firstNotEmpty(title, url), url);
+            builder.setTitle(Utils.firstNotEmpty(title, url), url);
         } else {
             builder.setTitle(title);
         }
