@@ -34,7 +34,7 @@ public class ExceptionNotifier {
                     channel -> channel.sendMessage("Exception occurred!").addFiles(FileUpload.fromData(file)).queue()
             );
         } catch (Exception ex) {
-            logger.error(ex.getMessage(), ex);
+            logger.error("Can't send exception notification: {}", ex.getMessage(), ex);
         }
     }
 }

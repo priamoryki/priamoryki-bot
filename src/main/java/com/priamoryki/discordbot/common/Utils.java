@@ -12,14 +12,13 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import org.apache.http.HttpRequest;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @author Pavel Lymar
@@ -31,15 +30,21 @@ public final class Utils {
 
     public static boolean isUrl(String url) {
         try {
-            new URL(url);
+            URI.create(url).toURL();
             return true;
-        } catch (MalformedURLException e) {
+        } catch (Exception e) {
             return false;
         }
     }
 
     public static String firstNotEmpty(String... strings) {
         return Arrays.stream(strings).filter(s -> !s.isEmpty()).findFirst().orElse("");
+    }
+
+    public static <T> List<T> getReversedList(List<T> list) {
+        List<T> result = new ArrayList<>(list);
+        Collections.reverse(result);
+        return result;
     }
 
     public static String normalizeTime(long time) {
@@ -64,8 +69,7 @@ public final class Utils {
     }
 
     public static long parseTime(String s) {
-        List<String> list = Arrays.stream(s.split(":")).collect(Collectors.toList());
-        Collections.reverse(list);
+        List<String> list = getReversedList(Arrays.stream(s.split(":")).toList());
         long time = 0;
         for (int i = 0; i < Math.min(3, list.size()); i++) {
             time += Math.pow(60, i) * Long.parseLong(list.get(i));
