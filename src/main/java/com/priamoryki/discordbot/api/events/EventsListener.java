@@ -107,9 +107,9 @@ public class EventsListener extends ListenerAdapter {
     }
 
     public void onGuildMessageReceived(@NotNull MessageReceivedEvent event) {
-        Message message = event.getMessage();
         Guild guild = event.getGuild();
         Member member = event.getMember();
+        Message message = event.getMessage();
         String messageText = message.getContentDisplay();
         boolean isUserBot = data.isBot(event.getAuthor());
 
@@ -152,9 +152,11 @@ public class EventsListener extends ListenerAdapter {
 
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
+        Guild guild = event.getGuild();
+        Member member = event.getMember();
         String commandName = event.getName();
         Command command = commands.getCommand(commandName);
-        long mainChannelId = guildAttributesService.getMainChannelId(event.getGuild().getIdLong());
+        long mainChannelId = guildAttributesService.getMainChannelId(guild.getIdLong());
         if (command != null && command.isAvailableFromChat() && event.getChannel().getIdLong() == mainChannelId) {
             List<String> args = command.getOptions().stream()
                     .flatMap(option -> event.getOptionsByName(option.getName()).stream())
@@ -163,8 +165,8 @@ public class EventsListener extends ListenerAdapter {
                     .toList();
             commands.executeCommandWithPermissions(
                     commandName,
-                    event.getGuild(),
-                    event.getMember(),
+                    guild,
+                    member,
                     args,
                     () -> event.reply("DONE!").setEphemeral(true).queue(),
                     e -> event.reply(e.getMessage()).setEphemeral(true).queue(),
@@ -176,10 +178,12 @@ public class EventsListener extends ListenerAdapter {
 
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
+        Guild guild = event.getGuild();
+        Member member = event.getMember();
         commands.executeCommandWithPermissions(
-                Objects.requireNonNull(event.getButton().getId()).toLowerCase(),
-                event.getGuild(),
-                event.getMember(),
+                Objects.requireNonNull(event.getButton().getCustomId()).toLowerCase(),
+                guild,
+                member,
                 () -> event.deferEdit().queue(),
                 e -> event.reply(e.getMessage()).queue(),
                 e -> event.reply(DEFAULT_EXCEPTION_MESSAGE).setEphemeral(true).queue(),

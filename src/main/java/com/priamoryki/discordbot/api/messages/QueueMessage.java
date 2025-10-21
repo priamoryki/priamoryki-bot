@@ -4,11 +4,11 @@ import com.priamoryki.discordbot.api.audio.GuildMusicManager;
 import com.priamoryki.discordbot.api.common.GuildAttributesService;
 import com.priamoryki.discordbot.common.Utils;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import net.dv8tion.jda.api.components.MessageTopLevelComponent;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.LayoutComponent;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.utils.messages.AbstractMessageBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
@@ -31,7 +31,7 @@ public class QueueMessage implements UsefulMessage {
         this.guildAttributesService = guildAttributesService;
     }
 
-    private static List<LayoutComponent> getComponents() {
+    private static List<MessageTopLevelComponent> getComponents() {
         return List.of(
                 ActionRow.of(
                         Button.primary("PREVIOUS_PAGE", Emoji.fromUnicode("⏪")),
