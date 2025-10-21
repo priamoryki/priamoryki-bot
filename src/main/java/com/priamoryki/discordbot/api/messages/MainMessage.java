@@ -2,11 +2,11 @@ package com.priamoryki.discordbot.api.messages;
 
 import com.priamoryki.discordbot.commands.Command;
 import com.priamoryki.discordbot.commands.CommandsStorage;
+import net.dv8tion.jda.api.components.MessageTopLevelComponent;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.LayoutComponent;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.utils.messages.AbstractMessageBuilder;
 
 import java.util.ArrayList;
@@ -25,7 +25,7 @@ public class MainMessage {
 
     }
 
-    public static List<LayoutComponent> getComponents() {
+    public static List<MessageTopLevelComponent> getComponents() {
         return List.of(
                 ActionRow.of(
                         Button.primary("CLEAR_ALL", Emoji.fromUnicode("🧹"))
