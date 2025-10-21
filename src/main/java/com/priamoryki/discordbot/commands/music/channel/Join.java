@@ -33,7 +33,7 @@ public class Join extends MusicCommand {
 
     @Override
     public void execute(Guild guild, Member member, List<String> args) throws CommandException {
-        if (musicManager.getGuildMusicManager(guild).isPlaying()) {
+        if (musicManager.getGuildMusicManager(guild).getMusicData().isPlaying()) {
             throw new CommandException("Bot is playing audio now!");
         }
         musicManager.getGuildMusicManager(guild).join(member);

@@ -1,6 +1,6 @@
 package com.priamoryki.discordbot.api.messages;
 
-import com.priamoryki.discordbot.api.audio.GuildMusicManager;
+import com.priamoryki.discordbot.api.audio.GuildMusicData;
 import com.priamoryki.discordbot.api.common.GuildAttributesService;
 import com.priamoryki.discordbot.common.Utils;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
@@ -21,13 +21,13 @@ import java.util.stream.IntStream;
  * @author Pavel Lymar
  */
 public class QueueMessage implements UsefulMessage {
-    private final GuildMusicManager guildMusicManager;
+    private final GuildMusicData guildMusicData;
     private final GuildAttributesService guildAttributesService;
     private Message message;
     private int page = 1;
 
-    public QueueMessage(GuildMusicManager guildMusicManager, GuildAttributesService guildAttributesService) {
-        this.guildMusicManager = guildMusicManager;
+    public QueueMessage(GuildMusicData guildMusicData, GuildAttributesService guildAttributesService) {
+        this.guildMusicData = guildMusicData;
         this.guildAttributesService = guildAttributesService;
     }
 
@@ -57,8 +57,8 @@ public class QueueMessage implements UsefulMessage {
 
     private void createNewMessage() {
         message = guildAttributesService
-                .getOrCreateMainChannel(guildMusicManager.getGuild())
-                .sendMessage(fillBuilder(new MessageCreateBuilder(), guildMusicManager.getQueue()).build()).complete();
+                .getOrCreateMainChannel(guildMusicData.getGuild())
+                .sendMessage(fillBuilder(new MessageCreateBuilder(), guildMusicData.getQueueCopy()).build()).complete();
     }
 
     public void nextPage() {
@@ -73,7 +73,7 @@ public class QueueMessage implements UsefulMessage {
 
     @Override
     public void update() {
-        List<AudioTrack> queue = guildMusicManager.getQueue();
+        List<AudioTrack> queue = guildMusicData.getQueueCopy();
         int maxSongsNumber = getMaxSongsNumber(queue);
         int lastSongNumber = maxSongsNumber * (page - 1);
         if (lastSongNumber < 0) {
