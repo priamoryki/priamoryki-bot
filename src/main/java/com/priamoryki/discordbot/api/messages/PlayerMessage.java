@@ -1,7 +1,7 @@
 package com.priamoryki.discordbot.api.messages;
 
+import com.priamoryki.discordbot.api.audio.GuildMusicData;
 import com.priamoryki.discordbot.api.audio.GuildMusicManager;
-import com.priamoryki.discordbot.api.audio.GuildMusicParameters;
 import com.priamoryki.discordbot.api.audio.customsources.CustomUserData;
 import com.priamoryki.discordbot.api.common.GuildAttributesService;
 import com.priamoryki.discordbot.common.Utils;
@@ -30,13 +30,15 @@ public class PlayerMessage implements UsefulMessage {
     private static final long MINIMAL_UPDATE_PERIOD = 15_000;
     private static final long OPTIMAL_UPDATE_PERIOD = 30_000;
     private final GuildMusicManager guildMusicManager;
+    private final GuildMusicData guildMusicData;
     private final GuildAttributesService guildAttributesService;
     private Message message;
     private Timer timer;
     private long lastUpdateTime;
 
-    public PlayerMessage(GuildMusicManager guildMusicManager, GuildAttributesService guildAttributesService) {
+    public PlayerMessage(GuildMusicManager guildMusicManager, GuildMusicData guildMusicData, GuildAttributesService guildAttributesService) {
         this.guildMusicManager = guildMusicManager;
+        this.guildMusicData = guildMusicData;
         this.guildAttributesService = guildAttributesService;
         createNewMessage();
     }
@@ -71,8 +73,7 @@ public class PlayerMessage implements UsefulMessage {
     }
 
     private void createNewMessage() {
-        message = guildAttributesService
-                .getOrCreatePlayerMessage(guildMusicManager.getGuild());
+        message = guildAttributesService.getOrCreatePlayerMessage(guildMusicData.getGuild());
     }
 
     @Override
@@ -94,7 +95,7 @@ public class PlayerMessage implements UsefulMessage {
         endUpdateTask();
         long delay = 0;
         long period = Math.clamp(
-                guildMusicManager.getPlayingTrack().getDuration() / BLOCKS_NUMBER,
+                guildMusicData.getPlayingTrack().getDuration() / BLOCKS_NUMBER,
                 MINIMAL_UPDATE_PERIOD,
                 OPTIMAL_UPDATE_PERIOD
         );
@@ -116,7 +117,7 @@ public class PlayerMessage implements UsefulMessage {
     private <T, R extends AbstractMessageBuilder<T, R>> AbstractMessageBuilder<T, R> fillBuilder(
             AbstractMessageBuilder<T, R> messageBuilder
     ) {
-        AudioTrack track = guildMusicManager.getPlayingTrack();
+        AudioTrack track = guildMusicData.getPlayingTrack();
         if (track == null) {
             return fillWithDefaultMessage(messageBuilder);
         }
@@ -142,10 +143,9 @@ public class PlayerMessage implements UsefulMessage {
         String timeString = isLive ? "LIVE" : Utils.normalizeTime(currentTime) + " / " + Utils.normalizeTime(duration);
         timeString = "`" + timeString + "`";
 
-        GuildMusicParameters guildMusicParameters = guildMusicManager.getMusicParameters();
-        String state = guildMusicManager.isPaused() ? "PAUSED⏸️⏳" : "PLAYING🎶";
-        String repeat = guildMusicParameters.getRepeat() ? "YES✅" : "NO❌";
-        String cycled = guildMusicParameters.isCycled() ? getCycled(guildMusicParameters) : "NO❌";
+        String state = guildMusicData.isPaused() ? "PAUSED⏸️⏳" : "PLAYING🎶";
+        String repeat = guildMusicData.getRepeat() ? "YES✅" : "NO❌";
+        String cycled = guildMusicData.isCycled() ? getCycled(guildMusicData) : "NO❌";
         builder.setDescription(timeLine + "\n" + timeString)
                 .addField("State🎹", state, true)
                 .addField("Repeat🔂", repeat, true)
@@ -154,11 +154,11 @@ public class PlayerMessage implements UsefulMessage {
         return messageBuilder.setEmbeds(builder.build()).setComponents(getComponents());
     }
 
-    private String getCycled(GuildMusicParameters guildMusicParameters) {
+    private String getCycled(GuildMusicData guildMusicData) {
         return String.format(
                 "[`%s` - `%s`]",
-                Utils.normalizeTime(guildMusicParameters.getCycleStart()),
-                Utils.normalizeTime(guildMusicParameters.getCycleEnd())
+                Utils.normalizeTime(guildMusicData.getCycleStart()),
+                Utils.normalizeTime(guildMusicData.getCycleEnd())
         );
     }
 }

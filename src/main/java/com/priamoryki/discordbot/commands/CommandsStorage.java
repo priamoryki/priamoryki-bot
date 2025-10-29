@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.TreeSet;
@@ -24,13 +23,9 @@ public class CommandsStorage {
     private final ExceptionNotifier exceptionNotifier;
     private final HashMap<String, Command> commands;
 
-    public CommandsStorage(ExceptionNotifier exceptionNotifier) {
-        this.exceptionNotifier = exceptionNotifier;
-        commands = new HashMap<>();
-    }
-
     public CommandsStorage(ExceptionNotifier exceptionNotifier, Command... commands) {
-        this(exceptionNotifier);
+        this.exceptionNotifier = exceptionNotifier;
+        this.commands = new HashMap<>();
         addCommands(commands);
     }
 
@@ -56,7 +51,7 @@ public class CommandsStorage {
     }
 
     public void executeCommand(String name, Guild guild, Member member) {
-        executeCommand(name, guild, member, Collections.emptyList());
+        executeCommand(name, guild, member, List.of());
     }
 
     public void executeCommand(String name, Guild guild, Member member, List<String> args) {
@@ -84,7 +79,7 @@ public class CommandsStorage {
                 name,
                 guild,
                 member,
-                Collections.emptyList(),
+                List.of(),
                 onSuccessfulExecution,
                 onCommandException,
                 onException,

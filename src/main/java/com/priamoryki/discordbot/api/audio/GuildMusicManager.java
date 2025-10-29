@@ -1,6 +1,5 @@
 package com.priamoryki.discordbot.api.audio;
 
-import com.github.natanbc.lavadsp.timescale.TimescalePcmAudioFilter;
 import com.priamoryki.discordbot.api.audio.customsources.CustomUserData;
 import com.priamoryki.discordbot.api.audio.finder.MusicFinder;
 import com.priamoryki.discordbot.api.common.ExceptionNotifier;
@@ -10,8 +9,6 @@ import com.priamoryki.discordbot.api.messages.PlayerMessage;
 import com.priamoryki.discordbot.api.messages.QueueMessage;
 import com.priamoryki.discordbot.commands.CommandException;
 import com.priamoryki.discordbot.common.Utils;
-import com.sedmelluq.discord.lavaplayer.filter.AudioFilter;
-import com.sedmelluq.discord.lavaplayer.filter.equalizer.Equalizer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
@@ -29,10 +26,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Deque;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -46,21 +41,15 @@ import static com.sedmelluq.discord.lavaplayer.track.TrackMarkerHandler.MarkerSt
 @Component
 @Scope("prototype")
 public class GuildMusicManager extends AudioEventAdapter {
-    private static final float[] BASS_BOOST = {
-            0.2f, 0.15f, 0.1f, 0.05f, 0.0f, -0.05f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f
-    };
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final GuildAttributesService guildAttributesService;
     private final MusicFinder musicFinder;
     private final ExceptionNotifier exceptionNotifier;
     private final Guild guild;
-    private final AudioPlayer player;
-    private final Deque<AudioTrack> queue;
-    private final PlayerSendHandler sendHandler;
     private final PlayerMessage playerMessage;
     private final QueueMessage queueMessage;
     private final HistoryMessage historyMessage;
-    private GuildMusicParameters musicParameters;
+    private final GuildMusicData musicData;
     private Timer timer;
 
     public GuildMusicManager(
@@ -70,55 +59,31 @@ public class GuildMusicManager extends AudioEventAdapter {
             ExceptionNotifier exceptionNotifier,
             Guild guild
     ) {
+        AudioPlayer player = audioPlayerManager.createPlayer();
         this.guildAttributesService = guildAttributesService;
         this.musicFinder = musicFinder;
         this.exceptionNotifier = exceptionNotifier;
         this.guild = guild;
-        this.player = audioPlayerManager.createPlayer();
-        this.queue = new ArrayDeque<>();
-        this.sendHandler = new PlayerSendHandler(player);
-        this.playerMessage = new PlayerMessage(this, guildAttributesService);
-        this.queueMessage = new QueueMessage(this, guildAttributesService);
-        this.historyMessage = new HistoryMessage(this, guildAttributesService);
-        this.musicParameters = new GuildMusicParameters();
+        this.musicData = new GuildMusicData(guild, player);
+        this.playerMessage = new PlayerMessage(this, musicData, guildAttributesService);
+        this.queueMessage = new QueueMessage(musicData, guildAttributesService);
+        this.historyMessage = new HistoryMessage(musicData, guildAttributesService);
 
-        player.addListener(this);
+        musicData.getPlayer().addListener(this);
+        PlayerSendHandler sendHandler = new PlayerSendHandler(player);
+        guild.getAudioManager().setSendingHandler(sendHandler);
     }
 
     public void setRepeat(boolean repeat) {
-        musicParameters.setRepeat(repeat);
+        musicData.setRepeat(repeat);
     }
 
     public void reverseRepeat() {
-        setRepeat(!musicParameters.getRepeat());
+        setRepeat(!musicData.getRepeat());
     }
 
-    public PlayerSendHandler getSendHandler() {
-        return sendHandler;
-    }
-
-    public boolean isPlaying() {
-        return getPlayingTrack() != null;
-    }
-
-    public boolean isPaused() {
-        return player.isPaused();
-    }
-
-    public Guild getGuild() {
-        return guild;
-    }
-
-    public List<AudioTrack> getQueue() {
-        return new ArrayList<>(queue);
-    }
-
-    public AudioTrack getPlayingTrack() {
-        return player.getPlayingTrack();
-    }
-
-    public GuildMusicParameters getMusicParameters() {
-        return musicParameters;
+    public GuildMusicData getMusicData() {
+        return musicData;
     }
 
     public PlayerMessage getPlayerMessage() {
@@ -142,7 +107,7 @@ public class GuildMusicManager extends AudioEventAdapter {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                if (isPlaying()) {
+                if (musicData.isPlaying()) {
                     return;
                 }
                 leave(guild.getSelfMember());
@@ -189,36 +154,37 @@ public class GuildMusicManager extends AudioEventAdapter {
     }
 
     public void resume() {
-        player.setPaused(false);
+        musicData.getPlayer().setPaused(false);
     }
 
     public void pause() {
-        player.setPaused(true);
+        musicData.getPlayer().setPaused(true);
     }
 
     public void stop() {
-        player.stopTrack();
+        musicData.getPlayer().stopTrack();
     }
 
     public void skip(User user) {
-        if (!isPlaying()) {
+        if (!musicData.isPlaying()) {
             return;
         }
-        getPlayingTrack().getUserData(CustomUserData.class).setSkippedBy(user);
-        boolean oldRepeat = musicParameters.getRepeat();
-        musicParameters.setRepeat(false);
+        musicData.getPlayingTrack().getUserData(CustomUserData.class).setSkippedBy(user);
+        boolean oldRepeat = musicData.getRepeat();
+        musicData.setRepeat(false);
         stop();
-        musicParameters.setRepeat(oldRepeat);
+        musicData.setRepeat(oldRepeat);
     }
 
     public void seek(long time) throws CommandException {
-        if (!isPlaying()) {
+        if (!musicData.isPlaying()) {
             throw new CommandException("Music is not playing now!");
         }
-        getPlayingTrack().setPosition(time);
+        musicData.getPlayingTrack().setPosition(time);
     }
 
     public void skipTo(Member member, int id) throws CommandException {
+        var queue = musicData.getQueue();
         Utils.validateId(id, queue.size());
         List<AudioTrack> list = new ArrayList<>(queue);
         queue.clear();
@@ -227,11 +193,13 @@ public class GuildMusicManager extends AudioEventAdapter {
     }
 
     public void clearQueue(Member member) {
+        var queue = musicData.getQueue();
         queue.clear();
         skip(member.getUser());
     }
 
     public void deleteFromQueue(int from, int to) throws CommandException {
+        var queue = musicData.getQueue();
         Utils.validateBounds(from, to, queue.size(), "Can't remove interval that isn't in queue!");
         List<AudioTrack> list = new ArrayList<>(queue);
         list.subList(from - 1, to).clear();
@@ -240,65 +208,38 @@ public class GuildMusicManager extends AudioEventAdapter {
     }
 
     public void shuffleQueue() {
+        var queue = musicData.getQueue();
         List<AudioTrack> list = new ArrayList<>(queue);
         Collections.shuffle(list);
         queue.clear();
         queue.addAll(list);
     }
 
-    private void rebuildFilters() {
-        float multiplier = 1;
-        player.setFilterFactory((audioTrack, audioDataFormat, universalPcmAudioFilter) -> {
-            List<AudioFilter> filters = new ArrayList<>();
-
-            if (musicParameters.getBassBoost()) {
-                Equalizer equalizer = new Equalizer(audioDataFormat.channelCount, universalPcmAudioFilter);
-                for (int i = 0; i < BASS_BOOST.length; i++) {
-                    equalizer.setGain(i, multiplier * BASS_BOOST[i]);
-                }
-                filters.add(equalizer);
-            }
-
-            TimescalePcmAudioFilter timescale = new TimescalePcmAudioFilter(
-                    universalPcmAudioFilter, audioDataFormat.channelCount, audioDataFormat.sampleRate
-            ).setSpeed(musicParameters.getSpeed());
-            if (musicParameters.getNightcore()) {
-                timescale.setRate(1.0 + 0.1);
-            }
-            filters.add(timescale);
-
-            return filters;
-        });
-    }
-
     public void setSpeed(double speed) {
-        musicParameters.setSpeed(speed);
-        rebuildFilters();
+        musicData.setSpeed(speed);
     }
 
     public void bassBoost(boolean value) {
-        musicParameters.setBassBoost(value);
-        rebuildFilters();
+        musicData.setBassBoost(value);
     }
 
     public void setNightcore(boolean value) {
-        musicParameters.setNightcore(value);
-        rebuildFilters();
+        musicData.setNightcore(value);
     }
 
     public void reset() {
-        musicParameters = new GuildMusicParameters();
-        player.setFilterFactory(null);
+        musicData.setDefaults();
     }
 
     private void startTrack(AudioTrack track, boolean flag) {
-        player.startTrack(track, flag);
+        musicData.getPlayer().startTrack(track, flag);
         resume();
         playerMessage.startUpdateTask();
     }
 
     private void queue(AudioTrack track, boolean asLast) {
-        if (isPlaying()) {
+        var queue = musicData.getQueue();
+        if (musicData.isPlaying()) {
             if (asLast) {
                 queue.addLast(track);
             } else {
@@ -310,40 +251,37 @@ public class GuildMusicManager extends AudioEventAdapter {
     }
 
     public void cycle(long start, long finish) {
-        musicParameters.setCycleStart(start);
-        musicParameters.setCycleEnd(finish);
-        AudioTrack track = getPlayingTrack();
-        track.setPosition(start);
+        musicData.setCycleStart(start);
+        musicData.setCycleEnd(finish);
+        AudioTrack track = musicData.getPlayingTrack();
         track.setMarker(new TrackMarker(finish, markerState -> {
             if (markerState == REACHED) {
                 cycle(start, finish);
             }
         }));
+        track.setPosition(start);
     }
 
     public void uncycle() {
-        AudioTrack track = getPlayingTrack();
+        AudioTrack track = musicData.getPlayingTrack();
         track.setMarker(null);
-        musicParameters.setCycleStart(null);
-        musicParameters.setCycleEnd(null);
-    }
-
-    @Override
-    public void onTrackStart(AudioPlayer player, AudioTrack track) {
-        historyMessage.put(track);
+        musicData.setCycleStart(null);
+        musicData.setCycleEnd(null);
     }
 
     @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
-        AudioTrack nextTrack = musicParameters.getRepeat() ? track.makeClone() : queue.poll();
+        var queue = musicData.getQueue();
+        AudioTrack nextTrack = musicData.getRepeat() ? track.makeClone() : queue.poll();
+        musicData.onTrackEnd(track, nextTrack);
         // If nextTrack is null -> end of playlist
         if (nextTrack == null) {
             playerMessage.endUpdateTask();
             playerMessage.update();
             startNewDisconnectionTask();
-        } else {
-            startTrack(nextTrack, false);
+            return;
         }
+        startTrack(nextTrack, false);
     }
 
     @Override
