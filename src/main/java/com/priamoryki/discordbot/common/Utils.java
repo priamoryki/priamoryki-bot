@@ -138,16 +138,22 @@ public final class Utils {
                 .setContexts(InteractionContextType.GUILD);
     }
 
+    public static boolean tacksEquals(AudioTrack track1, AudioTrack track2) {
+        return track1 != null && track2 != null
+                && track1.getUserData(CustomUserData.class).equals(track2.getUserData(CustomUserData.class));
+    }
+
     public static String audioTrackToString(AudioTrack track) {
         CustomUserData userData = track.getUserData(CustomUserData.class);
         User skippedBy = userData.getSkippedBy();
         return String.format(
-                "`%s` *by* ***%s*** [`%s`] ([link](<%s>))%s",
+                "`%s` *by* ***%s*** [`%s`] ([link](<%s>))%s%s",
                 track.getInfo().title,
                 userData.getQueuedBy().getName(),
                 Utils.normalizeTime(track.getDuration()),
                 track.getInfo().uri,
-                skippedBy != null ? String.format(" *skipped by %s*", skippedBy.getName()) : ""
+                skippedBy != null ? String.format(" *skipped by %s*", skippedBy.getName()) : "",
+                userData.getTimesPlayed() > 1 ? String.format(" (%d times played)", userData.getTimesPlayed()) : ""
         );
     }
 }

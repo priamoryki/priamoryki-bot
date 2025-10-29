@@ -270,22 +270,18 @@ public class GuildMusicManager extends AudioEventAdapter {
     }
 
     @Override
-    public void onTrackStart(AudioPlayer player, AudioTrack track) {
-        musicData.onTrackStart(track);
-    }
-
-    @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
         var queue = musicData.getQueue();
         AudioTrack nextTrack = musicData.getRepeat() ? track.makeClone() : queue.poll();
+        musicData.onTrackEnd(track, nextTrack);
         // If nextTrack is null -> end of playlist
         if (nextTrack == null) {
             playerMessage.endUpdateTask();
             playerMessage.update();
             startNewDisconnectionTask();
-        } else {
-            startTrack(nextTrack, false);
+            return;
         }
+        startTrack(nextTrack, false);
     }
 
     @Override

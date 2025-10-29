@@ -1,6 +1,8 @@
 package com.priamoryki.discordbot.api.audio;
 
 import com.github.natanbc.lavadsp.timescale.TimescalePcmAudioFilter;
+import com.priamoryki.discordbot.api.audio.customsources.CustomUserData;
+import com.priamoryki.discordbot.common.Utils;
 import com.sedmelluq.discord.lavaplayer.filter.AudioFilter;
 import com.sedmelluq.discord.lavaplayer.filter.equalizer.Equalizer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
@@ -125,8 +127,12 @@ public class GuildMusicData {
         this.cycleEnd = cycleEnd;
     }
 
-    public void onTrackStart(AudioTrack track) {
-        history.addFirst(track);
+    public void onTrackEnd(AudioTrack track, AudioTrack nextTrack) {
+        if (Utils.tacksEquals(track, nextTrack)) {
+            track.getUserData(CustomUserData.class).increaseTimesPlayed();
+        } else {
+            history.addFirst(track);
+        }
     }
 
     public void setDefaults() {
