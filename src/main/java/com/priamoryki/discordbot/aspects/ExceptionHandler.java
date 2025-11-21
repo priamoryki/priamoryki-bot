@@ -1,4 +1,4 @@
-package com.priamoryki.discordbot;
+package com.priamoryki.discordbot.aspects;
 
 import com.priamoryki.discordbot.api.common.ExceptionNotifier;
 import org.aspectj.lang.annotation.AfterThrowing;
