@@ -3,6 +3,7 @@ package com.priamoryki.discordbot.commands;
 import com.priamoryki.discordbot.api.common.ExceptionNotifier;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.exceptions.PermissionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -104,7 +105,7 @@ public class CommandsStorage {
             }
             command.executeWithPermissions(guild, member, args);
             onSuccessfulExecution.run();
-        } catch (CommandException e) {
+        } catch (CommandException | PermissionException e) {
             logger.debug(e.getMessage());
             onCommandException.accept(e);
         } catch (Exception e) {
