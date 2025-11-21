@@ -7,7 +7,7 @@ COPY pom.xml .
 
 RUN mvn -f pom.xml clean package
 
-FROM openjdk:21-jdk-slim
+FROM eclipse-temurin:21
 
 WORKDIR /usr/bin/priamoryki-bot
 
