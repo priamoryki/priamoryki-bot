@@ -58,9 +58,10 @@ public class CommandsStorage {
     public void executeCommand(String name, Guild guild, Member member, List<String> args) {
         try {
             Command command = getCommand(name);
+            logger.info("Executing command without permissions: {} ({})", name, args);
             command.execute(guild, member, args);
-        } catch (CommandException e) {
-            logger.debug(e.getMessage());
+        } catch (CommandException | PermissionException e) {
+            logger.info("Command exception: {}", e.getMessage());
         } catch (Exception e) {
             logger.error("Error on command execution", e);
             exceptionNotifier.notify(e);
@@ -103,10 +104,11 @@ public class CommandsStorage {
             if (command == null || checkAvailability && !command.isAvailableFromChat()) {
                 throw new CommandException("Can't find such command!");
             }
+            logger.info("Executing command with permissions: {} ({})", name, args);
             command.executeWithPermissions(guild, member, args);
             onSuccessfulExecution.run();
         } catch (CommandException | PermissionException e) {
-            logger.debug(e.getMessage());
+            logger.info("Command exception: {}", e.getMessage());
             onCommandException.accept(e);
         } catch (Exception e) {
             logger.error("Error on command execution", e);

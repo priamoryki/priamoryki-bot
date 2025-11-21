@@ -41,7 +41,7 @@ import static com.sedmelluq.discord.lavaplayer.track.TrackMarkerHandler.MarkerSt
 @Component
 @Scope("prototype")
 public class GuildMusicManager extends AudioEventAdapter {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger logger;
     private final GuildAttributesService guildAttributesService;
     private final MusicFinder musicFinder;
     private final ExceptionNotifier exceptionNotifier;
@@ -60,12 +60,13 @@ public class GuildMusicManager extends AudioEventAdapter {
             Guild guild
     ) {
         AudioPlayer player = audioPlayerManager.createPlayer();
+        this.logger = LoggerFactory.getLogger(getClass() + "[" + guild.getId() + "]");
         this.guildAttributesService = guildAttributesService;
         this.musicFinder = musicFinder;
         this.exceptionNotifier = exceptionNotifier;
         this.guild = guild;
         this.musicData = new GuildMusicData(guild, player);
-        this.playerMessage = new PlayerMessage(this, musicData, guildAttributesService);
+        this.playerMessage = new PlayerMessage(musicData, guildAttributesService);
         this.queueMessage = new QueueMessage(musicData, guildAttributesService);
         this.historyMessage = new HistoryMessage(musicData, guildAttributesService);
 
@@ -99,6 +100,7 @@ public class GuildMusicManager extends AudioEventAdapter {
     }
 
     private void startNewDisconnectionTask() {
+        logger.info("Starting new disconnection task");
         long period = 5 * 60_000L;
         if (timer != null) {
             timer.cancel();
@@ -111,11 +113,13 @@ public class GuildMusicManager extends AudioEventAdapter {
                     return;
                 }
                 leave(guild.getSelfMember());
+                timer.cancel();
             }
         }, period, period);
     }
 
     public void join(Member member) throws CommandException {
+        logger.info("Joining voice channel");
         GuildVoiceState voiceState = member.getVoiceState();
         GuildVoiceState selfVoiceState = guild.getSelfMember().getVoiceState();
         if (voiceState == null || !voiceState.inAudioChannel()) {
@@ -126,12 +130,14 @@ public class GuildMusicManager extends AudioEventAdapter {
     }
 
     public void leave(Member member) {
+        logger.info("Leaving voice channel");
         // Clears queue and stops playing
         clearQueue(member);
         guild.getAudioManager().closeAudioConnection();
     }
 
     public void play(SongRequest songRequest) throws CommandException {
+        logger.info("Playing song request: {}", songRequest);
         var result = musicFinder.find(songRequest);
         List<AudioTrack> playlist = result.loadedTracks();
         List<Exception> exceptions = result.exceptions();
@@ -143,6 +149,7 @@ public class GuildMusicManager extends AudioEventAdapter {
     }
 
     public void playNext(SongRequest songRequest) throws CommandException {
+        logger.info("Playing next song request: {}", songRequest);
         var result = musicFinder.find(songRequest);
         List<AudioTrack> playlist = result.loadedTracks();
         List<Exception> exceptions = result.exceptions();
@@ -154,18 +161,22 @@ public class GuildMusicManager extends AudioEventAdapter {
     }
 
     public void resume() {
+        logger.info("Resume playing");
         musicData.getPlayer().setPaused(false);
     }
 
     public void pause() {
+        logger.info("Pause playing");
         musicData.getPlayer().setPaused(true);
     }
 
     public void stop() {
+        logger.info("Stop playing");
         musicData.getPlayer().stopTrack();
     }
 
     public void skip(User user) {
+        logger.info("Skipping track");
         if (!musicData.isPlaying()) {
             return;
         }
@@ -270,7 +281,15 @@ public class GuildMusicManager extends AudioEventAdapter {
     }
 
     @Override
+    public void onTrackStart(AudioPlayer player, AudioTrack track) {
+        logger.info("Starting track: {}", track.getInfo().title);
+        logState();
+    }
+
+    @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
+        logger.info("Ending track: {}", track.getInfo().title);
+        logState();
         var queue = musicData.getQueue();
         AudioTrack nextTrack = musicData.getRepeat() ? track.makeClone() : queue.poll();
         musicData.onTrackEnd(track, nextTrack);
@@ -289,7 +308,11 @@ public class GuildMusicManager extends AudioEventAdapter {
         logger.error("Track Exception", e);
         MessageChannel channel = guildAttributesService.getOrCreateMainChannel(guild);
         channel.sendMessage("Error on track " + Utils.audioTrackToString(track) + " occurred: " + e.getMessage()).queue();
-        exceptionNotifier.notify(e);
         skip(null);
+        exceptionNotifier.notify(e);
+    }
+
+    private void logState() {
+        logger.info("Music data: {}", musicData);
     }
 }
