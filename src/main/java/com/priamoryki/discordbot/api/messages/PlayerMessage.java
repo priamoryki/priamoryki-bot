@@ -1,7 +1,6 @@
 package com.priamoryki.discordbot.api.messages;
 
 import com.priamoryki.discordbot.api.audio.GuildMusicData;
-import com.priamoryki.discordbot.api.audio.GuildMusicManager;
 import com.priamoryki.discordbot.api.audio.customsources.CustomUserData;
 import com.priamoryki.discordbot.api.common.GuildAttributesService;
 import com.priamoryki.discordbot.common.Utils;
@@ -29,15 +28,13 @@ public class PlayerMessage implements UsefulMessage {
     private static final int BLOCKS_NUMBER = 27;
     private static final long MINIMAL_UPDATE_PERIOD = 15_000;
     private static final long OPTIMAL_UPDATE_PERIOD = 30_000;
-    private final GuildMusicManager guildMusicManager;
     private final GuildMusicData guildMusicData;
     private final GuildAttributesService guildAttributesService;
     private Message message;
     private Timer timer;
     private long lastUpdateTime;
 
-    public PlayerMessage(GuildMusicManager guildMusicManager, GuildMusicData guildMusicData, GuildAttributesService guildAttributesService) {
-        this.guildMusicManager = guildMusicManager;
+    public PlayerMessage(GuildMusicData guildMusicData, GuildAttributesService guildAttributesService) {
         this.guildMusicData = guildMusicData;
         this.guildAttributesService = guildAttributesService;
         createNewMessage();
