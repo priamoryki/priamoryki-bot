@@ -1,7 +1,7 @@
 package com.priamoryki.discordbot.configs;
 
 import com.priamoryki.discordbot.common.sync.FileLoader;
-import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
+import org.springframework.boot.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
