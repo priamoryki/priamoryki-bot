@@ -13,6 +13,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Pavel Lymar
@@ -168,5 +169,18 @@ public class GuildMusicData {
 
             return filters;
         });
+    }
+
+    @Override
+    public String toString() {
+        return "GuildMusicParameters{" +
+                "queue=[" + queue.stream().map(AudioTrack::getInfo).map(i -> i.title).collect(Collectors.joining(",")) + "]" +
+                ", repeat=" + repeat +
+                ", bassBoost=" + bassBoost +
+                ", nightcore=" + nightcore +
+                ", cycleStart=" + cycleStart +
+                ", cycleEnd=" + cycleEnd +
+                ", speed=" + speed +
+                '}';
     }
 }
