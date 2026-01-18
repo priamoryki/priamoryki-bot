@@ -4,12 +4,13 @@ import com.priamoryki.discordbot.api.common.GuildAttributesService;
 import com.priamoryki.discordbot.api.database.entities.Playlist;
 import com.priamoryki.discordbot.api.database.entities.PlaylistSong;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.components.MessageTopLevelComponent;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.utils.messages.AbstractMessageBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
@@ -36,10 +37,12 @@ public class PlaylistMessage {
         this.user = user;
     }
 
-    private static List<Button> getButtons() {
+    private static List<MessageTopLevelComponent> getComponents() {
         return List.of(
-                Button.primary("PLAYLIST_PREVIOUS_PAGE", Emoji.fromUnicode("⏪")),
-                Button.primary("PLAYLIST_NEXT_PAGE", Emoji.fromUnicode("⏩"))
+                ActionRow.of(
+                        Button.primary("PLAYLIST_PREVIOUS_PAGE", Emoji.fromUnicode("⏪")),
+                        Button.primary("PLAYLIST_NEXT_PAGE", Emoji.fromUnicode("⏩"))
+                )
         );
     }
 
@@ -98,6 +101,6 @@ public class PlaylistMessage {
                 queue.size() / MAX_SONGS_NUMBER + 1
         ));
         builder.setTimestamp(Instant.now());
-        return messageBuilder.setEmbeds(builder.build()).setComponents(ActionRow.of(getButtons()));
+        return messageBuilder.setEmbeds(builder.build()).setComponents(getComponents());
     }
 }
