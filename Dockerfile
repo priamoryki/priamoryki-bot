@@ -11,7 +11,7 @@ FROM eclipse-temurin:21
 
 WORKDIR /usr/bin/priamoryki-bot
 
-COPY --from=build /usr/bin/priamoryki-bot/target/DiscordBot-1.1.jar /usr/bin/priamoryki-bot/DiscordBot.jar
+COPY --from=build /usr/bin/priamoryki-bot/target/DiscordBot-1.0.jar /usr/bin/priamoryki-bot/DiscordBot.jar
 COPY data data
 COPY sounds sounds
 EXPOSE 1080
