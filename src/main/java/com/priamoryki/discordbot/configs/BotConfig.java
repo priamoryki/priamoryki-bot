@@ -1,8 +1,11 @@
 package com.priamoryki.discordbot.configs;
 
 import com.priamoryki.discordbot.api.audio.MusicManager;
+import com.priamoryki.discordbot.api.audio.finder.MusicFinder;
 import com.priamoryki.discordbot.api.common.ExceptionNotifier;
 import com.priamoryki.discordbot.api.common.GuildAttributesService;
+import com.priamoryki.discordbot.api.playlist.PlaylistMessagesService;
+import com.priamoryki.discordbot.api.playlist.UserPlaylistEditor;
 import com.priamoryki.discordbot.commands.CommandsStorage;
 import com.priamoryki.discordbot.commands.chat.ClearAll;
 import com.priamoryki.discordbot.commands.music.Music;
@@ -28,6 +31,16 @@ import com.priamoryki.discordbot.commands.music.queue.QueueDelete;
 import com.priamoryki.discordbot.commands.music.queue.QueuePrint;
 import com.priamoryki.discordbot.commands.music.queue.QueueShuffle;
 import com.priamoryki.discordbot.commands.music.queue.SkipTo;
+import com.priamoryki.discordbot.commands.playlist.PlaylistAddSongs;
+import com.priamoryki.discordbot.commands.playlist.PlaylistCreate;
+import com.priamoryki.discordbot.commands.playlist.PlaylistDelete;
+import com.priamoryki.discordbot.commands.playlist.PlaylistDeleteSongs;
+import com.priamoryki.discordbot.commands.playlist.PlaylistEdit;
+import com.priamoryki.discordbot.commands.playlist.PlaylistGetAll;
+import com.priamoryki.discordbot.commands.playlist.PlaylistGetSongs;
+import com.priamoryki.discordbot.commands.playlist.PlaylistPlay;
+import com.priamoryki.discordbot.commands.playlist.buttons.PlaylistNextPage;
+import com.priamoryki.discordbot.commands.playlist.buttons.PlaylistPreviousPage;
 import com.priamoryki.discordbot.commands.sounds.Boobs;
 import com.priamoryki.discordbot.commands.sounds.GJ;
 import com.priamoryki.discordbot.commands.sounds.Kaguya;
@@ -54,7 +67,14 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class BotConfig {
     @Bean
-    public CommandsStorage commandsStorage(ExceptionNotifier exceptionNotifier, MusicManager musicManager, GuildAttributesService guildAttributesService) {
+    public CommandsStorage commandsStorage(
+            ExceptionNotifier exceptionNotifier,
+            MusicManager musicManager,
+            GuildAttributesService guildAttributesService,
+            UserPlaylistEditor userPlaylistEditor,
+            PlaylistMessagesService playlistMessagesService,
+            MusicFinder musicFinder
+    ) {
         return new CommandsStorage(
                 exceptionNotifier,
                 // Chat commands
@@ -101,7 +121,19 @@ public class BotConfig {
                 new Silence(musicManager),
                 new Titan(musicManager),
                 new Tuturu(musicManager),
-                new Wtf(musicManager)
+                new Wtf(musicManager),
+                // Playlist commands
+                new PlaylistAddSongs(userPlaylistEditor, musicFinder, guildAttributesService),
+                new PlaylistCreate(userPlaylistEditor),
+                new PlaylistDelete(userPlaylistEditor),
+                new PlaylistEdit(userPlaylistEditor),
+                new PlaylistGetAll(userPlaylistEditor, guildAttributesService),
+                new PlaylistPlay(musicManager, userPlaylistEditor),
+                new PlaylistDeleteSongs(userPlaylistEditor),
+                // Get playlist songs commands
+                new PlaylistGetSongs(userPlaylistEditor, playlistMessagesService),
+                new PlaylistPreviousPage(userPlaylistEditor, playlistMessagesService),
+                new PlaylistNextPage(userPlaylistEditor, playlistMessagesService)
         );
     }
 
