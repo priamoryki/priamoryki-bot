@@ -1,5 +1,6 @@
 package com.priamoryki.discordbot.configs;
 
+import club.minnced.discord.jdave.interop.JDaveSessionFactory;
 import com.priamoryki.discordbot.api.audio.MusicManager;
 import com.priamoryki.discordbot.api.common.ExceptionNotifier;
 import com.priamoryki.discordbot.api.common.GuildAttributesService;
@@ -43,6 +44,7 @@ import com.priamoryki.discordbot.commands.sounds.Tuturu;
 import com.priamoryki.discordbot.commands.sounds.Wtf;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.audio.AudioModuleConfig;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -109,6 +111,7 @@ public class BotConfig {
     public JDA jda(@Value("${TOKEN}") String token) {
         return JDABuilder.createDefault(token)
                 .enableIntents(GatewayIntent.MESSAGE_CONTENT)
+                .setAudioModuleConfig(new AudioModuleConfig().withDaveSessionFactory(new JDaveSessionFactory()))
                 .build();
     }
 }

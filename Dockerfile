@@ -1,4 +1,4 @@
-FROM maven:3.9.8-eclipse-temurin-21 AS build
+FROM maven:3.9.8-eclipse-temurin-25 AS build
 
 WORKDIR /usr/bin/priamoryki-bot
 
@@ -7,7 +7,7 @@ COPY pom.xml .
 
 RUN mvn -f pom.xml clean package
 
-FROM eclipse-temurin:21
+FROM eclipse-temurin:25
 
 WORKDIR /usr/bin/priamoryki-bot
 
