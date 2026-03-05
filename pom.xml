@@ -25,6 +25,7 @@
 
     <properties>
         <java.version>25</java.version>
+        <jdave.version>0.1.7</jdave.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -60,27 +61,27 @@
         <dependency>
             <groupId>club.minnced</groupId>
             <artifactId>jdave-api</artifactId>
-            <version>0.1.7</version>
+            <version>${jdave.version}</version>
         </dependency>
         <dependency>
             <groupId>club.minnced</groupId>
             <artifactId>jdave-native-linux-x86-64</artifactId>
-            <version>0.1.7</version>
+            <version>${jdave.version}</version>
         </dependency>
         <dependency>
             <groupId>club.minnced</groupId>
             <artifactId>jdave-native-linux-aarch64</artifactId>
-            <version>0.1.7</version>
+            <version>${jdave.version}</version>
         </dependency>
         <dependency>
             <groupId>club.minnced</groupId>
             <artifactId>jdave-native-win-x86-64</artifactId>
-            <version>0.1.7</version>
+            <version>${jdave.version}</version>
         </dependency>
         <dependency>
             <groupId>club.minnced</groupId>
             <artifactId>jdave-native-darwin</artifactId>
-            <version>0.1.7</version>
+            <version>${jdave.version}</version>
         </dependency>
 
         <dependency>
