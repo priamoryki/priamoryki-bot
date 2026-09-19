@@ -9,7 +9,12 @@ import com.sedmelluq.discord.lavaplayer.source.local.LocalAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.soundcloud.SoundCloudAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.twitch.TwitchStreamAudioSourceManager;
 import dev.lavalink.youtube.YoutubeAudioSourceManager;
+import dev.lavalink.youtube.YoutubeSourceOptions;
+import dev.lavalink.youtube.clients.AndroidVr;
+import dev.lavalink.youtube.clients.Music;
+import dev.lavalink.youtube.clients.Tv;
 import dev.lavalink.youtube.clients.Web;
+import dev.lavalink.youtube.clients.WebEmbedded;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,15 +25,23 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class MusicConfig {
     @Bean
-    public AudioPlayerManager getAudioPlayerManager(
-            @Value("${PO_TOKEN}") String poToken,
-            @Value("${VISITOR_DATA}") String visitorData
+    public YoutubeAudioSourceManager youtubeAudioSourceManager(
+            @Value("${YT_CIPHER_URL:}") String cipherUrl,
+            @Value("${YT_CIPHER_TOKEN:}") String cipherToken
     ) {
-        Web.setPoTokenAndVisitorData(poToken, visitorData);
+        YoutubeSourceOptions options = new YoutubeSourceOptions();
+        if (!cipherUrl.isBlank()) {
+            options.setRemoteCipher(cipherUrl, cipherToken.isBlank() ? null : cipherToken, null);
+        }
 
+        return new YoutubeAudioSourceManager(options, new Music(), new Tv(), new AndroidVr(), new Web(), new WebEmbedded());
+    }
+
+    @Bean
+    public AudioPlayerManager getAudioPlayerManager(YoutubeAudioSourceManager youtubeAudioSourceManager) {
         AudioPlayerManager audioPlayerManager = new DefaultAudioPlayerManager();
         audioPlayerManager.registerSourceManager(new LocalAudioSourceManager());
-        audioPlayerManager.registerSourceManager(new YoutubeAudioSourceManager());
+        audioPlayerManager.registerSourceManager(youtubeAudioSourceManager);
         audioPlayerManager.registerSourceManager(new TwitchStreamAudioSourceManager());
         audioPlayerManager.registerSourceManager(SoundCloudAudioSourceManager.createDefault());
         audioPlayerManager.registerSourceManager(new TikTokAudioSourceManager());

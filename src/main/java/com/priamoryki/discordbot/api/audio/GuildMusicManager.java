@@ -19,6 +19,7 @@ import com.sedmelluq.discord.lavaplayer.track.TrackMarker;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import org.slf4j.Logger;
@@ -307,7 +308,12 @@ public class GuildMusicManager extends AudioEventAdapter {
     public void onTrackException(AudioPlayer player, AudioTrack track, FriendlyException e) {
         logger.error("Track Exception", e);
         MessageChannel channel = guildAttributesService.getOrCreateMainChannel(guild);
-        channel.sendMessage("Error on track " + Utils.audioTrackToString(track) + " occurred: " + e.getMessage()).queue();
+        channel.sendMessage(
+                Utils.truncate(
+                        "Error on track " + Utils.audioTrackToString(track) + " occurred: " + e.getMessage(),
+                        Message.MAX_CONTENT_LENGTH
+                )
+        ).queue();
         skip(null);
         exceptionNotifier.notify(e);
     }
