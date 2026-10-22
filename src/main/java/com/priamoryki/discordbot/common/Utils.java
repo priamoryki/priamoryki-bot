@@ -32,7 +32,7 @@ public final class Utils {
         try {
             URI.create(url).toURL();
             return true;
-        } catch (Exception e) {
+        } catch (Exception ignored) {
             return false;
         }
     }
@@ -141,6 +141,10 @@ public final class Utils {
     public static boolean tacksEquals(AudioTrack track1, AudioTrack track2) {
         return track1 != null && track2 != null
                 && track1.getUserData(CustomUserData.class).equals(track2.getUserData(CustomUserData.class));
+    }
+
+    public static String truncate(String s, int maxLength) {
+        return s.length() <= maxLength ? s : s.substring(0, maxLength - 3) + "...";
     }
 
     public static String audioTrackToString(AudioTrack track) {

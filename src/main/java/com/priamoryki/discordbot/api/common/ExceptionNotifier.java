@@ -1,5 +1,6 @@
 package com.priamoryki.discordbot.api.common;
 
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.utils.FileUpload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,9 +31,10 @@ public class ExceptionNotifier {
                 e.printStackTrace(pw);
             }
 
-            data.getBotAuthor().openPrivateChannel().queue(
-                    channel -> channel.sendMessage("Exception occurred!").addFiles(FileUpload.fromData(file)).queue()
-            );
+            data.retrieveBotAuthor()
+                    .flatMap(User::openPrivateChannel)
+                    .flatMap(channel -> channel.sendMessage("Exception occurred!").addFiles(FileUpload.fromData(file)))
+                    .queue(null, ex -> logger.error("Can't send exception notification: {}", ex.getMessage(), ex));
         } catch (Exception ex) {
             logger.error("Can't send exception notification: {}", ex.getMessage(), ex);
         }

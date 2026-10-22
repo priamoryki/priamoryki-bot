@@ -93,7 +93,7 @@
         <dependency>
 	    <groupId>dev.lavalink.youtube</groupId>
             <artifactId>common</artifactId>
-            <version>1.18.2</version>
+            <version>2be8e542d3f6f178e048dca565892684c2e40177-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -161,6 +161,9 @@
         <repository>
             <id>arbjergDev-snapshots</id>
             <url>https://maven.lavalink.dev/snapshots</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
         </repository>
     </repositories>
 </project>

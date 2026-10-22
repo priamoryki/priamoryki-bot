@@ -8,6 +8,7 @@ import com.priamoryki.discordbot.common.Utils;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.requests.RestAction;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -52,8 +53,12 @@ public class BotData {
         return botAuthorIds;
     }
 
-    public User getBotAuthor() {
-        return bot.getUserById(botAuthorIds.getFirst());
+    public RestAction<User> retrieveBotAuthor() {
+        return bot.retrieveUserById(botAuthorIds.getFirst());
+    }
+
+    public void awaitReady() throws InterruptedException {
+        bot.awaitReady();
     }
 
     public boolean isBot(User user) {
